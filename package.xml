@@ -7,8 +7,9 @@
   <maintainer email="ryuichiueda@gmail.com">ueda</maintainer>
   <license>BSD 3-Clause</license>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
+  <test_depend>ament_cmake_ros</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 

@@ -7,9 +7,9 @@
 #include <utility>
 #include <vector>
 
-#include "emcl/Pose.h"
-#include "emcl/Scan.h"
-#include "nav_msgs/OccupancyGrid.h"
+#include "emcl2_ros2/Pose.h"
+#include "emcl2_ros2/Scan.h"
+#include "nav_msgs/msg/occupancy_grid.hpp"
 
 namespace emcl2
 {

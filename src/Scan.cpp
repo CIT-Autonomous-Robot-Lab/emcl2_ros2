@@ -1,7 +1,7 @@
 //SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
 //SPDX-License-Identifier: BSD-3-Clause
 
-#include "emcl/Scan.h"
+#include "emcl2_ros2/Scan.h"
 
 #include <cmath>
 

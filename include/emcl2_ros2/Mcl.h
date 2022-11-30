@@ -8,11 +8,11 @@
 #include <sstream>
 #include <vector>
 
-#include "emcl/LikelihoodFieldMap.h"
-#include "emcl/OdomModel.h"
-#include "emcl/Particle.h"
-#include "nav_msgs/OccupancyGrid.h"
-#include "sensor_msgs/LaserScan.h"
+#include "emcl2_ros2/LikelihoodFieldMap.h"
+#include "emcl2_ros2/OdomModel.h"
+#include "emcl2_ros2/Particle.h"
+#include "nav_msgs/msg/occupancy_grid.hpp"
+#include "sensor_msgs/msg/laser_scan.hpp"
 
 namespace emcl2
 {
