@@ -4,7 +4,7 @@
 #ifndef EXP_PF2_H__
 #define EXP_PF2_H__
 
-#include "emcl2_ros2/Mcl.h"
+#include "emcl2_ros2/Mcl.hpp"
 
 namespace emcl2
 {

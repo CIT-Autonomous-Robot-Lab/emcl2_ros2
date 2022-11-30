@@ -8,9 +8,9 @@
 #include <sstream>
 #include <vector>
 
-#include "emcl2_ros2/LikelihoodFieldMap.h"
-#include "emcl2_ros2/OdomModel.h"
-#include "emcl2_ros2/Particle.h"
+#include "emcl2_ros2/LikelihoodFieldMap.hpp"
+#include "emcl2_ros2/OdomModel.hpp"
+#include "emcl2_ros2/Particle.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
 

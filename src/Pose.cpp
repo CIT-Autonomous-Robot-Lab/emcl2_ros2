@@ -1,7 +1,7 @@
 //SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
 //SPDX-License-Identifier: BSD-3-Clause
 
-#include "emcl2_ros2/Pose.h"
+#include "emcl2_ros2/Pose.hpp"
 
 #include <cmath>
 #include <sstream>

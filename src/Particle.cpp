@@ -1,11 +1,11 @@
 //SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
 //SPDX-License-Identifier: BSD-3-Clause
 
-#include "emcl2_ros2/Particle.h"
+#include "emcl2_ros2/Particle.hpp"
 
 #include <cmath>
 
-#include "emcl2_ros2/Mcl.h"
+#include "emcl2_ros2/Mcl.hpp"
 
 namespace emcl2
 {

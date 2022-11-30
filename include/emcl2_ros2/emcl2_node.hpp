@@ -10,7 +10,7 @@
 #include <memory>
 #include <utility>
 
-#include "emcl2_ros2/ExpResetMcl2.h"
+#include "emcl2_ros2/ExpResetMcl2.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 /* came from amcl (LGPL). But these lines will be the same even if anyone creates. 

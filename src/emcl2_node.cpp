@@ -2,9 +2,9 @@
 //SPDX-License-Identifier: BSD-3-Clause
 //CAUTION: Some lines came from amcl (LGPL). These lines are commented out now.
 
-#include "emcl2_ros2/emcl2_node.h"
+#include "emcl2_ros2/emcl2_node.hpp"
 
-#include "emcl2_ros2/Pose.h"
+#include "emcl2_ros2/Pose.hpp"
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "nav_msgs/srv/get_map.hpp"
 #include "std_msgs/msg/float32.hpp"

@@ -4,8 +4,8 @@
 #ifndef PARTICLE_H__
 #define PARTICLE_H__
 
-#include "emcl2_ros2/LikelihoodFieldMap.h"
-#include "emcl2_ros2/Pose.h"
+#include "emcl2_ros2/LikelihoodFieldMap.hpp"
+#include "emcl2_ros2/Pose.hpp"
 
 namespace emcl2
 {

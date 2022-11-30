@@ -1,14 +1,14 @@
 //SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
 //SPDX-License-Identifier: BSD-3-Clause
 
-#include "emcl2_ros2/ExpResetMcl2.h"
+#include "emcl2_ros2/ExpResetMcl2.hpp"
 
 #include <stdlib.h>
 
 #include <cmath>
 #include <iostream>
 
-#include "emcl2_ros2/Pose.h"
+#include "emcl2_ros2/Pose.hpp"
 
 namespace emcl2
 {
