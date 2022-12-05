@@ -13,7 +13,8 @@
 namespace emcl2
 {
 
-EMcl2Node::EMcl2Node() : private_nh_("~")
+EMcl2Node::EMcl2Node(const std::string & node_name, const rclcpp::NodeOptions & node_options)
+: rclcpp::Node(node_name, node_options)
 {
   initCommunication();
   initPF();

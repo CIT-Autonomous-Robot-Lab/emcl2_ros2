@@ -25,10 +25,10 @@
 
 namespace emcl2
 {
-class EMcl2Node
+class EMcl2Node : public rclcpp::Node
 {
 public:
-  EMcl2Node();
+  explicit EMcl2Node(const std::string & node_name, const rclcpp::NodeOptions & options);
   ~EMcl2Node();
 
   void loop(void);
