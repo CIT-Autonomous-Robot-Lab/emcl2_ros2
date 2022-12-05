@@ -314,12 +314,12 @@ bool EMcl2Node::cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::R
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  auto node = rclcpp::Node::make_shared("mcl_node");
-  emcl2::EMcl2Node emcl2_node;
+  rclcpp::NodeOptions node_options;
+  auto node = std::make_shared<emcl2::EMcl2Node>("emcl2_node", node_options);
 
-  rclcpp::WallRate loop_rate(emcl2_node.getOdomFreq());
+  rclcpp::WallRate loop_rate(node->getOdomFreq());
   while (rclcpp::ok()) {
-    emcl2_node.loop();
+    node->loop();
     rclcpp::spin_some(node);
     loop_rate.sleep();
   }
