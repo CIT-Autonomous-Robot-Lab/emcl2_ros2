@@ -5,6 +5,7 @@
   <version>0.0.0</version>
   <description>emcl2 (for ROS2)</description>
   <maintainer email="ryuichiueda@gmail.com">ueda</maintainer>
+  <maintainer email="s18C1008UJ@s.chibakoudai.jp">Tatsuhiro Ikebe</maintainer>
   <license>BSD 3-Clause</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
