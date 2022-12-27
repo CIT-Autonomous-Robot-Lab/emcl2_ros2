@@ -14,6 +14,8 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 
+include_directories(include)
+
 add_executable(emcl2_node src/emcl2_node.cpp)
 ament_target_dependencies(emcl2_node rclcpp std_msgs)
 
