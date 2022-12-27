@@ -37,3 +37,8 @@ ament_auto_add_executable(${PROJECT_NAME}
 #  src/Scan.cpp
   src/emcl2_node.cpp
 )
+
+install(TARGETS
+  emcl2_node
+  DESTINATION lib/${PROJECT_NAME}
+)
