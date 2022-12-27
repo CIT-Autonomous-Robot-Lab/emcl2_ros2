@@ -19,10 +19,10 @@ using namespace std::chrono_literals;
 
 namespace emcl2 {
 
-class MinimalPublisher : public rclcpp::Node
+class EMcl2Node : public rclcpp::Node
 {
   public:
-	MinimalPublisher();
+	EMcl2Node();
 
   private:
 	void timer_callback();
