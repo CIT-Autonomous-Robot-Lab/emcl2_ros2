@@ -4,7 +4,7 @@
 
 #include "emcl2_ros2/emcl2_node.hpp"
 
-#include "emcl2_ros2/Pose.hpp"
+//#include "emcl2_ros2/Pose.hpp"
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "nav_msgs/srv/get_map.hpp"
 #include "std_msgs/msg/float32.hpp"
@@ -13,6 +13,7 @@
 namespace emcl2
 {
 
+	/*
 EMcl2Node::EMcl2Node(const std::string & node_name, const rclcpp::NodeOptions & node_options)
 : rclcpp::Node(node_name, node_options)
 {
@@ -24,9 +25,11 @@ EMcl2Node::EMcl2Node(const std::string & node_name, const rclcpp::NodeOptions & 
   init_request_ = false;
   simple_reset_request_ = false;
 }
+*/
 
 EMcl2Node::~EMcl2Node() {}
 
+/*
 void EMcl2Node::initCommunication(void)
 {
   particlecloud_pub_ = nh_.advertise<geometry_msgs::PoseArray>("particlecloud", 2, true);
@@ -150,11 +153,12 @@ void EMcl2Node::loop(void)
     return;
   }
 
+  */
   /*
 	struct timespec ts_start, ts_end;
 	clock_gettime(CLOCK_REALTIME, &ts_start);
 	*/
-  pf_->sensorUpdate(lx, ly, lt, inv);
+ // pf_->sensorUpdate(lx, ly, lt, inv);
   /*
 	clock_gettime(CLOCK_REALTIME, &ts_end);
 	struct tm tm;
@@ -164,6 +168,7 @@ void EMcl2Node::loop(void)
 	printf("END: %02d.%09ld\n", tm.tm_sec, ts_end.tv_nsec);
 	*/
 
+	  /*
   double x_var, y_var, t_var, xy_cov, yt_cov, tx_cov;
   pf_->meanPose(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
 
@@ -253,6 +258,7 @@ void EMcl2Node::publishParticles(void)
   }
   particlecloud_pub_.publish(cloud_msg);
 }
+*/
 
 /* came from amcl. This function must be rewritten 
 bool EMcl2Node::getOdomPose(double& x, double& y, double& yaw)
@@ -292,27 +298,32 @@ bool EMcl2Node::getLidarPose(double & x, double & y, double & yaw, bool & inv)
 		return false;
 	}
 	*/
+	/*
   x = lidar_pose.pose.position.x;
   y = lidar_pose.pose.position.y;
 
   double roll, pitch;
   tf2::getEulerYPR(lidar_pose.pose.orientation, yaw, pitch, roll);
   inv = (fabs(pitch) > M_PI / 2 || fabs(roll) > M_PI / 2) ? true : false;
+  */
 
   return true;
 }
 
+/*
 int EMcl2Node::getOdomFreq(void) { return odom_freq_; }
 
 bool EMcl2Node::cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res)
 {
   return simple_reset_request_ = true;
 }
+*/
 
 }  // namespace emcl2
 
 int main(int argc, char ** argv)
 {
+  /*
   rclcpp::init(argc, argv);
   rclcpp::NodeOptions node_options;
   auto node = std::make_shared<emcl2::EMcl2Node>("emcl2_node", node_options);
@@ -326,5 +337,6 @@ int main(int argc, char ** argv)
 
   rclcpp::shutdown();
 
+  */
   return 0;
 }
