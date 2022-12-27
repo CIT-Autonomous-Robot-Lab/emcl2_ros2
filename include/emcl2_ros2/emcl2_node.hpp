@@ -25,12 +25,11 @@
 
 namespace emcl2
 {
+
 class EMcl2Node : public rclcpp::Node
 {
-	/*
 public:
   explicit EMcl2Node(const std::string & node_name, const rclcpp::NodeOptions & options);
-  */
   ~EMcl2Node();
   /*
 
@@ -39,10 +38,11 @@ public:
 
   */
 private:
+//    ros2::NodeHandle pnh_;
+
   //std::shared_ptr<ExpResetMcl2> pf_;
   /* came from amcl. 
 	ros::NodeHandle nh_;
-	ros::NodeHandle private_nh_;
 
 	ros::Publisher particlecloud_pub_; 
 	ros::Publisher pose_pub_;
@@ -85,7 +85,7 @@ private:
   void publishParticles(void);
   void sendTf(void);
   bool getOdomPose(double & x, double & y, double & yaw);  //same name is found in amcl
-  bool getLidarPose(double & x, double & y, double & yaw, bool & inv);
+  //bool getLidarPose(double & x, double & y, double & yaw, bool & inv);
 
   void initCommunication(void);
   void initPF(void);

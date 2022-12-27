@@ -14,25 +14,23 @@
 namespace emcl2
 {
 
-	/*
 EMcl2Node::EMcl2Node(const std::string & node_name, const rclcpp::NodeOptions & node_options)
 : rclcpp::Node(node_name, node_options)
 {
   initCommunication();
   initPF();
 
-  private_nh_.param("odom_freq", odom_freq_, 20);
+//  pnh_.param("odom_freq", odom_freq_, 20);
 
   init_request_ = false;
   simple_reset_request_ = false;
 }
-*/
 
 EMcl2Node::~EMcl2Node() {}
 
-/*
 void EMcl2Node::initCommunication(void)
 {
+/*
   particlecloud_pub_ = nh_.advertise<geometry_msgs::PoseArray>("particlecloud", 2, true);
   pose_pub_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>("mcl_pose", 2, true);
   alpha_pub_ = nh_.advertise<std_msgs::Float32>("alpha", 2, true);
@@ -49,10 +47,12 @@ void EMcl2Node::initCommunication(void)
   tfb_.reset(new tf2_ros::TransformBroadcaster());
   tf_.reset(new tf2_ros::Buffer());
   tfl_.reset(new tf2_ros::TransformListener(*tf_));
+  */
 }
 
 void EMcl2Node::initPF(void)
 {
+	/*
   std::shared_ptr<LikelihoodFieldMap> map = std::move(initMap());
   std::shared_ptr<OdomModel> om = std::move(initOdometry());
 
@@ -83,8 +83,10 @@ void EMcl2Node::initPF(void)
   pf_.reset(new ExpResetMcl2(
     init_pose, num_particles, scan, om, map, alpha_th, ex_rad_pos, ex_rad_ori, extraction_rate,
     range_threshold, sensor_reset));
+    */
 }
 
+/*
 std::shared_ptr<OdomModel> EMcl2Node::initOdometry(void)
 {
   double ff, fr, rf, rr;
@@ -283,8 +285,8 @@ bool EMcl2Node::getOdomPose(double& x, double& y, double& yaw)
 	return true;
 }*/
 
-bool EMcl2Node::getLidarPose(double & x, double & y, double & yaw, bool & inv)
-{
+//bool EMcl2Node::getLidarPose(double & x, double & y, double & yaw, bool & inv)
+//{
   /* This part came from amcl 
 	geometry_msgs::PoseStamped ident;
 	ident.header.frame_id = scan_frame_id_;
@@ -308,8 +310,8 @@ bool EMcl2Node::getLidarPose(double & x, double & y, double & yaw, bool & inv)
   inv = (fabs(pitch) > M_PI / 2 || fabs(roll) > M_PI / 2) ? true : false;
   */
 
-  return true;
-}
+ // return true;
+//}
 
 /*
 int EMcl2Node::getOdomFreq(void) { return odom_freq_; }
@@ -324,20 +326,20 @@ bool EMcl2Node::cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::R
 
 int main(int argc, char ** argv)
 {
-  /*
   rclcpp::init(argc, argv);
   rclcpp::NodeOptions node_options;
   auto node = std::make_shared<emcl2::EMcl2Node>("emcl2_node", node_options);
 
+  /*
   rclcpp::WallRate loop_rate(node->getOdomFreq());
   while (rclcpp::ok()) {
     node->loop();
+    */
     rclcpp::spin_some(node);
+    /*
     loop_rate.sleep();
-  }
+  }*/
 
   rclcpp::shutdown();
-
-  */
   return 0;
 }
