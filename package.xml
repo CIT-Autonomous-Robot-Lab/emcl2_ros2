@@ -4,13 +4,16 @@
   <name>emcl2_ros2</name>
   <version>0.0.0</version>
   <description>emcl2 (for ROS2)</description>
-  <maintainer email="ryuichiueda@gmail.com">ueda</maintainer>
+  <maintainer email="ryuichiueda@gmail.com">Ryuichi Ueda</maintainer>
   <license>BSD 3-Clause</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+
+  <depend>rclcpp</depend>
+  <depend>std_msgs</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
