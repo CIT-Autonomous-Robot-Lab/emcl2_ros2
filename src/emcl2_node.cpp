@@ -5,10 +5,11 @@
 #include "emcl2_ros2/emcl2_node.hpp"
 
 //#include "emcl2_ros2/Pose.hpp"
-#include "geometry_msgs/msg/pose_array.hpp"
+/*#include "geometry_msgs/msg/pose_array.hpp"
 #include "nav_msgs/srv/get_map.hpp"
 #include "std_msgs/msg/float32.hpp"
 #include "tf2/utils.h"
+*/
 
 namespace emcl2
 {

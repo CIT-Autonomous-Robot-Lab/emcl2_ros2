@@ -27,7 +27,7 @@ endif()
 
 include_directories(include)
 
-ament_auto_add_executable(${PROJECT_NAME}
+# ament_auto_add_executable(${PROJECT_NAME}
 #  src/ExpResetMcl2.cpp
 #  src/LikelihoodFieldMap.cpp
 #  src/Mcl.cpp
@@ -35,8 +35,11 @@ ament_auto_add_executable(${PROJECT_NAME}
 #  src/Particle.cpp
 #  src/Pose.cpp
 #  src/Scan.cpp
-  src/emcl2_node.cpp
-)
+#  src/emcl2_node.cpp
+#)
+
+add_executable(emcl2_node src/emcl2_node.cpp)
+ament_target_dependencies(emcl2_node rclcpp)
 
 install(TARGETS
   emcl2_node
