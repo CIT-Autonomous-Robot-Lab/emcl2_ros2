@@ -23,7 +23,7 @@
 // #include "std_srvs/msg/Empty.h"
 //#include "tf2/LinearMath/Transform.h"
 
-namespace emcl2
+namespace emcl2_ros2
 {
 
 class EMcl2Node : public rclcpp::Node

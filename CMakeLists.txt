@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(emcl2)
+project(emcl2_ros2)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
@@ -45,3 +45,5 @@ install(TARGETS
   emcl2_node
   DESTINATION lib/${PROJECT_NAME}
 )
+
+ament_package()

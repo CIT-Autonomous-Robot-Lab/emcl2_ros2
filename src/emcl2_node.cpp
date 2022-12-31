@@ -11,7 +11,7 @@
 #include "tf2/utils.h"
 */
 
-namespace emcl2
+namespace emcl2_ros2
 {
 
 EMcl2Node::EMcl2Node(const std::string & node_name, const rclcpp::NodeOptions & node_options)
@@ -335,7 +335,7 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   rclcpp::NodeOptions node_options;
-  auto node = std::make_shared<emcl2::EMcl2Node>("emcl2_node", node_options);
+  auto node = std::make_shared<emcl2_ros2::EMcl2Node>("emcl2_node", node_options);
 
   rclcpp::WallRate loop_rate(node->getOdomFreq());
   while (rclcpp::ok()) {
