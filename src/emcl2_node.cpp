@@ -17,10 +17,15 @@ namespace emcl2
 EMcl2Node::EMcl2Node(const std::string & node_name, const rclcpp::NodeOptions & node_options)
 : rclcpp::Node(node_name, node_options)
 {
-  initCommunication();
+//  pnh_ = rclcpp::Node::make_shared("emcl");
+    odom_freq_ = 10; //10[ms]
+    //declare_parameter("odom_freq", odom_freq_); //TODO: enable to change
+
+    initCommunication();
   initPF();
 
-//  pnh_.param("odom_freq", odom_freq_, 20);
+  //odom_freq_ = this->get_parameter("odom_freq").get_parameter_value().get<int>();
+  //pnh_.param("odom_freq", odom_freq_, 20);
 
   init_request_ = false;
   simple_reset_request_ = false;
@@ -132,8 +137,10 @@ void EMcl2Node::initialPoseReceived(const geometry_msgs::PoseWithCovarianceStamp
   init_t_ = tf2::getYaw(msg->pose.pose.orientation);
 }
 
+*/
 void EMcl2Node::loop(void)
 {
+	/*
   if (init_request_) {
     pf_->initialize(init_x_, init_y_, init_t_);
     init_request_ = false;
@@ -154,9 +161,9 @@ void EMcl2Node::loop(void)
   if (not getLidarPose(lx, ly, lt, inv)) {
     ROS_INFO("can't get lidar pose info");
     return;
+    */
   }
 
-  */
   /*
 	struct timespec ts_start, ts_end;
 	clock_gettime(CLOCK_REALTIME, &ts_start);
@@ -313,9 +320,9 @@ bool EMcl2Node::getOdomPose(double& x, double& y, double& yaw)
  // return true;
 //}
 
-/*
 int EMcl2Node::getOdomFreq(void) { return odom_freq_; }
 
+/*
 bool EMcl2Node::cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res)
 {
   return simple_reset_request_ = true;
@@ -330,15 +337,12 @@ int main(int argc, char ** argv)
   rclcpp::NodeOptions node_options;
   auto node = std::make_shared<emcl2::EMcl2Node>("emcl2_node", node_options);
 
-  /*
   rclcpp::WallRate loop_rate(node->getOdomFreq());
   while (rclcpp::ok()) {
     node->loop();
-    */
     rclcpp::spin_some(node);
-    /*
     loop_rate.sleep();
-  }*/
+  }
 
   rclcpp::shutdown();
   return 0;

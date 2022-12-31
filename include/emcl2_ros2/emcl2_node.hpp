@@ -29,17 +29,12 @@ namespace emcl2
 class EMcl2Node : public rclcpp::Node
 {
 public:
-  explicit EMcl2Node(const std::string & node_name, const rclcpp::NodeOptions & options);
-  ~EMcl2Node();
-  /*
+    explicit EMcl2Node(const std::string & node_name, const rclcpp::NodeOptions & options);
+    ~EMcl2Node();
+    void loop(void);
+    int getOdomFreq(void);
 
-  void loop(void);
-  int getOdomFreq(void);
-
-  */
 private:
-//    ros2::NodeHandle pnh_;
-
   //std::shared_ptr<ExpResetMcl2> pf_;
   /* came from amcl. 
 	ros::NodeHandle nh_;
@@ -73,22 +68,22 @@ private:
 	tf2::Transform latest_tf_;
 	*/
 
-  int odom_freq_;
-  bool init_request_;
-  bool simple_reset_request_;
-  double init_x_, init_y_, init_t_;
-
-  void publishPose(
-    double x, double y, double t, double x_dev, double y_dev, double t_dev, double xy_cov,
-    double yt_cov, double tx_cov);
-  void publishOdomFrame(double x, double y, double t);
-  void publishParticles(void);
-  void sendTf(void);
-  bool getOdomPose(double & x, double & y, double & yaw);  //same name is found in amcl
-  //bool getLidarPose(double & x, double & y, double & yaw, bool & inv);
-
-  void initCommunication(void);
-  void initPF(void);
+    int odom_freq_;
+    bool init_request_;
+    bool simple_reset_request_;
+    double init_x_, init_y_, init_t_;
+  
+    void publishPose(
+      double x, double y, double t, double x_dev, double y_dev, double t_dev, double xy_cov,
+      double yt_cov, double tx_cov);
+    void publishOdomFrame(double x, double y, double t);
+    void publishParticles(void);
+    void sendTf(void);
+    bool getOdomPose(double & x, double & y, double & yaw);  //same name is found in amcl
+    //bool getLidarPose(double & x, double & y, double & yaw, bool & inv);
+  
+    void initCommunication(void);
+    void initPF(void);
 //  std::shared_ptr<LikelihoodFieldMap> initMap(void);
 //  std::shared_ptr<OdomModel> initOdometry(void);
 
