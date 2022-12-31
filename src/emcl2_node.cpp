@@ -341,6 +341,7 @@ int main(int argc, char ** argv)
   while (rclcpp::ok()) {
     node->loop();
     rclcpp::spin_some(node);
+    RCLCPP_INFO(node->get_logger(), "main_loop\n");
     loop_rate.sleep();
   }
 
