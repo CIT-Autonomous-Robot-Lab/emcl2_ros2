@@ -9,8 +9,8 @@ jobs:
       - name: build
         run: | 
           rsync -av ./ /root/ros2_ws/src/emcl2_ros2/
+          source /opt/ros/humble/setup.bash
           cd /root/ros2_ws
           rosdep update
           rosdep install -i --from-path src --rosdistro humble -y 
           bash -vx ./src/emcl2_ros2/test/test.bash /root
-          source /opt/ros/humble/setup.bash
