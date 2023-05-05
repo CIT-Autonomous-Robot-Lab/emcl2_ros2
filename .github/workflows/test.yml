@@ -14,3 +14,4 @@ jobs:
           rosdep install -i --from-path src --rosdistro humble -y
           source /opt/ros/humble/setup.bash
           bash -vx ./src/emcl2_ros2/test/test.bash /root
+        shell: bash
