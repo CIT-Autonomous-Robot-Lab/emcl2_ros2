@@ -1,31 +1,34 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.8)
 project(emcl2)
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -O3 ${CMAKE_CXX_FLAGS}")
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-O3 -Wall -Wextra -Wpedantic)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  geometry_msgs
-  tf2
-  tf2_ros
+find_package(ament_cmake_auto REQUIRED)
+
+ament_auto_find_build_dependencies()
+
+# ament_auto_add_executable(emcl2_node
+#   src/Mcl.cpp
+#   src/ExpResetMcl2.cpp
+#   src/Particle.cpp
+#   src/OdomModel.cpp
+#   src/Pose.cpp
+#   src/Scan.cpp
+#   src/LikelihoodFieldMap.cpp
+#   src/emcl2_node.cpp
+# )
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  set(ament_cmake_copyright_FOUND TRUE)
+  set(ament_cmake_cpplint_FOUND TRUE)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
+ament_auto_package(
+  INSTALL_TO_SHARE
+  config
+  launch
 )
-
-catkin_package(
-)
-
-include_directories(include ${catkin_INCLUDE_DIRS} )
-
-add_library(Mcl_emcl2 src/Mcl.cpp)
-#add_library(ExpResetMcl_emcl2 src/ExpResetMcl.cpp)
-add_library(ExpResetMcl2_emcl2 src/ExpResetMcl2.cpp)
-add_library(Particle_emcl2 src/Particle.cpp)
-add_library(OdomModel_emcl2 src/OdomModel.cpp)
-add_library(Pose_emcl2 src/Pose.cpp)
-add_library(Scan_emcl2 src/Scan.cpp)
-add_library(LikelihoodFieldMap_emcl2 src/LikelihoodFieldMap.cpp)
-
-add_executable(emcl2_node src/emcl2_node.cpp)
-
-add_dependencies(emcl2_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-target_link_libraries(emcl2_node Mcl_emcl2 ExpResetMcl2_emcl2 Particle_emcl2 Pose_emcl2 Scan_emcl2 OdomModel_emcl2 LikelihoodFieldMap_emcl2 ${catkin_LIBRARIES})
