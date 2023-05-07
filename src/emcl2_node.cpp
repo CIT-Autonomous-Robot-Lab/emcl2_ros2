@@ -13,7 +13,8 @@
 namespace emcl2
 {
 
-EMcl2Node::EMcl2Node() : private_nh_("~")
+EMcl2Node::EMcl2Node()
+  : Node("mcl_node"), count_(0)
 {
   initCommunication();
   initPF();
@@ -136,18 +137,18 @@ void EMcl2Node::loop(void)
   }
 
   double x, y, t;
-  if (not getOdomPose(x, y, t)) {
+  // if (not getOdomPose(x, y, t)) {
     // ROS_INFO("can't get odometry info");
-    return;
-  }
+    // return;
+  // }
   // pf_->motionUpdate(x, y, t);
 
   double lx, ly, lt;
   bool inv;
-  if (not getLidarPose(lx, ly, lt, inv)) {
+  // if (not getLidarPose(lx, ly, lt, inv)) {
     // ROS_INFO("can't get lidar pose info");
-    return;
-  }
+    // return;
+  // }
 
   /*
 	struct timespec ts_start, ts_end;
@@ -312,17 +313,14 @@ int EMcl2Node::getOdomFreq(void) { return odom_freq_; }
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "mcl_node");
-  emcl2::EMcl2Node node;
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<emcl2::EMcl2Node>();
 
-  ros::Rate loop_rate(node.getOdomFreq());
-  while (ros::ok()) {
-    node.loop();
-    ros::spinOnce();
+  int odom_freq_ = 20; //"odom_freq"のパラメータが取得できるようになったら消してください
+  rclcpp::Rate loop_rate(odom_freq_);
+  while (rclcpp::ok()) {
+    rclcpp::spin_some(node);
     loop_rate.sleep();
   }
-
-  ros::spin();
-
   return 0;
 }

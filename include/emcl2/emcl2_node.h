@@ -18,11 +18,12 @@
 // #include "sensor_msgs/LaserScan.h"
 // #include "std_srvs/Empty.h"
 #include "tf2/LinearMath/Transform.h"
+#include "rclcpp/rclcpp.hpp"
 
 namespace emcl2
 {
 
-class EMcl2Node
+class EMcl2Node : public rclcpp::Node
 {
 public:
   EMcl2Node();
@@ -70,6 +71,8 @@ private:
   bool init_request_;
   bool simple_reset_request_;
   double init_x_, init_y_, init_t_;
+
+  size_t count_;
 
   void publishPose(
       double x, double y, double t, double x_dev, double y_dev, double t_dev, double xy_cov,
