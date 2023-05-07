@@ -315,8 +315,8 @@ int main(int argc, char ** argv)
 	rclcpp::init(argc, argv);
 	auto node = std::make_shared<emcl2::EMcl2Node>();
 
-	int odom_freq_ = 20;  //"odom_freq"のパラメータが取得できるようになったら消してください
-	rclcpp::Rate loop_rate(odom_freq_);
+	// rclcpp::Rate loop_rate(node->getOdomFreq()); //"odom_freq"のパラメータを取得できるようになったらコメントアウトを外してください
+	rclcpp::Rate loop_rate(20); //"odom_freq"のパラメータを取得できるようになったら消してください
 	while (rclcpp::ok()) {
 		rclcpp::spin_some(node);
 		loop_rate.sleep();
