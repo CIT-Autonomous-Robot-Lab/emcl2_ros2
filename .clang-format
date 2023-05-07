@@ -1,4 +1,3 @@
----
 Language: Cpp
 BasedOnStyle: Google
 
@@ -14,7 +13,8 @@ ColumnLimit: 100
 ConstructorInitializerIndentWidth: 0
 ContinuationIndentWidth: 2
 DerivePointerAlignment: false
-IndentWidth: 4
+UseTab: Always
+IndentWidth: 8
+TabWidth: 8
 PointerAlignment: Middle
 ReflowComments: false
-...
