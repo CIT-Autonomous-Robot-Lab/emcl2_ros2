@@ -5,18 +5,18 @@
 #ifndef INTERFACE_EMCL2_H__
 #define INTERFACE_EMCL2_H__
 
-#include <ros/ros.h>
+// #include <ros/ros.h>
 
-#include "emcl/ExpResetMcl2.h"
+// #include "emcl2/ExpResetMcl2.h"
 
 /* came from amcl (LGPL). But these lines will be the same even if anyone creates. 
 #include "tf2_ros/message_filter.h"
 #include "tf2_ros/transform_broadcaster.h"
 #include "tf2_ros/transform_listener.h"
 */
-#include "geometry_msgs/PoseWithCovarianceStamped.h"
-#include "sensor_msgs/LaserScan.h"
-#include "std_srvs/Empty.h"
+// #include "geometry_msgs/PoseWithCovarianceStamped.h"
+// #include "sensor_msgs/LaserScan.h"
+// #include "std_srvs/Empty.h"
 #include "tf2/LinearMath/Transform.h"
 
 namespace emcl2
@@ -32,7 +32,7 @@ public:
   int getOdomFreq(void);
 
 private:
-  std::shared_ptr<ExpResetMcl2> pf_;
+  // std::shared_ptr<ExpResetMcl2> pf_;
   /* came from amcl. 
 	ros::NodeHandle nh_;
 	ros::NodeHandle private_nh_;
@@ -40,7 +40,7 @@ private:
 	ros::Publisher particlecloud_pub_; 
 	ros::Publisher pose_pub_;
 	*/
-  ros::Publisher alpha_pub_;
+  // ros::Publisher alpha_pub_;
   /* came from amcl. 
 	ros::Subscriber laser_scan_sub_;
 	ros::Subscriber initial_pose_sub_;
@@ -48,7 +48,7 @@ private:
 	ros::ServiceServer global_loc_srv_;
 	*/
 
-  ros::Time scan_time_stamp_;
+  // ros::Time scan_time_stamp_;
 
   /* came from amcl. 
 	std::string footprint_frame_id_;
@@ -82,13 +82,13 @@ private:
 
   void initCommunication(void);
   void initPF(void);
-  std::shared_ptr<LikelihoodFieldMap> initMap(void);
-  std::shared_ptr<OdomModel> initOdometry(void);
+  // std::shared_ptr<LikelihoodFieldMap> initMap(void);
+  // std::shared_ptr<OdomModel> initOdometry(void);
 
-  void cbScan(const sensor_msgs::LaserScan::ConstPtr & msg);
-  bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
-  void initialPoseReceived(
-      const geometry_msgs::PoseWithCovarianceStampedConstPtr & msg);  //same name is found in amcl
+  // void cbScan(const sensor_msgs::LaserScan::ConstPtr & msg);
+  // bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
+  // void initialPoseReceived(
+  //     const geometry_msgs::PoseWithCovarianceStampedConstPtr & msg);  //same name is found in amcl
 };
 
 }  // namespace emcl2
