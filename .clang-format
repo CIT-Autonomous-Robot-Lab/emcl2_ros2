@@ -12,8 +12,9 @@ BraceWrapping:
 BreakBeforeBraces: Custom
 ColumnLimit: 100
 ConstructorInitializerIndentWidth: 0
-ContinuationIndentWidth: 4
+ContinuationIndentWidth: 2
 DerivePointerAlignment: false
+IndentWidth: 4
 PointerAlignment: Middle
 ReflowComments: false
 ...
