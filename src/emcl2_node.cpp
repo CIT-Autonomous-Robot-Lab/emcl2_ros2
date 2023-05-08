@@ -13,7 +13,7 @@
 namespace emcl2
 {
 
-EMcl2Node::EMcl2Node() : Node("mcl_node"), count_(0)
+EMcl2Node::EMcl2Node() : Node("mcl_node")
 {
 	initCommunication();
 	initPF();
@@ -314,10 +314,13 @@ int main(int argc, char ** argv)
 {
 	rclcpp::init(argc, argv);
 	auto node = std::make_shared<emcl2::EMcl2Node>();
+	//↓"odom_freq"のパラメータを取得できるようになったらコメントアウトを外してください
+	// rclcpp::Rate loop_rate(node->getOdomFreq());
 
-	// rclcpp::Rate loop_rate(node->getOdomFreq()); //"odom_freq"のパラメータを取得できるようになったらコメントアウトを外してください
-	rclcpp::Rate loop_rate(20); //"odom_freq"のパラメータを取得できるようになったら消してください
+	//↓"odom_freq"のパラメータを取得できるようになったら消してください
+	rclcpp::Rate loop_rate(20);
 	while (rclcpp::ok()) {
+		node->loop();
 		rclcpp::spin_some(node);
 		loop_rate.sleep();
 	}
