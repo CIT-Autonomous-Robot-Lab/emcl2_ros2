@@ -1,4 +1,3 @@
----
 Language: Cpp
 BasedOnStyle: Google
 
@@ -12,8 +11,10 @@ BraceWrapping:
 BreakBeforeBraces: Custom
 ColumnLimit: 100
 ConstructorInitializerIndentWidth: 0
-ContinuationIndentWidth: 4
+ContinuationIndentWidth: 2
 DerivePointerAlignment: false
+UseTab: Always
+IndentWidth: 8
+TabWidth: 8
 PointerAlignment: Middle
 ReflowComments: false
-...
