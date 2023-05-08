@@ -6,6 +6,9 @@ jobs:
     container: ryuichiueda/ubuntu22.04-ros2:latest
     steps:
       - uses: actions/checkout@v2
+      - name: apt update
+        run: |
+          sudo apt update -y
       - name: build
         run: | 
           rsync -av ./ /root/ros2_ws/src/emcl2_ros2/
