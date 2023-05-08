@@ -13,7 +13,7 @@
 namespace emcl2
 {
 
-EMcl2Node::EMcl2Node() : Node("mcl_node")
+EMcl2Node::EMcl2Node() : Node("emcl2_node")
 {
 	initCommunication();
 	initPF();
