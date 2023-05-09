@@ -14,9 +14,11 @@
 #include "tf2_ros/transform_broadcaster.h"
 #include "tf2_ros/transform_listener.h"
 */
-// #include "geometry_msgs/PoseWithCovarianceStamped.h"
-// #include "sensor_msgs/LaserScan.h"
-// #include "std_srvs/Empty.h"
+#include "geometry_msgs/msg/pose_array.hpp"
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "sensor_msgs/msg/laser_scan.hpp"
+#include "std_msgs/msg/float32.hpp"
+//#include "std_srvs/srv/empty.h"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2/LinearMath/Transform.h"
 
@@ -34,20 +36,22 @@ class EMcl2Node : public rclcpp::Node
 
       private:
 	// std::shared_ptr<ExpResetMcl2> pf_;
-	/* came from amcl. 
-	ros::NodeHandle nh_;
-	ros::NodeHandle private_nh_;
 
-	ros::Publisher particlecloud_pub_; 
-	ros::Publisher pose_pub_;
-	*/
-	// ros::Publisher alpha_pub_;
-	/* came from amcl. 
-	ros::Subscriber laser_scan_sub_;
-	ros::Subscriber initial_pose_sub_;
+	//ros::NodeHandle nh_;
+	//ros::NodeHandle private_nh_;
 
-	ros::ServiceServer global_loc_srv_;
-	*/
+	rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr particlecloud_pub_;
+
+	rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_pub_;
+
+	rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr alpha_pub_;
+
+	rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_sub_;
+
+	rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
+	  initial_pose_sub_;
+
+	//ros::ServiceServer global_loc_srv_;
 
 	// ros::Time scan_time_stamp_;
 
@@ -86,10 +90,10 @@ class EMcl2Node : public rclcpp::Node
 	// std::shared_ptr<LikelihoodFieldMap> initMap(void);
 	// std::shared_ptr<OdomModel> initOdometry(void);
 
-	// void cbScan(const sensor_msgs::LaserScan::ConstPtr & msg);
+	void cbScan(const sensor_msgs::msg::LaserScan::SharedPtr msg);
 	// bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
-	// void initialPoseReceived(
-	//     const geometry_msgs::PoseWithCovarianceStampedConstPtr & msg);  //same name is found in amcl
+	void initialPoseReceived(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr
+				   msg);  //same name is found in amcl
 };
 
 }  // namespace emcl2
