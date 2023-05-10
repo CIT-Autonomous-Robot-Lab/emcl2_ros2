@@ -41,13 +41,9 @@ class EMcl2Node : public rclcpp::Node
 	//ros::NodeHandle private_nh_;
 
 	rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr particlecloud_pub_;
-
 	rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_pub_;
-
 	rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr alpha_pub_;
-
 	rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_sub_;
-
 	rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
 	  initial_pose_sub_;
 
@@ -90,9 +86,9 @@ class EMcl2Node : public rclcpp::Node
 	// std::shared_ptr<LikelihoodFieldMap> initMap(void);
 	// std::shared_ptr<OdomModel> initOdometry(void);
 
-	void cbScan(const sensor_msgs::msg::LaserScan::SharedPtr msg);
+	void cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
 	// bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
-	void initialPoseReceived(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr
+	void initialPoseReceived(geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr
 				   msg);  //same name is found in amcl
 };
 

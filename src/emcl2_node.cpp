@@ -30,8 +30,8 @@ void EMcl2Node::initCommunication(void)
 	pose_pub_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("mcl_pose", 2);
 	alpha_pub_ = create_publisher<std_msgs::msg::Float32>("alpha", 2);
 
-	auto callback = std::bind(&EMcl2Node::cbScan, this, std::placeholders::_1);
-	laser_scan_sub_ = create_subscription<sensor_msgs::msg::LaserScan>("scan", 2, callback);
+	laser_scan_sub_ = create_subscription<sensor_msgs::msg::LaserScan>(
+	  "scan", 2, std::bind(&EMcl2Node::cbScan, this, std::placeholders::_1));
 	initial_pose_sub_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
 	  "initialpose", 2,
 	  std::bind(&EMcl2Node::initialPoseReceived, this, std::placeholders::_1));
@@ -112,7 +112,7 @@ void EMcl2Node::initPF(void)
 //   return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(resp.map, likelihood_range));
 // }
 
-void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::SharedPtr msg)
+void EMcl2Node::cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 {
 	//   scan_time_stamp_ = msg->header.stamp;
 	//   scan_frame_id_ = msg->header.frame_id;
@@ -120,7 +120,7 @@ void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::SharedPtr msg)
 }
 
 void EMcl2Node::initialPoseReceived(
-  const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg)
+  geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg)
 {
 	//init_request_ = true;
 	//init_x_ = msg->pose.pose.position.x;
