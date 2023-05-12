@@ -5,9 +5,7 @@
 #include "emcl2/emcl2_node.h"
 
 // #include "emcl/Pose.h"
-// #include "geometry_msgs/PoseArray.h"
 // #include "nav_msgs/GetMap.h"
-// #include "std_msgs/Float32.h"
 #include "tf2/utils.h"
 
 namespace emcl2
@@ -28,11 +26,15 @@ EMcl2Node::~EMcl2Node() {}
 
 void EMcl2Node::initCommunication(void)
 {
-	// particlecloud_pub_ = nh_.advertise<geometry_msgs::PoseArray>("particlecloud", 2, true);
-	// pose_pub_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>("mcl_pose", 2, true);
-	// alpha_pub_ = nh_.advertise<std_msgs::Float32>("alpha", 2, true);
-	// laser_scan_sub_ = nh_.subscribe("scan", 2, &EMcl2Node::cbScan, this);
-	// initial_pose_sub_ = nh_.subscribe("initialpose", 2, &EMcl2Node::initialPoseReceived, this);
+	particlecloud_pub_ = create_publisher<geometry_msgs::msg::PoseArray>("particlecloud", 2);
+	pose_pub_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("mcl_pose", 2);
+	alpha_pub_ = create_publisher<std_msgs::msg::Float32>("alpha", 2);
+
+	laser_scan_sub_ = create_subscription<sensor_msgs::msg::LaserScan>(
+	  "scan", 2, std::bind(&EMcl2Node::cbScan, this, std::placeholders::_1));
+	initial_pose_sub_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
+	  "initialpose", 2,
+	  std::bind(&EMcl2Node::initialPoseReceived, this, std::placeholders::_1));
 
 	// global_loc_srv_ = nh_.advertiseService("global_localization", &EMcl2Node::cbSimpleReset, this);
 
@@ -110,20 +112,21 @@ void EMcl2Node::initPF(void)
 //   return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(resp.map, likelihood_range));
 // }
 
-// void EMcl2Node::cbScan(const sensor_msgs::LaserScan::ConstPtr & msg)
-// {
-//   scan_time_stamp_ = msg->header.stamp;
-//   scan_frame_id_ = msg->header.frame_id;
-//   pf_->setScan(msg);
-// }
+void EMcl2Node::cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
+{
+	//   scan_time_stamp_ = msg->header.stamp;
+	//   scan_frame_id_ = msg->header.frame_id;
+	//   pf_->setScan(msg);
+}
 
-// void EMcl2Node::initialPoseReceived(const geometry_msgs::PoseWithCovarianceStampedConstPtr & msg)
-// {
-//   init_request_ = true;
-//   init_x_ = msg->pose.pose.position.x;
-//   init_y_ = msg->pose.pose.position.y;
-//   init_t_ = tf2::getYaw(msg->pose.pose.orientation);
-// }
+void EMcl2Node::initialPoseReceived(
+  geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg)
+{
+	//init_request_ = true;
+	//init_x_ = msg->pose.pose.position.x;
+	//init_y_ = msg->pose.pose.position.y;
+	//init_t_ = tf2::getYaw(msg->pose.pose.orientation);
+}
 
 void EMcl2Node::loop(void)
 {
@@ -170,16 +173,16 @@ void EMcl2Node::loop(void)
 	publishPose(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
 	publishParticles();
 
-	// std_msgs::Float32 alpha_msg;
+	std_msgs::msg::Float32 alpha_msg;
 	// alpha_msg.data = static_cast<float>(pf_->alpha_);
-	// alpha_pub_.publish(alpha_msg);
+	alpha_pub_->publish(alpha_msg);
 }
 
 void EMcl2Node::publishPose(
   double x, double y, double t, double x_dev, double y_dev, double t_dev, double xy_cov,
   double yt_cov, double tx_cov)
 {
-	// geometry_msgs::PoseWithCovarianceStamped p;
+	geometry_msgs::msg::PoseWithCovarianceStamped p;
 	// p.header.frame_id = global_frame_id_;
 	// p.header.stamp = ros::Time::now();
 	// p.pose.pose.position.x = x;
@@ -200,7 +203,7 @@ void EMcl2Node::publishPose(
 	q.setRPY(0, 0, t);
 	// tf2::convert(q, p.pose.pose.orientation);
 
-	// pose_pub_.publish(p);
+	pose_pub_->publish(p);
 }
 
 void EMcl2Node::publishOdomFrame(double x, double y, double t)
@@ -236,7 +239,7 @@ void EMcl2Node::publishOdomFrame(double x, double y, double t)
 
 void EMcl2Node::publishParticles(void)
 {
-	// geometry_msgs::PoseArray cloud_msg;
+	geometry_msgs::msg::PoseArray cloud_msg;
 	// cloud_msg.header.stamp = ros::Time::now();
 	// cloud_msg.header.frame_id = global_frame_id_;
 	// cloud_msg.poses.resize(pf_->particles_.size());
@@ -250,7 +253,7 @@ void EMcl2Node::publishParticles(void)
 	//   q.setRPY(0, 0, pf_->particles_[i].p_.t_);
 	//   tf2::convert(q, cloud_msg.poses[i].orientation);
 	// }
-	// particlecloud_pub_.publish(cloud_msg);
+	particlecloud_pub_->publish(cloud_msg);
 }
 
 /* came from amcl. This function must be rewritten 
