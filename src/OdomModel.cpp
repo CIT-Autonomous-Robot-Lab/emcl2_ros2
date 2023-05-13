@@ -8,8 +8,6 @@
 #include <cmath>
 #include <iostream>
 
-#include "rclcpp/rclcpp.hpp"
-
 namespace emcl2
 {
 OdomModel::OdomModel(double ff, double fr, double rf, double rr)
