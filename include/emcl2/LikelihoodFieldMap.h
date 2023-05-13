@@ -6,16 +6,16 @@
 
 #include <vector>
 #include <utility>
-#include "emcl/Scan.h"
-#include "emcl/Pose.h"
-#include "nav_msgs/OccupancyGrid.h"
+#include "emcl2/Scan.h"
+#include "emcl2/Pose.h"
+#include "nav_msgs/msg/occupancy_grid.hpp"
 
 namespace emcl2 {
 
 class LikelihoodFieldMap
 {
 public: 
-	LikelihoodFieldMap(const nav_msgs::OccupancyGrid &map, double likelihood_range);
+	LikelihoodFieldMap(const nav_msgs::msg::OccupancyGrid &map, double likelihood_range);
 	~LikelihoodFieldMap();
 
 	void setLikelihood(int x, int y, double range);

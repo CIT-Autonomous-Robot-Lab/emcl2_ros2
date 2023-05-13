@@ -1,14 +1,14 @@
 //SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
 //SPDX-License-Identifier: BSD-3-Clause
 
-#include "emcl/LikelihoodFieldMap.h"
-#include "emcl/Pose.h"
+#include "emcl2/LikelihoodFieldMap.h"
+#include "emcl2/Pose.h"
 #include <random>
 #include <algorithm>
 
 namespace emcl2 {
 
-LikelihoodFieldMap::LikelihoodFieldMap(const nav_msgs::OccupancyGrid &map, double likelihood_range)
+LikelihoodFieldMap::LikelihoodFieldMap(const nav_msgs::msg::OccupancyGrid &map, double likelihood_range)
 {
 	width_ = map.info.width;
 	height_ = map.info.height;
