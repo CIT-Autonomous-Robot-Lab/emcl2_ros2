@@ -51,13 +51,11 @@ class EMcl2Node : public rclcpp::Node
 
 	// ros::Time scan_time_stamp_;
 
-	/* came from amcl. 
 	std::string footprint_frame_id_;
 	std::string global_frame_id_;
 	std::string odom_frame_id_;
 	std::string scan_frame_id_;
 	std::string base_frame_id_;
-	*/
 
 	/* came from amcl. 
 	std::shared_ptr<tf2_ros::TransformBroadcaster> tfb_;

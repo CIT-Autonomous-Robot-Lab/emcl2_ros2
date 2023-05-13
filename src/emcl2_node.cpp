@@ -4,7 +4,8 @@
 
 #include "emcl2/emcl2_node.h"
 
-// #include "emcl/Pose.h"
+#include "emcl2/Pose.h"
+#include "emcl2/Scan.h"
 // #include "nav_msgs/GetMap.h"
 #include "tf2/utils.h"
 
@@ -16,7 +17,8 @@ EMcl2Node::EMcl2Node() : Node("emcl2_node")
 	initCommunication();
 	initPF();
 
-	// private_nh_.param("odom_freq", odom_freq_, 20);
+	this->declare_parameter("odom_freq", 20);
+	this->get_parameter("odom_freq", odom_freq_);
 
 	init_request_ = false;
 	simple_reset_request_ = false;
@@ -38,10 +40,14 @@ void EMcl2Node::initCommunication(void)
 
 	// global_loc_srv_ = nh_.advertiseService("global_localization", &EMcl2Node::cbSimpleReset, this);
 
-	// private_nh_.param("global_frame_id", global_frame_id_, std::string("map"));
-	// private_nh_.param("footprint_frame_id", footprint_frame_id_, std::string("base_footprint"));
-	// private_nh_.param("odom_frame_id", odom_frame_id_, std::string("odom"));
-	// private_nh_.param("base_frame_id", base_frame_id_, std::string("base_link"));
+	this->declare_parameter("global_frame_id", std::string("map"));
+	this->declare_parameter("footprint_frame_id", std::string("base_footprint"));
+	this->declare_parameter("odom_frame_id", std::string("odom"));
+	this->declare_parameter("base_frame_id", std::string("base_link"));
+	this->get_parameter("global_frame_id", global_frame_id_);
+	this->get_parameter("footprint_frame_id", footprint_frame_id_);
+	this->get_parameter("odom_frame_id", odom_frame_id_);
+	this->get_parameter("base_frame_id", base_frame_id_);
 
 	// tfb_.reset(new tf2_ros::TransformBroadcaster());
 	// tf_.reset(new tf2_ros::Buffer());
@@ -53,29 +59,42 @@ void EMcl2Node::initPF(void)
 	// std::shared_ptr<LikelihoodFieldMap> map = std::move(initMap());
 	// std::shared_ptr<OdomModel> om = std::move(initOdometry());
 
-	// Scan scan;
-	// private_nh_.param("laser_min_range", scan.range_min_, 0.0);
-	// private_nh_.param("laser_max_range", scan.range_max_, 100000000.0);
-	// private_nh_.param("scan_increment", scan.scan_increment_, 1);
+	Scan scan;
+	this->declare_parameter("laser_min_range", 0.0);
+	this->declare_parameter("laser_max_range", 100000000.0);
+	this->declare_parameter("scan_increment", 1);
+	this->get_parameter("laser_min_range", scan.range_min_);
+	this->get_parameter("laser_max_range", scan.range_max_);
+	this->get_parameter("scan_increment", scan.scan_increment_);
 
-	// Pose init_pose;
-	// private_nh_.param("initial_pose_x", init_pose.x_, 0.0);
-	// private_nh_.param("initial_pose_y", init_pose.y_, 0.0);
-	// private_nh_.param("initial_pose_a", init_pose.t_, 0.0);
+	Pose init_pose;
+	this->declare_parameter("initial_pose_x", 0.0);
+	this->declare_parameter("initial_pose_y", 0.0);
+	this->declare_parameter("initial_pose_a", 0.0);
+	this->get_parameter("initial_pose_x", init_pose.x_);
+	this->get_parameter("initial_pose_y", init_pose.y_);
+	this->get_parameter("initial_pose_a", init_pose.t_);
 
 	int num_particles;
 	double alpha_th;
 	double ex_rad_pos, ex_rad_ori;
-	// private_nh_.param("num_particles", num_particles, 0);
-	// private_nh_.param("alpha_threshold", alpha_th, 0.5);
-	// private_nh_.param("expansion_radius_position", ex_rad_pos, 0.1);
-	// private_nh_.param("expansion_radius_orientation", ex_rad_ori, 0.2);
+	this->declare_parameter("num_particles", 0);
+	this->declare_parameter("alpha_threshold", 0.5);
+	this->declare_parameter("expansion_radius_position", 0.1);
+	this->declare_parameter("expansion_radius_orientation", 0.2);
+	this->get_parameter("num_particles", num_particles);
+	this->get_parameter("alpha_threshold", alpha_th);
+	this->get_parameter("expansion_radius_position", ex_rad_pos);
+	this->get_parameter("expansion_radius_orientation", ex_rad_ori);
 
 	double extraction_rate, range_threshold;
 	bool sensor_reset;
-	// private_nh_.param("extraction_rate", extraction_rate, 0.1);
-	// private_nh_.param("range_threshold", range_threshold, 0.1);
-	// private_nh_.param("sensor_reset", sensor_reset, true);
+	this->declare_parameter("extraction_rate", 0.1);
+	this->declare_parameter("range_threshold", 0.1);
+	this->declare_parameter("sensor_reset", true);
+	this->get_parameter("extraction_rate", extraction_rate);
+	this->get_parameter("range_threshold", range_threshold);
+	this->get_parameter("sensor_reset", sensor_reset);
 
 	// pf_.reset(new ExpResetMcl2(
 	//     init_pose, num_particles, scan, om, map, alpha_th, ex_rad_pos, ex_rad_ori, extraction_rate,
@@ -85,20 +104,26 @@ void EMcl2Node::initPF(void)
 // std::shared_ptr<OdomModel> EMcl2Node::initOdometry(void)
 // {
 //   double ff, fr, rf, rr;
-//   private_nh_.param("odom_fw_dev_per_fw", ff, 0.19);
-//   private_nh_.param("odom_fw_dev_per_rot", fr, 0.0001);
-//   private_nh_.param("odom_rot_dev_per_fw", rf, 0.13);
-//   private_nh_.param("odom_rot_dev_per_rot", rr, 0.2);
-//   return std::shared_ptr<OdomModel>(new OdomModel(ff, fr, rf, rr));
+//   this->declare_parameter("odom_fw_dev_per_fw", 0.19);
+//   this->declare_parameter("odom_fw_dev_per_rot", 0.0001);
+// 	 this->declare_parameter("odom_rot_dev_per_fw", 0.13);
+// 	 this->declare_parameter("odom_rot_dev_per_rot", 0.2);
+// 	 this->get_parameter("odom_fw_dev_per_fw", ff);
+// 	 this->get_parameter("odom_fw_dev_per_rot", fr);
+// 	 this->get_parameter("odom_rot_dev_per_fw", rf);
+//      this->get_parameter("odom_rot_dev_per_rot", rr);
+//      return std::shared_ptr<OdomModel>(new OdomModel(ff, fr, rf, rr));
 // }
 
 // std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 // {
 //   double likelihood_range;
-//   private_nh_.param("laser_likelihood_max_dist", likelihood_range, 0.2);
+// 	 this->declare_parameter("laser_likelihood_max_dist", 0.2);
+// 	 this->get_parameter("laser_likelihood_max_dist", likelihood_range);
 
 //   int num;
-//   private_nh_.param("num_particles", num, 0);
+// 	 this->declare_parameter("num_particles", 0);
+// 	 this->get_parameter("num_particles", num);
 
 //   nav_msgs::GetMap::Request req;
 //   nav_msgs::GetMap::Response resp;
@@ -317,11 +342,7 @@ int main(int argc, char ** argv)
 {
 	rclcpp::init(argc, argv);
 	auto node = std::make_shared<emcl2::EMcl2Node>();
-	//↓"odom_freq"のパラメータを取得できるようになったらコメントアウトを外してください
-	// rclcpp::Rate loop_rate(node->getOdomFreq());
-
-	//↓"odom_freq"のパラメータを取得できるようになったら消してください
-	rclcpp::Rate loop_rate(20);
+	rclcpp::Rate loop_rate(node->getOdomFreq());
 	while (rclcpp::ok()) {
 		node->loop();
 		rclcpp::spin_some(node);
