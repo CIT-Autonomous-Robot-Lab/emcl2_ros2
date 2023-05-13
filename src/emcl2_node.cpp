@@ -4,6 +4,7 @@
 
 #include "emcl2/emcl2_node.h"
 
+#include "emcl2/OdomModel.h"
 #include "emcl2/Pose.h"
 #include "emcl2/Scan.h"
 // #include "nav_msgs/GetMap.h"
@@ -101,19 +102,19 @@ void EMcl2Node::initPF(void)
 	//     range_threshold, sensor_reset));
 }
 
-// std::shared_ptr<OdomModel> EMcl2Node::initOdometry(void)
-// {
-//   double ff, fr, rf, rr;
-//   this->declare_parameter("odom_fw_dev_per_fw", 0.19);
-//   this->declare_parameter("odom_fw_dev_per_rot", 0.0001);
-// 	 this->declare_parameter("odom_rot_dev_per_fw", 0.13);
-// 	 this->declare_parameter("odom_rot_dev_per_rot", 0.2);
-// 	 this->get_parameter("odom_fw_dev_per_fw", ff);
-// 	 this->get_parameter("odom_fw_dev_per_rot", fr);
-// 	 this->get_parameter("odom_rot_dev_per_fw", rf);
-//      this->get_parameter("odom_rot_dev_per_rot", rr);
-//      return std::shared_ptr<OdomModel>(new OdomModel(ff, fr, rf, rr));
-// }
+std::shared_ptr<OdomModel> EMcl2Node::initOdometry(void)
+{
+	double ff, fr, rf, rr;
+	this->declare_parameter("odom_fw_dev_per_fw", 0.19);
+	this->declare_parameter("odom_fw_dev_per_rot", 0.0001);
+	this->declare_parameter("odom_rot_dev_per_fw", 0.13);
+	this->declare_parameter("odom_rot_dev_per_rot", 0.2);
+	this->get_parameter("odom_fw_dev_per_fw", ff);
+	this->get_parameter("odom_fw_dev_per_rot", fr);
+	this->get_parameter("odom_rot_dev_per_fw", rf);
+	this->get_parameter("odom_rot_dev_per_rot", rr);
+	return std::shared_ptr<OdomModel>(new OdomModel(ff, fr, rf, rr));
+}
 
 // std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 // {
