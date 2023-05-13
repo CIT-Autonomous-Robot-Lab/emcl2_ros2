@@ -20,7 +20,9 @@ Mcl::Mcl(
 	map_ = move(map);
 	scan_ = scan;
 
-	if (num <= 0) ROS_ERROR("NO PARTICLE");
+	if (num <= 0) {
+		RCLCPP_ERROR(rclcpp::get_logger("mcl"), "NO PARTICLE");
+	}
 
 	Particle particle(p.x_, p.y_, p.t_, 1.0 / num);
 	for (int i = 0; i < num; i++) particles_.push_back(particle);
@@ -60,7 +62,7 @@ void Mcl::resampling(void)
 		while (accum[tick] <= start + i * step) {
 			tick++;
 			if (tick == particles_.size()) {
-				ROS_ERROR("RESAMPLING FAILED");
+				RCLCPP_ERROR(rclcpp::get_logger("mcl"), "RESAMPLING FAILED");
 				exit(1);
 			}
 		}
@@ -202,12 +204,26 @@ double Mcl::normalizeAngle(double t)
 	return t;
 }
 
-void Mcl::setScan(const sensor_msgs::LaserScan::ConstPtr & msg)
+// void Mcl::setScan(const sensor_msgs::msg::LaserScan::ConstPtr & msg)
+// {
+// 	if (msg->ranges.size() != scan_.ranges_.size()) scan_.ranges_.resize(msg->ranges.size());
+
+// 	scan_.seq_ = msg->header.seq;
+// 	for (int i = 0; i < msg->ranges.size(); i++) scan_.ranges_[i] = msg->ranges[i];
+
+// 	scan_.angle_min_ = msg->angle_min;
+// 	scan_.angle_max_ = msg->angle_max;
+// 	scan_.angle_increment_ = msg->angle_increment;
+// 	scan_.range_min_ = msg->range_min;
+// 	scan_.range_max_ = msg->range_max;
+// }
+
+void Mcl::setScan(const sensor_msgs::msg::LaserScan::ConstPtr & msg)
 {
 	if (msg->ranges.size() != scan_.ranges_.size()) scan_.ranges_.resize(msg->ranges.size());
 
-	scan_.seq_ = msg->header.seq;
-	for (int i = 0; i < msg->ranges.size(); i++) scan_.ranges_[i] = msg->ranges[i];
+	scan_.seq_ = msg->header.stamp.sec;
+	for (size_t i = 0; i < msg->ranges.size(); i++) scan_.ranges_[i] = msg->ranges[i];
 
 	scan_.angle_min_ = msg->angle_min;
 	scan_.angle_max_ = msg->angle_max;
