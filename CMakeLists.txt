@@ -13,10 +13,10 @@ ament_auto_add_executable(emcl2_node
 #   src/Mcl.cpp
 #   src/ExpResetMcl2.cpp
 #   src/Particle.cpp
-#   src/OdomModel.cpp
+  src/OdomModel.cpp
 #   src/Pose.cpp
 #   src/Scan.cpp
-#   src/LikelihoodFieldMap.cpp
+  src/LikelihoodFieldMap.cpp
   src/emcl2_node.cpp
 )
 
