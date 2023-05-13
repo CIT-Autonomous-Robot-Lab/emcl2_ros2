@@ -267,5 +267,6 @@ void Mcl::simpleReset(void)
 		particles_[i].w_ = 1.0 / particles_.size();
 	}
 }
-
+double Mcl::cos_[(1 << 16)];
+double Mcl::sin_[(1 << 16)];
 }  // namespace emcl2

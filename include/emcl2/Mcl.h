@@ -59,9 +59,6 @@ class Mcl
 	std::shared_ptr<LikelihoodFieldMap> map_;
 };
 
-double Mcl::cos_[(1 << 16)];
-double Mcl::sin_[(1 << 16)];
-
 }  // namespace emcl2
 
 #endif
