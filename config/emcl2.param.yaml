@@ -18,3 +18,7 @@ emcl2_node:
     extraction_rate: 0.1
     range_threshold: 0.1
     sensor_reset: true
+    odom_fw_dev_per_fw: 0.19
+    odom_fw_dev_per_rot: 0.0001
+    odom_rot_dev_per_fw: 0.13
+    odom_rot_dev_per_rot: 0.2
