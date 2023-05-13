@@ -8,7 +8,6 @@
 // #include <ros/ros.h>
 
 // #include "emcl2/ExpResetMcl2.h"
-#include "emcl2/OdomModel.h"
 
 /* came from amcl (LGPL). But these lines will be the same even if anyone creates. 
 #include "tf2_ros/message_filter.h"
@@ -83,7 +82,7 @@ class EMcl2Node : public rclcpp::Node
 	void initCommunication(void);
 	void initPF(void);
 	// std::shared_ptr<LikelihoodFieldMap> initMap(void);
-	std::shared_ptr<OdomModel> initOdometry(void);
+	// std::shared_ptr<OdomModel> initOdometry(void);
 
 	void cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
 	// bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
