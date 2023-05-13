@@ -16,7 +16,7 @@ ament_auto_add_executable(emcl2_node
   src/OdomModel.cpp
 #   src/Pose.cpp
 #   src/Scan.cpp
-#   src/LikelihoodFieldMap.cpp
+  src/LikelihoodFieldMap.cpp
   src/emcl2_node.cpp
 )
 
