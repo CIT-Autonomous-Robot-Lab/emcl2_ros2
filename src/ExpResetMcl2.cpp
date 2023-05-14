@@ -62,9 +62,9 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 	for (auto & p : particles_) p.w_ *= p.likelihood(map_.get(), scan);
 
 	alpha_ = nonPenetrationRate((int)(particles_.size() * extraction_rate_), map_.get(), scan);
-	ROS_INFO("ALPHA: %f / %f", alpha_, alpha_threshold_);
+	RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "ALPHA: %f / %f", alpha_, alpha_threshold_);
 	if (alpha_ < alpha_threshold_) {
-		ROS_INFO("RESET");
+		RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "RESET");
 		expansionReset();
 		for (auto & p : particles_) p.w_ *= p.likelihood(map_.get(), scan);
 	}
