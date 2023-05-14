@@ -11,6 +11,7 @@ ament_auto_find_build_dependencies()
 
 ament_auto_add_executable(emcl2_node
   src/Mcl.cpp
+  src/ExpResetMcl.cpp
 #   src/ExpResetMcl2.cpp
   src/Particle.cpp
   src/OdomModel.cpp
