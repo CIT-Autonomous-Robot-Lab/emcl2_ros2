@@ -204,7 +204,7 @@ double Mcl::normalizeAngle(double t)
 	return t;
 }
 
-void Mcl::cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
+void Mcl::setScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 {
 	if (msg->ranges.size() != scan_.ranges_.size()) scan_.ranges_.resize(msg->ranges.size());
 
