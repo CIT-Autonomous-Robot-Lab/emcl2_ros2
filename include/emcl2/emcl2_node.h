@@ -82,7 +82,7 @@ class EMcl2Node : public rclcpp::Node
 	void sendTf(void);
 	bool getOdomPose(double & x, double & y, double & yaw);	 //same name is found in amcl
 	bool getLidarPose(double & x, double & y, double & yaw, bool & inv);
-	void receiveMap(nav_msgs::msg::OccupancyGrid::SharedPtr msg);
+	void receiveMap(nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg);
 
 	void initCommunication(void);
 	void initPF(void);
@@ -94,8 +94,8 @@ class EMcl2Node : public rclcpp::Node
 	void cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
 	// bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
 	bool cbSimpleReset(
-	  std::shared_ptr<std_srvs::srv::Empty::Request> req,
-	  std::shared_ptr<std_srvs::srv::Empty::Response> res);
+	  std_srvs::srv::Empty::Request::SharedPtr req,
+	  std_srvs::srv::Empty::Response::SharedPtr res);
 	void initialPoseReceived(geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr
 				   msg);  //same name is found in amcl
 };

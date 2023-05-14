@@ -143,7 +143,7 @@ std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 	  new LikelihoodFieldMap(resp.map, likelihood_range));
 }
 
-void EMcl2Node::receiveMap(nav_msgs::msg::OccupancyGrid::SharedPtr msg)
+void EMcl2Node::receiveMap(nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
 {
 	map_ = *msg;
 	map_receive_ = true;
@@ -345,8 +345,7 @@ bool EMcl2Node::getLidarPose(double & x, double & y, double & yaw, bool & inv)
 int EMcl2Node::getOdomFreq(void) { return odom_freq_; }
 
 bool EMcl2Node::cbSimpleReset(
-  std::shared_ptr<std_srvs::srv::Empty::Request> req,
-  std::shared_ptr<std_srvs::srv::Empty::Response> res)
+  std_srvs::srv::Empty::Request::SharedPtr req, std_srvs::srv::Empty::Response::SharedPtr res)
 {
 	return simple_reset_request_ = true;
 }
