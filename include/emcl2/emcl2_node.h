@@ -18,10 +18,10 @@
 */
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
 #include "std_msgs/msg/float32.hpp"
-//#include "std_srvs/srv/empty.h"
-#include "rclcpp/rclcpp.hpp"
+#include "std_srvs/srv/empty.hpp"
 #include "tf2/LinearMath/Transform.h"
 
 namespace emcl2
@@ -48,9 +48,10 @@ class EMcl2Node : public rclcpp::Node
 	rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_sub_;
 	rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
 	  initial_pose_sub_;
+	rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::ConstSharedPtr map_sub_;
 
 	//ros::ServiceServer global_loc_srv_;
-
+	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr global_loc_srv_;
 	// ros::Time scan_time_stamp_;
 
 	std::string footprint_frame_id_;
@@ -70,6 +71,7 @@ class EMcl2Node : public rclcpp::Node
 	int odom_freq_;
 	bool init_request_;
 	bool simple_reset_request_;
+	bool map_receive_;
 	double init_x_, init_y_, init_t_;
 
 	void publishPose(
@@ -80,14 +82,20 @@ class EMcl2Node : public rclcpp::Node
 	void sendTf(void);
 	bool getOdomPose(double & x, double & y, double & yaw);	 //same name is found in amcl
 	bool getLidarPose(double & x, double & y, double & yaw, bool & inv);
+	void receiveMap(nav_msgs::msg::OccupancyGrid::SharedPtr msg);
 
 	void initCommunication(void);
 	void initPF(void);
 	std::shared_ptr<LikelihoodFieldMap> initMap(void);
 	std::shared_ptr<OdomModel> initOdometry(void);
 
+	nav_msgs::msg::OccupancyGrid map_;
+
 	void cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
 	// bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
+	bool cbSimpleReset(
+	  std::shared_ptr<std_srvs::srv::Empty::Request> req,
+	  std::shared_ptr<std_srvs::srv::Empty::Response> res);
 	void initialPoseReceived(geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr
 				   msg);  //same name is found in amcl
 };
