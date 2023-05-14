@@ -21,7 +21,7 @@ Mcl::Mcl(
 	scan_ = scan;
 
 	if (num <= 0) {
-		RCLCPP_ERROR(rclcpp::get_logger("mcl"), "NO PARTICLE");
+		RCLCPP_ERROR(rclcpp::get_logger("emcl2_node"), "NO PARTICLE");
 	}
 
 	Particle particle(p.x_, p.y_, p.t_, 1.0 / num);
@@ -62,7 +62,7 @@ void Mcl::resampling(void)
 		while (accum[tick] <= start + i * step) {
 			tick++;
 			if (tick == particles_.size()) {
-				RCLCPP_ERROR(rclcpp::get_logger("mcl"), "RESAMPLING FAILED");
+				RCLCPP_ERROR(rclcpp::get_logger("emcl2_node"), "RESAMPLING FAILED");
 				exit(1);
 			}
 		}
