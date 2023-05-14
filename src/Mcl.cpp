@@ -204,20 +204,6 @@ double Mcl::normalizeAngle(double t)
 	return t;
 }
 
-// void Mcl::setScan(const sensor_msgs::msg::LaserScan::ConstPtr & msg)
-// {
-// 	if (msg->ranges.size() != scan_.ranges_.size()) scan_.ranges_.resize(msg->ranges.size());
-
-// 	scan_.seq_ = msg->header.seq;
-// 	for (int i = 0; i < msg->ranges.size(); i++) scan_.ranges_[i] = msg->ranges[i];
-
-// 	scan_.angle_min_ = msg->angle_min;
-// 	scan_.angle_max_ = msg->angle_max;
-// 	scan_.angle_increment_ = msg->angle_increment;
-// 	scan_.range_min_ = msg->range_min;
-// 	scan_.range_max_ = msg->range_max;
-// }
-
 void Mcl::setScan(const sensor_msgs::msg::LaserScan::ConstPtr & msg)
 {
 	if (msg->ranges.size() != scan_.ranges_.size()) scan_.ranges_.resize(msg->ranges.size());
@@ -267,6 +253,8 @@ void Mcl::simpleReset(void)
 		particles_[i].w_ = 1.0 / particles_.size();
 	}
 }
+
 double Mcl::cos_[(1 << 16)];
 double Mcl::sin_[(1 << 16)];
+
 }  // namespace emcl2
