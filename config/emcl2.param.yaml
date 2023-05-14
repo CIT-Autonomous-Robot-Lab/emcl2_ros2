@@ -2,9 +2,9 @@ emcl2_node:
   ros__parameters:
     odom_freq: 20
     global_frame_id: "map"
-    footprint_frame_id: "base_footprint"
     odom_frame_id: "odom"
     base_frame_id: "base_link"
+    footprint_frame_id: "base_footprint"
     laser_min_range: 0.0
     laser_max_range: 100000000.0
     scan_increment: 1
@@ -22,3 +22,4 @@ emcl2_node:
     odom_fw_dev_per_rot: 0.0001
     odom_rot_dev_per_fw: 0.13
     odom_rot_dev_per_rot: 0.2
+    laser_likelihood_max_dist: 0.2

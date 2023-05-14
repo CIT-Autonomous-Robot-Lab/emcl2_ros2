@@ -4,6 +4,7 @@
 
 #include "emcl2/emcl2_node.h"
 
+#include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
 #include "emcl2/Pose.h"
 #include "emcl2/Scan.h"
@@ -57,7 +58,7 @@ void EMcl2Node::initCommunication(void)
 
 void EMcl2Node::initPF(void)
 {
-	// std::shared_ptr<LikelihoodFieldMap> map = std::move(initMap());
+	std::shared_ptr<LikelihoodFieldMap> map = std::move(initMap());
 	std::shared_ptr<OdomModel> om = std::move(initOdometry());
 
 	Scan scan;
@@ -116,27 +117,27 @@ std::shared_ptr<OdomModel> EMcl2Node::initOdometry(void)
 	return std::shared_ptr<OdomModel>(new OdomModel(ff, fr, rf, rr));
 }
 
-// std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
-// {
-//   double likelihood_range;
-// 	 this->declare_parameter("laser_likelihood_max_dist", 0.2);
-// 	 this->get_parameter("laser_likelihood_max_dist", likelihood_range);
+std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
+{
+	double likelihood_range;
+	this->declare_parameter("laser_likelihood_max_dist", 0.2);
+	this->get_parameter("laser_likelihood_max_dist", likelihood_range);
 
-//   int num;
-// 	 this->declare_parameter("num_particles", 0);
-// 	 this->get_parameter("num_particles", num);
+	int num;
+	this->declare_parameter("num_particles", 0);
+	this->get_parameter("num_particles", num);
 
-//   nav_msgs::GetMap::Request req;
-//   nav_msgs::GetMap::Response resp;
-//   ROS_INFO("Requesting the map...");
-//   while (!ros::service::call("static_map", req, resp)) {
-//     ROS_WARN("Request for map failed; trying again...");
-//     ros::Duration d(0.5);
-//     d.sleep();
-//   }
+	//   nav_msgs::GetMap::Request req;
+	//   nav_msgs::GetMap::Response resp;
+	//   ROS_INFO("Requesting the map...");
+	//   while (!ros::service::call("static_map", req, resp)) {
+	//     ROS_WARN("Request for map failed; trying again...");
+	//     ros::Duration d(0.5);
+	//     d.sleep();
+	//   }
 
-//   return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(resp.map, likelihood_range));
-// }
+	//   return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(resp.map, likelihood_range));
+}
 
 void EMcl2Node::cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 {
