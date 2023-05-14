@@ -8,7 +8,7 @@
 #include "emcl2/OdomModel.h"
 #include "emcl2/Pose.h"
 #include "emcl2/Scan.h"
-// #include "nav_msgs/GetMap.h"
+#include "nav_msgs/srv/get_map.hpp"
 #include "tf2/utils.h"
 
 namespace emcl2
@@ -80,7 +80,6 @@ void EMcl2Node::initPF(void)
 	int num_particles;
 	double alpha_th;
 	double ex_rad_pos, ex_rad_ori;
-	this->declare_parameter("num_particles", 0);
 	this->declare_parameter("alpha_threshold", 0.5);
 	this->declare_parameter("expansion_radius_position", 0.1);
 	this->declare_parameter("expansion_radius_orientation", 0.2);
@@ -127,16 +126,16 @@ std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 	this->declare_parameter("num_particles", 0);
 	this->get_parameter("num_particles", num);
 
-	//   nav_msgs::GetMap::Request req;
-	//   nav_msgs::GetMap::Response resp;
+	nav_msgs::srv::GetMap::Request req;
+	nav_msgs::srv::GetMap::Response resp;
 	//   ROS_INFO("Requesting the map...");
 	//   while (!ros::service::call("static_map", req, resp)) {
 	//     ROS_WARN("Request for map failed; trying again...");
 	//     ros::Duration d(0.5);
 	//     d.sleep();
 	//   }
-
-	//   return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(resp.map, likelihood_range));
+	return std::shared_ptr<LikelihoodFieldMap>(
+	  new LikelihoodFieldMap(resp.map, likelihood_range));
 }
 
 void EMcl2Node::cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
