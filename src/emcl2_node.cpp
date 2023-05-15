@@ -8,7 +8,6 @@
 #include "emcl2/OdomModel.h"
 #include "emcl2/Pose.h"
 #include "emcl2/Scan.h"
-#include "nav_msgs/srv/get_map.hpp"
 #include "tf2/utils.h"
 
 namespace emcl2
