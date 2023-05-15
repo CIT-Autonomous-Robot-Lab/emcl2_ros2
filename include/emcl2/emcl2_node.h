@@ -48,7 +48,7 @@ class EMcl2Node : public rclcpp::Node
 	rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_sub_;
 	rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
 	  initial_pose_sub_;
-	rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::ConstSharedPtr map_sub_;
+	rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_;
 
 	//ros::ServiceServer global_loc_srv_;
 	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr global_loc_srv_;

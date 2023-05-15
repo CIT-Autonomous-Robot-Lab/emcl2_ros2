@@ -131,16 +131,13 @@ std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 	this->declare_parameter("num_particles", 0);
 	this->get_parameter("num_particles", num);
 
-	nav_msgs::srv::GetMap::Request req;
-	nav_msgs::srv::GetMap::Response resp;
 	//   ROS_INFO("Requesting the map...");
 	//   while (!ros::service::call("static_map", req, resp)) {
 	//     ROS_WARN("Request for map failed; trying again...");
 	//     ros::Duration d(0.5);
 	//     d.sleep();
 	//   }
-	return std::shared_ptr<LikelihoodFieldMap>(
-	  new LikelihoodFieldMap(resp.map, likelihood_range));
+	return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(map_, likelihood_range));
 }
 
 void EMcl2Node::receiveMap(nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
