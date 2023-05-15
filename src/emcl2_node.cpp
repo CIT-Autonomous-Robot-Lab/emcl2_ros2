@@ -8,7 +8,6 @@
 #include "emcl2/OdomModel.h"
 #include "emcl2/Pose.h"
 #include "emcl2/Scan.h"
-#include "nav_msgs/srv/get_map.hpp"
 #include "tf2/utils.h"
 
 namespace emcl2
@@ -39,8 +38,13 @@ void EMcl2Node::initCommunication(void)
 	initial_pose_sub_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
 	  "initialpose", 2,
 	  std::bind(&EMcl2Node::initialPoseReceived, this, std::placeholders::_1));
+	map_sub_ = create_subscription<nav_msgs::msg::OccupancyGrid>(
+	  "map", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
+	  std::bind(&EMcl2Node::receiveMap, this, std::placeholders::_1));
 
-	// global_loc_srv_ = nh_.advertiseService("global_localization", &EMcl2Node::cbSimpleReset, this);
+	global_loc_srv_ = create_service<std_srvs::srv::Empty>(
+	  "global_localization",
+	  std::bind(&EMcl2Node::cbSimpleReset, this, std::placeholders::_1, std::placeholders::_2));
 
 	this->declare_parameter("global_frame_id", std::string("map"));
 	this->declare_parameter("footprint_frame_id", std::string("base_footprint"));
@@ -126,16 +130,20 @@ std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 	this->declare_parameter("num_particles", 0);
 	this->get_parameter("num_particles", num);
 
-	nav_msgs::srv::GetMap::Request req;
-	nav_msgs::srv::GetMap::Response resp;
 	//   ROS_INFO("Requesting the map...");
 	//   while (!ros::service::call("static_map", req, resp)) {
 	//     ROS_WARN("Request for map failed; trying again...");
 	//     ros::Duration d(0.5);
 	//     d.sleep();
 	//   }
-	return std::shared_ptr<LikelihoodFieldMap>(
-	  new LikelihoodFieldMap(resp.map, likelihood_range));
+	return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(map_, likelihood_range));
+}
+
+void EMcl2Node::receiveMap(nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
+{
+	map_ = *msg;
+	map_receive_ = true;
+	RCLCPP_INFO(get_logger(), "Received map.");
 }
 
 void EMcl2Node::cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
@@ -332,10 +340,11 @@ bool EMcl2Node::getLidarPose(double & x, double & y, double & yaw, bool & inv)
 
 int EMcl2Node::getOdomFreq(void) { return odom_freq_; }
 
-// bool EMcl2Node::cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res)
-// {
-//   return simple_reset_request_ = true;
-// }
+bool EMcl2Node::cbSimpleReset(
+  std_srvs::srv::Empty::Request::SharedPtr req, std_srvs::srv::Empty::Response::SharedPtr res)
+{
+	return simple_reset_request_ = true;
+}
 
 }  // namespace emcl2
 
