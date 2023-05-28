@@ -7,7 +7,7 @@
 
 // #include <ros/ros.h>
 
-// #include "emcl2/ExpResetMcl2.h"
+#include "emcl2/ExpResetMcl2.h"
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
 
@@ -19,6 +19,7 @@
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp/time.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
 #include "std_msgs/msg/float32.hpp"
 #include "std_srvs/srv/empty.hpp"
@@ -37,7 +38,7 @@ class EMcl2Node : public rclcpp::Node
 	int getOdomFreq(void);
 
       private:
-	// std::shared_ptr<ExpResetMcl2> pf_;
+	std::shared_ptr<ExpResetMcl2> pf_;
 
 	//ros::NodeHandle nh_;
 	//ros::NodeHandle private_nh_;
@@ -52,7 +53,7 @@ class EMcl2Node : public rclcpp::Node
 
 	//ros::ServiceServer global_loc_srv_;
 	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr global_loc_srv_;
-	// ros::Time scan_time_stamp_;
+	rclcpp::Time scan_time_stamp_;
 
 	std::string footprint_frame_id_;
 	std::string global_frame_id_;
