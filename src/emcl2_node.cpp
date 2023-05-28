@@ -9,6 +9,7 @@
 #include "emcl2/Pose.h"
 #include "emcl2/Scan.h"
 #include "tf2/utils.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
 namespace emcl2
 {
@@ -54,10 +55,6 @@ void EMcl2Node::initCommunication(void)
 	this->get_parameter("footprint_frame_id", footprint_frame_id_);
 	this->get_parameter("odom_frame_id", odom_frame_id_);
 	this->get_parameter("base_frame_id", base_frame_id_);
-
-	// tfb_.reset(new tf2_ros::TransformBroadcaster());
-	// tf_.reset(new tf2_ros::Buffer());
-	// tfl_.reset(new tf2_ros::TransformListener(*tf_));
 }
 
 void EMcl2Node::initPF(void)
@@ -101,9 +98,9 @@ void EMcl2Node::initPF(void)
 	this->get_parameter("range_threshold", range_threshold);
 	this->get_parameter("sensor_reset", sensor_reset);
 
-	// pf_.reset(new ExpResetMcl2(
-	//     init_pose, num_particles, scan, om, map, alpha_th, ex_rad_pos, ex_rad_ori, extraction_rate,
-	//     range_threshold, sensor_reset));
+	pf_.reset(new ExpResetMcl2(
+	  init_pose, num_particles, scan, om, map, alpha_th, ex_rad_pos, ex_rad_ori,
+	  extraction_rate, range_threshold, sensor_reset));
 }
 
 std::shared_ptr<OdomModel> EMcl2Node::initOdometry(void)
@@ -148,18 +145,18 @@ void EMcl2Node::receiveMap(nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
 
 void EMcl2Node::cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 {
-	//   scan_time_stamp_ = msg->header.stamp;
-	//   scan_frame_id_ = msg->header.frame_id;
-	//   pf_->setScan(msg);
+	scan_time_stamp_ = msg->header.stamp;
+	scan_frame_id_ = msg->header.frame_id;
+	pf_->setScan(msg);
 }
 
 void EMcl2Node::initialPoseReceived(
   geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg)
 {
-	//init_request_ = true;
-	//init_x_ = msg->pose.pose.position.x;
-	//init_y_ = msg->pose.pose.position.y;
-	//init_t_ = tf2::getYaw(msg->pose.pose.orientation);
+	init_request_ = true;
+	init_x_ = msg->pose.pose.position.x;
+	init_y_ = msg->pose.pose.position.y;
+	init_t_ = tf2::getYaw(msg->pose.pose.orientation);
 }
 
 void EMcl2Node::loop(void)
