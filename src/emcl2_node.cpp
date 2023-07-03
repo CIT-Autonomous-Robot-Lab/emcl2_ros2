@@ -4,20 +4,33 @@
 
 #include "emcl2/emcl2_node.h"
 
+#include <memory>
+#include <type_traits>
+#include <utility>
+
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
 #include "emcl2/Pose.h"
 #include "emcl2/Scan.h"
+#include "rclcpp/node_interfaces/node_topics_interface.hpp"
+#include "tf2/LinearMath/Transform.h"
+#include "tf2/convert.h"
+#include "tf2/time.h"
 #include "tf2/utils.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
+#include "tf2_ros/buffer.h"
+#include "tf2_ros/create_timer_ros.h"
+#include "tf2_ros/message_filter.h"
+#include "tf2_ros/transform_broadcaster.h"
+#include "tf2_ros/transform_listener.h"
 
 namespace emcl2
 {
 
-EMcl2Node::EMcl2Node() : Node("emcl2_node")
+EMcl2Node::EMcl2Node()
+: Node("emcl2_node"), ros_clock_(RCL_SYSTEM_TIME), scan_receive_(false), map_receive_(false)
 {
 	initCommunication();
-	initPF();
 
 	this->declare_parameter("odom_freq", 20);
 	this->get_parameter("odom_freq", odom_freq_);
@@ -55,6 +68,22 @@ void EMcl2Node::initCommunication(void)
 	this->get_parameter("footprint_frame_id", footprint_frame_id_);
 	this->get_parameter("odom_frame_id", odom_frame_id_);
 	this->get_parameter("base_frame_id", base_frame_id_);
+}
+
+void EMcl2Node::initTF(void)
+{
+	tfb_.reset();
+	tfl_.reset();
+	tf_.reset();
+
+	tf_ = std::make_shared<tf2_ros::Buffer>(get_clock());
+	auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(
+	  get_node_base_interface(), get_node_timers_interface(),
+	  create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false));
+	tf_->setCreateTimerInterface(timer_interface);
+	tfl_ = std::make_shared<tf2_ros::TransformListener>(*tf_);
+	tfb_ = std::make_shared<tf2_ros::TransformBroadcaster>(shared_from_this());
+	latest_tf_ = tf2::Transform::getIdentity();
 }
 
 void EMcl2Node::initPF(void)
@@ -141,72 +170,95 @@ void EMcl2Node::receiveMap(nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
 	map_ = *msg;
 	map_receive_ = true;
 	RCLCPP_INFO(get_logger(), "Received map.");
+	initPF();
 }
 
 void EMcl2Node::cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 {
+	scan_receive_ = true;
 	scan_time_stamp_ = msg->header.stamp;
 	scan_frame_id_ = msg->header.frame_id;
+	RCLCPP_INFO(get_logger(), "Received scan.");
 	pf_->setScan(msg);
 }
 
 void EMcl2Node::initialPoseReceived(
   geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg)
 {
-	init_request_ = true;
-	init_x_ = msg->pose.pose.position.x;
-	init_y_ = msg->pose.pose.position.y;
-	init_t_ = tf2::getYaw(msg->pose.pose.orientation);
+	RCLCPP_INFO(get_logger(), "Run receiveInitialPose");
+	if (not initialpose_receive_) {
+		if (scan_receive_ && map_receive_) {
+			initialpose_receive_ = true;
+
+			initTF();
+		} else {
+			if (not scan_receive_)
+				RCLCPP_WARN(
+				  get_logger(),
+				  "Not yet received scan. Therefore, MCL cannot be initiated.");
+			if (not map_receive_)
+				RCLCPP_WARN(
+				  get_logger(),
+				  "Not yet received map. Therefore, MCL cannot be initiated.");
+		}
+	} else {
+		init_request_ = true;
+		init_x_ = msg->pose.pose.position.x;
+		init_y_ = msg->pose.pose.position.y;
+		init_t_ = tf2::getYaw(msg->pose.pose.orientation);
+	}
 }
 
 void EMcl2Node::loop(void)
 {
-	if (init_request_) {
-		// pf_->initialize(init_x_, init_y_, init_t_);
-		init_request_ = false;
-	} else if (simple_reset_request_) {
-		// pf_->simpleReset();
-		simple_reset_request_ = false;
-	}
+	if (rclcpp::ok() && initialpose_receive_) {
+		if (init_request_) {
+			pf_->initialize(init_x_, init_y_, init_t_);
+			init_request_ = false;
+		} else if (simple_reset_request_) {
+			pf_->simpleReset();
+			simple_reset_request_ = false;
+		}
 
-	double x, y, t;
-	// if (not getOdomPose(x, y, t)) {
-	// ROS_INFO("can't get odometry info");
-	// return;
-	// }
-	// pf_->motionUpdate(x, y, t);
+		double x, y, t;
+		if (not getOdomPose(x, y, t)) {
+			RCLCPP_INFO(get_logger(), "can't get odometry info");
+			return;
+		}
+		pf_->motionUpdate(x, y, t);
 
-	double lx, ly, lt;
-	bool inv;
-	// if (not getLidarPose(lx, ly, lt, inv)) {
-	// ROS_INFO("can't get lidar pose info");
-	// return;
-	// }
+		double lx, ly, lt;
+		bool inv;
+		if (not getLidarPose(lx, ly, lt, inv)) {
+			RCLCPP_INFO(get_logger(), "can't get lidar pose info");
+			return;
+		}
 
-	/*
-	struct timespec ts_start, ts_end;
-	clock_gettime(CLOCK_REALTIME, &ts_start);
-	*/
-	// pf_->sensorUpdate(lx, ly, lt, inv);
-	/*
+		struct timespec ts_start, ts_end;
+		clock_gettime(CLOCK_REALTIME, &ts_start);
+
+		pf_->sensorUpdate(lx, ly, lt, inv);
+
+		/*
 	clock_gettime(CLOCK_REALTIME, &ts_end);
 	struct tm tm;
-	localtime_r( &ts_start.tv_sec, &tm);
+	localtime_r(&ts_start.tv_sec, &tm);
 	printf("START: %02d.%09ld\n", tm.tm_sec, ts_start.tv_nsec);
-	localtime_r( &ts_end.tv_sec, &tm);
+	localtime_r(&ts_end.tv_sec, &tm);
 	printf("END: %02d.%09ld\n", tm.tm_sec, ts_end.tv_nsec);
 	*/
 
-	double x_var, y_var, t_var, xy_cov, yt_cov, tx_cov;
-	// pf_->meanPose(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
+		double x_var, y_var, t_var, xy_cov, yt_cov, tx_cov;
+		pf_->meanPose(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
 
-	publishOdomFrame(x, y, t);
-	publishPose(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
-	publishParticles();
+		publishOdomFrame(x, y, t);
+		publishPose(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
+		publishParticles();
 
-	std_msgs::msg::Float32 alpha_msg;
-	// alpha_msg.data = static_cast<float>(pf_->alpha_);
-	alpha_pub_->publish(alpha_msg);
+		std_msgs::msg::Float32 alpha_msg;
+		alpha_msg.data = static_cast<float>(pf_->alpha_);
+		alpha_pub_->publish(alpha_msg);
+	}
 }
 
 void EMcl2Node::publishPose(
@@ -214,92 +266,91 @@ void EMcl2Node::publishPose(
   double yt_cov, double tx_cov)
 {
 	geometry_msgs::msg::PoseWithCovarianceStamped p;
-	// p.header.frame_id = global_frame_id_;
-	// p.header.stamp = ros::Time::now();
-	// p.pose.pose.position.x = x;
-	// p.pose.pose.position.y = y;
-
-	// p.pose.covariance[6 * 0 + 0] = x_dev;
-	// p.pose.covariance[6 * 1 + 1] = y_dev;
-	// p.pose.covariance[6 * 2 + 2] = t_dev;
-
-	// p.pose.covariance[6 * 0 + 1] = xy_cov;
-	// p.pose.covariance[6 * 1 + 0] = xy_cov;
-	// p.pose.covariance[6 * 0 + 2] = tx_cov;
-	// p.pose.covariance[6 * 2 + 0] = tx_cov;
-	// p.pose.covariance[6 * 1 + 2] = yt_cov;
-	// p.pose.covariance[6 * 2 + 1] = yt_cov;
+	p.header.frame_id = global_frame_id_;
+	p.header.stamp = ros_clock_.now();
+	p.pose.pose.position.x = x;
+	p.pose.pose.position.y = y;
+	p.pose.covariance[6 * 0 + 0] = x_dev;
+	p.pose.covariance[6 * 1 + 1] = y_dev;
+	p.pose.covariance[6 * 2 + 2] = t_dev;
+	p.pose.covariance[6 * 0 + 1] = xy_cov;
+	p.pose.covariance[6 * 1 + 0] = xy_cov;
+	p.pose.covariance[6 * 0 + 2] = tx_cov;
+	p.pose.covariance[6 * 2 + 0] = tx_cov;
+	p.pose.covariance[6 * 1 + 2] = yt_cov;
+	p.pose.covariance[6 * 2 + 1] = yt_cov;
 
 	tf2::Quaternion q;
 	q.setRPY(0, 0, t);
-	// tf2::convert(q, p.pose.pose.orientation);
+	tf2::convert(q, p.pose.pose.orientation);
 
 	pose_pub_->publish(p);
 }
 
 void EMcl2Node::publishOdomFrame(double x, double y, double t)
 {
-	// geometry_msgs::PoseStamped odom_to_map;
+	geometry_msgs::msg::PoseStamped odom_to_map;
 	try {
 		tf2::Quaternion q;
 		q.setRPY(0, 0, t);
 		tf2::Transform tmp_tf(q, tf2::Vector3(x, y, 0.0));
 
-		// geometry_msgs::PoseStamped tmp_tf_stamped;
-		// tmp_tf_stamped.header.frame_id = footprint_frame_id_;
-		// tmp_tf_stamped.header.stamp = scan_time_stamp_;
-		// tf2::toMsg(tmp_tf.inverse(), tmp_tf_stamped.pose);
+		geometry_msgs::msg::PoseStamped tmp_tf_stamped;
+		tmp_tf_stamped.header.frame_id = footprint_frame_id_;
+		tmp_tf_stamped.header.stamp = scan_time_stamp_;
+		tf2::toMsg(tmp_tf.inverse(), tmp_tf_stamped.pose);
 
-		// tf_->transform(tmp_tf_stamped, odom_to_map, odom_frame_id_);
+		tf_->transform(tmp_tf_stamped, odom_to_map, odom_frame_id_);
 
 	} catch (tf2::TransformException) {
-		// ROS_DEBUG("Failed to subtract base to odom transform");
+		RCLCPP_DEBUG(get_logger(), "Failed to subtract base to odom transform");
 		return;
 	}
-	// tf2::convert(odom_to_map.pose, latest_tf_);
+	tf2::convert(odom_to_map.pose, latest_tf_);
+	rclcpp::Time transform_expiration = (rclcpp::Time(scan_time_stamp_.seconds() + 0.2));
 
-	// ros::Time transform_expiration = (ros::Time(scan_time_stamp_.toSec() + 0.2));
-	// geometry_msgs::TransformStamped tmp_tf_stamped;
-	// tmp_tf_stamped.header.frame_id = global_frame_id_;
-	// tmp_tf_stamped.header.stamp = transform_expiration;
-	// tmp_tf_stamped.child_frame_id = odom_frame_id_;
-	// tf2::convert(latest_tf_.inverse(), tmp_tf_stamped.transform);
+	geometry_msgs::msg::TransformStamped tmp_tf_stamped;
+	tmp_tf_stamped.header.frame_id = global_frame_id_;
+	tmp_tf_stamped.header.stamp = transform_expiration;
+	tmp_tf_stamped.child_frame_id = odom_frame_id_;
+	tf2::convert(latest_tf_.inverse(), tmp_tf_stamped.transform);
 
-	// tfb_->sendTransform(tmp_tf_stamped);
+	tfb_->sendTransform(tmp_tf_stamped);
 }
 
 void EMcl2Node::publishParticles(void)
 {
 	geometry_msgs::msg::PoseArray cloud_msg;
-	// cloud_msg.header.stamp = ros::Time::now();
-	// cloud_msg.header.frame_id = global_frame_id_;
-	// cloud_msg.poses.resize(pf_->particles_.size());
+	cloud_msg.header.stamp = ros_clock_.now();
+	cloud_msg.header.frame_id = global_frame_id_;
+	cloud_msg.poses.resize(pf_->particles_.size());
 
-	// for (int i = 0; i < pf_->particles_.size(); i++) {
-	//   cloud_msg.poses[i].position.x = pf_->particles_[i].p_.x_;
-	//   cloud_msg.poses[i].position.y = pf_->particles_[i].p_.y_;
-	//   cloud_msg.poses[i].position.z = 0;
+	for (int i = 0; i < pf_->particles_.size(); i++) {
+		cloud_msg.poses[i].position.x = pf_->particles_[i].p_.x_;
+		cloud_msg.poses[i].position.y = pf_->particles_[i].p_.y_;
+		cloud_msg.poses[i].position.z = 0;
 
-	//   tf2::Quaternion q;
-	//   q.setRPY(0, 0, pf_->particles_[i].p_.t_);
-	//   tf2::convert(q, cloud_msg.poses[i].orientation);
-	// }
+		tf2::Quaternion q;
+		q.setRPY(0, 0, pf_->particles_[i].p_.t_);
+		tf2::convert(q, cloud_msg.poses[i].orientation);
+	}
 	particlecloud_pub_->publish(cloud_msg);
 }
 
-/* came from amcl. This function must be rewritten 
-bool EMcl2Node::getOdomPose(double& x, double& y, double& yaw)
+/* came from amcl. This function must be rewritten TODO*/
+bool EMcl2Node::getOdomPose(double & x, double & y, double & yaw)
 {
-	geometry_msgs::PoseStamped ident;
+	geometry_msgs::msg::PoseStamped ident;
 	ident.header.frame_id = footprint_frame_id_;
-	ident.header.stamp = ros::Time(0);
+	ident.header.stamp = rclcpp::Time(0);
 	tf2::toMsg(tf2::Transform::getIdentity(), ident.pose);
-	
-	geometry_msgs::PoseStamped odom_pose;
-	try{
+
+	geometry_msgs::msg::PoseStamped odom_pose;
+	try {
 		this->tf_->transform(ident, odom_pose, odom_frame_id_);
-	}catch(tf2::TransformException e){
-    		ROS_WARN("Failed to compute odom pose, skipping scan (%s)", e.what());
+	} catch (tf2::TransformException e) {
+		RCLCPP_WARN(
+		  get_logger(), "Failed to compute odom pose, skipping scan (%s)", e.what());
 		return false;
 	}
 	x = odom_pose.pose.position.x;
@@ -307,29 +358,30 @@ bool EMcl2Node::getOdomPose(double& x, double& y, double& yaw)
 	yaw = tf2::getYaw(odom_pose.pose.orientation);
 
 	return true;
-}*/
+}
 
 bool EMcl2Node::getLidarPose(double & x, double & y, double & yaw, bool & inv)
 {
-	/* This part came from amcl 
-	geometry_msgs::PoseStamped ident;
+	/* This part came from amcl */
+	geometry_msgs::msg::PoseStamped ident;
 	ident.header.frame_id = scan_frame_id_;
-	ident.header.stamp = ros::Time(0);
+	ident.header.stamp = ros_clock_.now();
 	tf2::toMsg(tf2::Transform::getIdentity(), ident.pose);
-	
-	geometry_msgs::PoseStamped lidar_pose;
-	try{
+
+	geometry_msgs::msg::PoseStamped lidar_pose;
+	try {
 		this->tf_->transform(ident, lidar_pose, base_frame_id_);
-	}catch(tf2::TransformException e){
-    		ROS_WARN("Failed to compute lidar pose, skipping scan (%s)", e.what());
+	} catch (tf2::TransformException e) {
+		RCLCPP_WARN(
+		  get_logger(), "Failed to compute lidar pose, skipping scan (%s)", e.what());
 		return false;
 	}
-	*/
-	// x = lidar_pose.pose.position.x;
-	// y = lidar_pose.pose.position.y;
+
+	x = lidar_pose.pose.position.x;
+	y = lidar_pose.pose.position.y;
 
 	double roll, pitch;
-	// tf2::getEulerYPR(lidar_pose.pose.orientation, yaw, pitch, roll);
+	tf2::getEulerYPR(lidar_pose.pose.orientation, yaw, pitch, roll);
 	inv = (fabs(pitch) > M_PI / 2 || fabs(roll) > M_PI / 2) ? true : false;
 
 	return true;
