@@ -307,11 +307,12 @@ void EMcl2Node::publishOdomFrame(double x, double y, double t)
 		return;
 	}
 	tf2::convert(odom_to_map.pose, latest_tf_);
-	rclcpp::Time transform_expiration = (rclcpp::Time(scan_time_stamp_.seconds() + 0.2));
+	auto stamp = tf2_ros::fromMsg(scan_time_stamp_);
+	tf2::TimePoint transform_tolerance_ = stamp + tf2::durationFromSec(0.2);
 
 	geometry_msgs::msg::TransformStamped tmp_tf_stamped;
 	tmp_tf_stamped.header.frame_id = global_frame_id_;
-	tmp_tf_stamped.header.stamp = transform_expiration;
+	tmp_tf_stamped.header.stamp = tf2_ros::toMsg(transform_tolerance_);
 	tmp_tf_stamped.child_frame_id = odom_frame_id_;
 	tf2::convert(latest_tf_.inverse(), tmp_tf_stamped.transform);
 
