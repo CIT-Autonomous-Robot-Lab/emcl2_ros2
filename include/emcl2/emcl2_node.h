@@ -1,22 +1,15 @@
 //SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
 //SPDX-License-Identifier: BSD-3-Clause
-//CAUTION: Some lines came from amcl (LGPL). These lines are commented out now.
+//CAUTION: Some lines came from amcl (LGPL).
 
 #ifndef INTERFACE_EMCL2_H__
 #define INTERFACE_EMCL2_H__
 
-// #include <ros/ros.h>
 #include <rclcpp/rclcpp.hpp>
 
 #include "emcl2/ExpResetMcl2.h"
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
-
-/* came from amcl (LGPL). But these lines will be the same even if anyone creates. 
-#include "tf2_ros/message_filter.h"
-#include "tf2_ros/transform_broadcaster.h"
-#include "tf2_ros/transform_listener.h"
-*/
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -44,9 +37,6 @@ class EMcl2Node : public rclcpp::Node
       private:
 	std::shared_ptr<ExpResetMcl2> pf_;
 
-	//ros::NodeHandle nh_;
-	//ros::NodeHandle private_nh_;
-
 	rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr particlecloud_pub_;
 	rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_pub_;
 	rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr alpha_pub_;
@@ -65,7 +55,6 @@ class EMcl2Node : public rclcpp::Node
 	std::string scan_frame_id_;
 	std::string base_frame_id_;
 
-	/* came from amcl. */
 	std::shared_ptr<tf2_ros::TransformBroadcaster> tfb_;
 	std::shared_ptr<tf2_ros::TransformListener> tfl_;
 	std::shared_ptr<tf2_ros::Buffer> tf_;

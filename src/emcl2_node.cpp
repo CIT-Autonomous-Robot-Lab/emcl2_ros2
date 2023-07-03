@@ -1,6 +1,6 @@
 //SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
 //SPDX-License-Identifier: BSD-3-Clause
-//CAUTION: Some lines came from amcl (LGPL). These lines are commented out now.
+//CAUTION: Some lines came from amcl (LGPL).
 
 #include "emcl2/emcl2_node.h"
 
@@ -239,15 +239,6 @@ void EMcl2Node::loop(void)
 
 		pf_->sensorUpdate(lx, ly, lt, inv);
 
-		/*
-	clock_gettime(CLOCK_REALTIME, &ts_end);
-	struct tm tm;
-	localtime_r(&ts_start.tv_sec, &tm);
-	printf("START: %02d.%09ld\n", tm.tm_sec, ts_start.tv_nsec);
-	localtime_r(&ts_end.tv_sec, &tm);
-	printf("END: %02d.%09ld\n", tm.tm_sec, ts_end.tv_nsec);
-	*/
-
 		double x_var, y_var, t_var, xy_cov, yt_cov, tx_cov;
 		pf_->meanPose(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
 
@@ -338,7 +329,6 @@ void EMcl2Node::publishParticles(void)
 	particlecloud_pub_->publish(cloud_msg);
 }
 
-/* came from amcl. This function must be rewritten TODO*/
 bool EMcl2Node::getOdomPose(double & x, double & y, double & yaw)
 {
 	geometry_msgs::msg::PoseStamped ident;
@@ -363,7 +353,6 @@ bool EMcl2Node::getOdomPose(double & x, double & y, double & yaw)
 
 bool EMcl2Node::getLidarPose(double & x, double & y, double & yaw, bool & inv)
 {
-	/* This part came from amcl */
 	geometry_msgs::msg::PoseStamped ident;
 	ident.header.frame_id = scan_frame_id_;
 	ident.header.stamp = ros_clock_.now();
