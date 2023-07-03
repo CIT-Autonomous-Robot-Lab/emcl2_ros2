@@ -178,7 +178,6 @@ void EMcl2Node::cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 	scan_receive_ = true;
 	scan_time_stamp_ = msg->header.stamp;
 	scan_frame_id_ = msg->header.frame_id;
-	RCLCPP_INFO(get_logger(), "Received scan.");
 	pf_->setScan(msg);
 }
 
@@ -233,9 +232,6 @@ void EMcl2Node::loop(void)
 			RCLCPP_INFO(get_logger(), "can't get lidar pose info");
 			return;
 		}
-
-		struct timespec ts_start, ts_end;
-		clock_gettime(CLOCK_REALTIME, &ts_start);
 
 		pf_->sensorUpdate(lx, ly, lt, inv);
 
