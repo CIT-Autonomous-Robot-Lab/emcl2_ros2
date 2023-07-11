@@ -28,15 +28,14 @@ namespace emcl2
 {
 
 EMcl2Node::EMcl2Node()
-: Node("emcl2_node"), ros_clock_(RCL_SYSTEM_TIME), scan_receive_(false), map_receive_(false)
+: Node("emcl2_node"),
+  ros_clock_(RCL_SYSTEM_TIME),
+  scan_receive_(false),
+  map_receive_(false),
+  init_request_(false),
+  simple_reset_request_(false)
 {
 	initCommunication();
-
-	this->declare_parameter("odom_freq", 20);
-	this->get_parameter("odom_freq", odom_freq_);
-
-	init_request_ = false;
-	simple_reset_request_ = false;
 }
 
 EMcl2Node::~EMcl2Node() {}
@@ -68,6 +67,9 @@ void EMcl2Node::initCommunication(void)
 	this->get_parameter("footprint_frame_id", footprint_frame_id_);
 	this->get_parameter("odom_frame_id", odom_frame_id_);
 	this->get_parameter("base_frame_id", base_frame_id_);
+
+	this->declare_parameter("odom_freq", 20);
+	this->get_parameter("odom_freq", odom_freq_);
 }
 
 void EMcl2Node::initTF(void)
@@ -167,6 +169,7 @@ void EMcl2Node::receiveMap(nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
 	map_receive_ = true;
 	RCLCPP_INFO(get_logger(), "Received map.");
 	initPF();
+	initTF();
 }
 
 void EMcl2Node::cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
@@ -185,9 +188,11 @@ void EMcl2Node::initialPoseReceived(
 	RCLCPP_INFO(get_logger(), "Run receiveInitialPose");
 	if (not initialpose_receive_) {
 		if (scan_receive_ && map_receive_) {
+			init_x_ = msg->pose.pose.position.x;
+			init_y_ = msg->pose.pose.position.y;
+			init_t_ = tf2::getYaw(msg->pose.pose.orientation);
+			pf_->initialize(init_x_, init_y_, init_t_);
 			initialpose_receive_ = true;
-
-			initTF();
 		} else {
 			if (not scan_receive_)
 				RCLCPP_WARN(
@@ -208,15 +213,15 @@ void EMcl2Node::initialPoseReceived(
 
 void EMcl2Node::loop(void)
 {
-	if (rclcpp::ok() && initialpose_receive_) {
-		if (init_request_) {
-			pf_->initialize(init_x_, init_y_, init_t_);
-			init_request_ = false;
-		} else if (simple_reset_request_) {
-			pf_->simpleReset();
-			simple_reset_request_ = false;
-		}
+	if (init_request_) {
+		pf_->initialize(init_x_, init_y_, init_t_);
+		init_request_ = false;
+	} else if (simple_reset_request_) {
+		pf_->simpleReset();
+		simple_reset_request_ = false;
+	}
 
+	if (rclcpp::ok() && init_pf_) {
 		double x, y, t;
 		if (not getOdomPose(x, y, t)) {
 			RCLCPP_INFO(get_logger(), "can't get odometry info");
@@ -243,6 +248,15 @@ void EMcl2Node::loop(void)
 		std_msgs::msg::Float32 alpha_msg;
 		alpha_msg.data = static_cast<float>(pf_->alpha_);
 		alpha_pub_->publish(alpha_msg);
+	} else if (not init_pf_) {
+		if (not scan_receive_)
+			RCLCPP_WARN(
+			  get_logger(),
+			  "Not yet received scan. Therefore, MCL cannot be initiated.");
+		if (not map_receive_)
+			RCLCPP_WARN(
+			  get_logger(),
+			  "Not yet received map. Therefore, MCL cannot be initiated.");
 	}
 }
 
