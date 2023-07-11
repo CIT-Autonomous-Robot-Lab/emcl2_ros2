@@ -64,6 +64,7 @@ class EMcl2Node : public rclcpp::Node
 	rclcpp::Clock ros_clock_;
 
 	int odom_freq_;
+	bool init_pf_;
 	bool init_request_;
 	bool initialpose_receive_;
 	bool simple_reset_request_;
