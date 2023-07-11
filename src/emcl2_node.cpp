@@ -163,7 +163,7 @@ std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 	return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(map_, likelihood_range));
 }
 
-void EMcl2Node::receiveMap(nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
+void EMcl2Node::receiveMap(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
 {
 	map_ = *msg;
 	map_receive_ = true;
@@ -172,7 +172,7 @@ void EMcl2Node::receiveMap(nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
 	initTF();
 }
 
-void EMcl2Node::cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
+void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 {
 	if (init_pf_) {
 		scan_receive_ = true;
@@ -183,7 +183,7 @@ void EMcl2Node::cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 }
 
 void EMcl2Node::initialPoseReceived(
-  geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg)
+  const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg)
 {
 	RCLCPP_INFO(get_logger(), "Run receiveInitialPose");
 	if (not initialpose_receive_) {
@@ -388,7 +388,8 @@ bool EMcl2Node::getLidarPose(double & x, double & y, double & yaw, bool & inv)
 int EMcl2Node::getOdomFreq(void) { return odom_freq_; }
 
 bool EMcl2Node::cbSimpleReset(
-  std_srvs::srv::Empty::Request::SharedPtr req, std_srvs::srv::Empty::Response::SharedPtr res)
+  const std_srvs::srv::Empty::Request::ConstSharedPtr req,
+  std_srvs::srv::Empty::Response::SharedPtr res)
 {
 	return simple_reset_request_ = true;
 }
