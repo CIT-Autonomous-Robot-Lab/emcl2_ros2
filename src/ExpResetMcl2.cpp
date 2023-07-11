@@ -31,14 +31,14 @@ ExpResetMcl2::~ExpResetMcl2() {}
 
 void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv)
 {
-	if (processed_seq_ == scan_.seq_) return;
+	// if (processed_seq_ == scan_.seq_) return;
 
 	Scan scan;
 	int seq = -1;
-	while (seq != scan_.seq_) {  //trying to copy the latest scan before next
-		seq = scan_.seq_;
-		scan = scan_;
-	}
+	// while (seq != scan_.seq_) {  //trying to copy the latest scan before next
+	seq = scan_.seq_;
+	scan = scan_;
+	// }
 
 	scan.lidar_pose_x_ = lidar_x;
 	scan.lidar_pose_y_ = lidar_y;

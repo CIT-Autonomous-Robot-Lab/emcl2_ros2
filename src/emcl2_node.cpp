@@ -221,7 +221,7 @@ void EMcl2Node::loop(void)
 		simple_reset_request_ = false;
 	}
 
-	if (rclcpp::ok() && init_pf_) {
+	if (init_pf_) {
 		double x, y, t;
 		if (not getOdomPose(x, y, t)) {
 			RCLCPP_INFO(get_logger(), "can't get odometry info");
@@ -248,7 +248,7 @@ void EMcl2Node::loop(void)
 		std_msgs::msg::Float32 alpha_msg;
 		alpha_msg.data = static_cast<float>(pf_->alpha_);
 		alpha_pub_->publish(alpha_msg);
-	} else if (not init_pf_) {
+	} else {
 		if (not scan_receive_)
 			RCLCPP_WARN(
 			  get_logger(),
