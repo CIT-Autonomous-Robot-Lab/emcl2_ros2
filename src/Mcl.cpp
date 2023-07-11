@@ -46,7 +46,7 @@ void Mcl::resampling(void)
 {
 	std::vector<double> accum;
 	accum.push_back(particles_[0].w_);
-	for (int i = 1; i < particles_.size(); i++) {
+	for (size_t i = 1; i < particles_.size(); i++) {
 		accum.push_back(accum.back() + particles_[i].w_);
 	}
 
@@ -57,8 +57,8 @@ void Mcl::resampling(void)
 
 	std::vector<int> chosen;
 
-	int tick = 0;
-	for (int i = 0; i < particles_.size(); i++) {
+	size_t tick = 0;
+	for (size_t i = 0; i < particles_.size(); i++) {
 		while (accum[tick] <= start + i * step) {
 			tick++;
 			if (tick == particles_.size()) {
@@ -69,7 +69,7 @@ void Mcl::resampling(void)
 		chosen.push_back(tick);
 	}
 
-	for (int i = 0; i < particles_.size(); i++) particles_[i] = old[chosen[i]];
+	for (size_t i = 0; i < particles_.size(); i++) particles_[i] = old[chosen[i]];
 }
 
 void Mcl::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv)
@@ -89,11 +89,11 @@ void Mcl::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv)
 
 	int i = 0;
 	if (!inv) {
-		for (auto e : scan.ranges_)
+		for ([[maybe_unused]] auto & _ : scan.ranges_)
 			scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
 			  scan.angle_min_ + (i++) * scan.angle_increment_));
 	} else {
-		for (auto e : scan.ranges_)
+		for ([[maybe_unused]] auto & _ : scan.ranges_)
 			scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
 			  scan.angle_max_ - (i++) * scan.angle_increment_));
 	}
@@ -248,7 +248,7 @@ void Mcl::simpleReset(void)
 	std::vector<Pose> poses;
 	map_->drawFreePoses(particles_.size(), poses);
 
-	for (int i = 0; i < poses.size(); i++) {
+	for (size_t i = 0; i < poses.size(); i++) {
 		particles_[i].p_ = poses[i];
 		particles_[i].w_ = 1.0 / particles_.size();
 	}

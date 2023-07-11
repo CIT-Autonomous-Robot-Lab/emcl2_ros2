@@ -21,7 +21,7 @@ double Particle::likelihood(LikelihoodFieldMap * map, Scan & scan)
 	uint16_t lidar_yaw = Pose::get16bitRepresentation(scan.lidar_pose_yaw_);
 
 	double ans = 0.0;
-	for (int i = 0; i < scan.ranges_.size(); i += scan.scan_increment_) {
+	for (size_t i = 0; i < scan.ranges_.size(); i += scan.scan_increment_) {
 		if (not scan.valid(scan.ranges_[i])) continue;
 		uint16_t a = scan.directions_16bit_[i] + t + lidar_yaw;
 		double lx = lidar_x + scan.ranges_[i] * Mcl::cos_[a];
@@ -43,7 +43,7 @@ bool Particle::wallConflict(LikelihoodFieldMap * map, Scan & scan, double thresh
 
 	std::vector<int> order;
 	if (rand() % 2) {
-		for (int i = 0; i < scan.ranges_.size(); i += scan.scan_increment_)
+		for (size_t i = 0; i < scan.ranges_.size(); i += scan.scan_increment_)
 			order.push_back(i);
 	} else {
 		for (int i = scan.ranges_.size() - 1; i >= 0; i -= scan.scan_increment_)
@@ -57,9 +57,9 @@ bool Particle::wallConflict(LikelihoodFieldMap * map, Scan & scan, double thresh
 		double range = scan.ranges_[i];
 		uint16_t a = scan.directions_16bit_[i] + t + lidar_yaw;
 
-		double hit_lx, hit_ly;
-		double hit_lx1, hit_ly1, r1;
-		uint16_t a1;
+		double hit_lx = 0.0, hit_ly = 0.0;
+		double hit_lx1 = 0.0, hit_ly1 = 0.0, r1 = 0.0;
+		uint16_t a1 = 0;
 		if (isPenetrating(lidar_x, lidar_y, range, a, map, hit_lx, hit_ly)) {
 			if (hit_counter == 0) {
 				hit_lx1 = hit_lx;
@@ -128,13 +128,6 @@ void Particle::sensorReset(
 	p_.y_ = cy + d * std::cos(theta);
 */
 	p_.t_ -= theta_delta;
-}
-
-Particle Particle::operator=(const Particle & p)
-{
-	p_ = p.p_;
-	w_ = p.w_;
-	return *this;
 }
 
 }  // namespace emcl2

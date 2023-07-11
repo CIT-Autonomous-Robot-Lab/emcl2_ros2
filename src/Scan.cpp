@@ -29,7 +29,7 @@ Scan & Scan::operator=(const Scan & s)
 int Scan::countValidBeams(double * rate)
 {
 	int ans = 0;
-	for (int i = 0; i < ranges_.size(); i += scan_increment_)
+	for (size_t i = 0; i < ranges_.size(); i += scan_increment_)
 		if (valid(ranges_[i])) ans++;
 
 	if (rate != NULL) *rate = (double)ans / ranges_.size() * scan_increment_;
