@@ -130,6 +130,8 @@ void EMcl2Node::initPF(void)
 	pf_.reset(new ExpResetMcl2(
 	  init_pose, num_particles, scan, om, map, alpha_th, ex_rad_pos, ex_rad_ori,
 	  extraction_rate, range_threshold, sensor_reset));
+
+	init_pf_ = true;
 }
 
 std::shared_ptr<OdomModel> EMcl2Node::initOdometry(void)
@@ -156,12 +158,6 @@ std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 	this->declare_parameter("num_particles", 0);
 	this->get_parameter("num_particles", num);
 
-	//   ROS_INFO("Requesting the map...");
-	//   while (!ros::service::call("static_map", req, resp)) {
-	//     ROS_WARN("Request for map failed; trying again...");
-	//     ros::Duration d(0.5);
-	//     d.sleep();
-	//   }
 	return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(map_, likelihood_range));
 }
 
@@ -175,10 +171,12 @@ void EMcl2Node::receiveMap(nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
 
 void EMcl2Node::cbScan(sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 {
-	scan_receive_ = true;
-	scan_time_stamp_ = msg->header.stamp;
-	scan_frame_id_ = msg->header.frame_id;
-	pf_->setScan(msg);
+	if (init_pf_) {
+		scan_receive_ = true;
+		scan_time_stamp_ = msg->header.stamp;
+		scan_frame_id_ = msg->header.frame_id;
+		pf_->setScan(msg);
+	}
 }
 
 void EMcl2Node::initialPoseReceived(
