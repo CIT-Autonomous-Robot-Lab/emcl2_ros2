@@ -4,12 +4,13 @@
 #ifndef OCC_GRID_MAP_H__
 #define OCC_GRID_MAP_H__
 
-#include <utility>
-#include <vector>
-
 #include "emcl2/Pose.h"
 #include "emcl2/Scan.h"
-#include "nav_msgs/msg/occupancy_grid.hpp"
+
+#include <nav_msgs/msg/occupancy_grid.hpp>
+
+#include <utility>
+#include <vector>
 
 namespace emcl2
 {

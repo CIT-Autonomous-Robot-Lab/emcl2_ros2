@@ -3,9 +3,9 @@
 
 #include "emcl2/Particle.h"
 
-#include <cmath>
-
 #include "emcl2/Mcl.h"
+
+#include <cmath>
 
 namespace emcl2
 {

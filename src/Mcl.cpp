@@ -2,12 +2,12 @@
 //SPDX-License-Identifier: LGPL-3.0-or-later
 #include "emcl2/Mcl.h"
 
+#include <rclcpp/rclcpp.hpp>
+
 #include <stdlib.h>
 
 #include <cmath>
 #include <iostream>
-
-#include "rclcpp/rclcpp.hpp"
 
 namespace emcl2
 {

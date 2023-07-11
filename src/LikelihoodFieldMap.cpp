@@ -3,10 +3,10 @@
 
 #include "emcl2/LikelihoodFieldMap.h"
 
+#include "emcl2/Pose.h"
+
 #include <algorithm>
 #include <random>
-
-#include "emcl2/Pose.h"
 
 namespace emcl2
 {
