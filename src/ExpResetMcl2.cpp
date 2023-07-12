@@ -17,13 +17,13 @@ ExpResetMcl2::ExpResetMcl2(
   const std::shared_ptr<LikelihoodFieldMap> & map, double alpha_th,
   double expansion_radius_position, double expansion_radius_orientation, double extraction_rate,
   double range_threshold, bool sensor_reset)
-: alpha_threshold_(alpha_th),
+: Mcl::Mcl(p, num, scan, odom_model, map),
+  alpha_threshold_(alpha_th),
   expansion_radius_position_(expansion_radius_position),
   expansion_radius_orientation_(expansion_radius_orientation),
   extraction_rate_(extraction_rate),
   range_threshold_(range_threshold),
-  sensor_reset_(sensor_reset),
-  Mcl::Mcl(p, num, scan, odom_model, map)
+  sensor_reset_(sensor_reset)
 {
 }
 
@@ -34,9 +34,9 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 	// if (processed_seq_ == scan_.seq_) return;
 
 	Scan scan;
-	int seq = -1;
+	// int seq = -1;
 	// while (seq != scan_.seq_) {  //trying to copy the latest scan before next
-	seq = scan_.seq_;
+	// seq = scan_.seq_;
 	scan = scan_;
 	// }
 
@@ -46,11 +46,11 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 
 	int i = 0;
 	if (!inv) {
-		for (auto e : scan.ranges_)
+		for ([[maybe_unused]] auto & _ : scan.ranges_)
 			scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
 			  scan.angle_min_ + (i++) * scan.angle_increment_));
 	} else {
-		for (auto e : scan.ranges_)
+		for ([[maybe_unused]] auto & _ : scan.ranges_)
 			scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
 			  scan.angle_max_ - (i++) * scan.angle_increment_));
 	}
@@ -82,7 +82,7 @@ double ExpResetMcl2::nonPenetrationRate(int skip, LikelihoodFieldMap * map, Scan
 	static uint16_t shift = 0;
 	int counter = 0;
 	int penetrating = 0;
-	for (int i = shift % skip; i < particles_.size(); i += skip) {
+	for (size_t i = shift % skip; i < particles_.size(); i += skip) {
 		counter++;
 		if (particles_[i].wallConflict(map, scan, range_threshold_, sensor_reset_))
 			penetrating++;

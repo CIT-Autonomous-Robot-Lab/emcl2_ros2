@@ -33,10 +33,10 @@ namespace emcl2
 EMcl2Node::EMcl2Node()
 : Node("emcl2_node"),
   ros_clock_(RCL_SYSTEM_TIME),
-  scan_receive_(false),
-  map_receive_(false),
   init_request_(false),
-  simple_reset_request_(false)
+  simple_reset_request_(false),
+  scan_receive_(false),
+  map_receive_(false)
 {
 	initCommunication();
 }
@@ -124,7 +124,7 @@ void EMcl2Node::initPF(void)
 	this->get_parameter("expansion_radius_orientation", ex_rad_ori);
 
 	double extraction_rate, range_threshold;
-	bool sensor_reset;
+	bool sensor_reset = true;
 	this->declare_parameter("extraction_rate", 0.1);
 	this->declare_parameter("range_threshold", 0.1);
 	this->declare_parameter("sensor_reset", true);
@@ -304,7 +304,7 @@ void EMcl2Node::publishOdomFrame(double x, double y, double t)
 
 		tf_->transform(tmp_tf_stamped, odom_to_map, odom_frame_id_);
 
-	} catch (tf2::TransformException) {
+	} catch (tf2::TransformException & e) {
 		RCLCPP_DEBUG(get_logger(), "Failed to subtract base to odom transform");
 		return;
 	}
@@ -328,7 +328,7 @@ void EMcl2Node::publishParticles(void)
 	cloud_msg.header.frame_id = global_frame_id_;
 	cloud_msg.poses.resize(pf_->particles_.size());
 
-	for (int i = 0; i < pf_->particles_.size(); i++) {
+	for (size_t i = 0; i < pf_->particles_.size(); i++) {
 		cloud_msg.poses[i].position.x = pf_->particles_[i].p_.x_;
 		cloud_msg.poses[i].position.y = pf_->particles_[i].p_.y_;
 		cloud_msg.poses[i].position.z = 0;
@@ -350,7 +350,7 @@ bool EMcl2Node::getOdomPose(double & x, double & y, double & yaw)
 	geometry_msgs::msg::PoseStamped odom_pose;
 	try {
 		this->tf_->transform(ident, odom_pose, odom_frame_id_);
-	} catch (tf2::TransformException e) {
+	} catch (tf2::TransformException & e) {
 		RCLCPP_WARN(
 		  get_logger(), "Failed to compute odom pose, skipping scan (%s)", e.what());
 		return false;
@@ -372,7 +372,7 @@ bool EMcl2Node::getLidarPose(double & x, double & y, double & yaw, bool & inv)
 	geometry_msgs::msg::PoseStamped lidar_pose;
 	try {
 		this->tf_->transform(ident, lidar_pose, base_frame_id_);
-	} catch (tf2::TransformException e) {
+	} catch (tf2::TransformException & e) {
 		RCLCPP_WARN(
 		  get_logger(), "Failed to compute lidar pose, skipping scan (%s)", e.what());
 		return false;
@@ -391,8 +391,7 @@ bool EMcl2Node::getLidarPose(double & x, double & y, double & yaw, bool & inv)
 int EMcl2Node::getOdomFreq(void) { return odom_freq_; }
 
 bool EMcl2Node::cbSimpleReset(
-  const std_srvs::srv::Empty::Request::ConstSharedPtr req,
-  std_srvs::srv::Empty::Response::SharedPtr res)
+  const std_srvs::srv::Empty::Request::ConstSharedPtr, std_srvs::srv::Empty::Response::SharedPtr)
 {
 	return simple_reset_request_ = true;
 }

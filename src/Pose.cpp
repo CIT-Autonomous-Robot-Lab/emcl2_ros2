@@ -10,6 +10,8 @@ namespace emcl2
 {
 Pose::Pose(double x, double y, double t) { set(x, y, t); }
 
+Pose::Pose(const Pose & other) { set(other); }
+
 void Pose::set(double x, double y, double t)
 {
 	x_ = x;
@@ -47,9 +49,11 @@ Pose Pose::operator-(const Pose & p) const
 
 Pose Pose::operator=(const Pose & p)
 {
-	x_ = p.x_;
-	y_ = p.y_;
-	t_ = p.t_;
+	if (this != &p) {
+		x_ = p.x_;
+		y_ = p.y_;
+		t_ = p.t_;
+	}
 	return *this;
 }
 

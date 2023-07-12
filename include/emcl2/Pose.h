@@ -14,6 +14,7 @@ class Pose
       public:
 	Pose() {}
 	Pose(double x, double y, double t);
+	Pose(const Pose & other);
 
 	void set(double x, double y, double t);
 	void set(const Pose & p);

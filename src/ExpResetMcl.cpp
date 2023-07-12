@@ -16,11 +16,11 @@ ExpResetMcl::ExpResetMcl(
   const Pose & p, int num, const Scan & scan, const std::shared_ptr<OdomModel> & odom_model,
   const std::shared_ptr<LikelihoodFieldMap> & map, double alpha_th, double open_space_th,
   double expansion_radius_position, double expansion_radius_orientation)
-: alpha_threshold_(alpha_th),
+: Mcl::Mcl(p, num, scan, odom_model, map),
+  alpha_threshold_(alpha_th),
   open_space_threshold_(open_space_th),
   expansion_radius_position_(expansion_radius_position),
-  expansion_radius_orientation_(expansion_radius_orientation),
-  Mcl::Mcl(p, num, scan, odom_model, map)
+  expansion_radius_orientation_(expansion_radius_orientation)
 {
 }
 
@@ -43,11 +43,11 @@ void ExpResetMcl::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, b
 
 	int i = 0;
 	if (!inv) {
-		for (auto e : scan.ranges_)
+		for ([[maybe_unused]] auto & _ : scan.ranges_)
 			scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
 			  scan.angle_min_ + (i++) * scan.angle_increment_));
 	} else {
-		for (auto e : scan.ranges_)
+		for ([[maybe_unused]] auto & _ : scan.ranges_)
 			scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
 			  scan.angle_max_ - (i++) * scan.angle_increment_));
 	}

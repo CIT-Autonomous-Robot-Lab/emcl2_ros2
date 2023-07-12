@@ -94,8 +94,8 @@ class EMcl2Node : public rclcpp::Node
 	void cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
 	// bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
 	bool cbSimpleReset(
-	  const std_srvs::srv::Empty::Request::ConstSharedPtr req,
-	  std_srvs::srv::Empty::Response::SharedPtr res);
+	  const std_srvs::srv::Empty::Request::ConstSharedPtr,
+	  std_srvs::srv::Empty::Response::SharedPtr);
 	void initialPoseReceived(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr
 				   msg);  //same name is found in amcl
 };

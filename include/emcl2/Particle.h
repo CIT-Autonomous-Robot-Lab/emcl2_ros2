@@ -13,13 +13,21 @@ class Particle
 {
       public:
 	Particle(double x, double y, double t, double w);
+	Particle(const Particle & other) = default;
+
+	Particle & operator=(const Particle & other)
+	{
+		if (this != &other) {
+			this->p_ = other.p_;
+			this->w_ = other.w_;
+		}
+		return *this;
+	}
 
 	double likelihood(LikelihoodFieldMap * map, Scan & scan);
 	bool wallConflict(LikelihoodFieldMap * map, Scan & scan, double threshold, bool replace);
 	Pose p_;
 	double w_;
-
-	Particle operator=(const Particle & p);
 
       private:
 	bool isPenetrating(
