@@ -1,8 +1,8 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: LGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-#ifndef PF_H__
-#define PF_H__
+#ifndef EMCL2__MCL_H_
+#define EMCL2__MCL_H_
 
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
@@ -11,6 +11,7 @@
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
 
+#include <memory>
 #include <random>
 #include <sstream>
 #include <vector>
@@ -62,4 +63,4 @@ class Mcl
 
 }  // namespace emcl2
 
-#endif
+#endif	// EMCL2__MCL_H_

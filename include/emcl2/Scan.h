@@ -1,8 +1,8 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: LGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-#ifndef SCAN_H__
-#define SCAN_H__
+#ifndef EMCL2__SCAN_H_
+#define EMCL2__SCAN_H_
 
 #include <iostream>
 #include <vector>
@@ -35,4 +35,4 @@ class Scan
 
 }  // namespace emcl2
 
-#endif
+#endif	// EMCL2__SCAN_H_

@@ -1,8 +1,8 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: LGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-#ifndef ODOM_MODEL_H__
-#define ODOM_MODEL_H__
+#ifndef EMCL2__ODOMMODEL_H_
+#define EMCL2__ODOMMODEL_H_
 
 #include <random>
 
@@ -33,4 +33,4 @@ class OdomModel
 
 }  // namespace emcl2
 
-#endif
+#endif	// EMCL2__ODOMMODEL_H_

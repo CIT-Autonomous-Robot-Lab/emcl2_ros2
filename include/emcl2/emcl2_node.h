@@ -1,9 +1,9 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: LGPL-3.0-or-later
-//CAUTION: Some lines came from amcl (LGPL).
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// CAUTION: Some lines came from amcl (LGPL).
 
-#ifndef INTERFACE_EMCL2_H__
-#define INTERFACE_EMCL2_H__
+#ifndef EMCL2__EMCL2_NODE_H_
+#define EMCL2__EMCL2_NODE_H_
 
 #include "emcl2/ExpResetMcl2.h"
 #include "emcl2/LikelihoodFieldMap.h"
@@ -22,6 +22,9 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
+
+#include <memory>
+#include <string>
 
 namespace emcl2
 {
@@ -46,7 +49,7 @@ class EMcl2Node : public rclcpp::Node
 	  initial_pose_sub_;
 	rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_;
 
-	//ros::ServiceServer global_loc_srv_;
+	// ros::ServiceServer global_loc_srv_;
 	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr global_loc_srv_;
 	rclcpp::Time scan_time_stamp_;
 
@@ -78,8 +81,7 @@ class EMcl2Node : public rclcpp::Node
 	  double yt_cov, double tx_cov);
 	void publishOdomFrame(double x, double y, double t);
 	void publishParticles(void);
-	void sendTf(void);
-	bool getOdomPose(double & x, double & y, double & yaw);	 //same name is found in amcl
+	bool getOdomPose(double & x, double & y, double & yaw);	 // same name is found in amcl
 	bool getLidarPose(double & x, double & y, double & yaw, bool & inv);
 	void receiveMap(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg);
 
@@ -97,9 +99,9 @@ class EMcl2Node : public rclcpp::Node
 	  const std_srvs::srv::Empty::Request::ConstSharedPtr,
 	  std_srvs::srv::Empty::Response::SharedPtr);
 	void initialPoseReceived(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr
-				   msg);  //same name is found in amcl
+				   msg);  // same name is found in amcl
 };
 
 }  // namespace emcl2
 
-#endif
+#endif	// EMCL2__EMCL2_NODE_H_

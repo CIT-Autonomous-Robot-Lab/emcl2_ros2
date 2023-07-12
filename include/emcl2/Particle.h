@@ -1,8 +1,8 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: LGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-#ifndef PARTICLE_H__
-#define PARTICLE_H__
+#ifndef EMCL2__PARTICLE_H_
+#define EMCL2__PARTICLE_H_
 
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/Pose.h"
@@ -45,4 +45,4 @@ class Particle
 
 }  // namespace emcl2
 
-#endif
+#endif	// EMCL2__PARTICLE_H_

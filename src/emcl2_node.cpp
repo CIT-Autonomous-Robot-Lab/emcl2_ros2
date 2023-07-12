@@ -1,6 +1,6 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: LGPL-3.0-or-later
-//CAUTION: Some lines came from amcl (LGPL).
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// CAUTION: Some lines came from amcl (LGPL).
 
 #include "emcl2/emcl2_node.h"
 
@@ -186,7 +186,7 @@ void EMcl2Node::initialPoseReceived(
   const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg)
 {
 	RCLCPP_INFO(get_logger(), "Run receiveInitialPose");
-	if (not initialpose_receive_) {
+	if (!initialpose_receive_) {
 		if (scan_receive_ && map_receive_) {
 			init_x_ = msg->pose.pose.position.x;
 			init_y_ = msg->pose.pose.position.y;
@@ -194,14 +194,16 @@ void EMcl2Node::initialPoseReceived(
 			pf_->initialize(init_x_, init_y_, init_t_);
 			initialpose_receive_ = true;
 		} else {
-			if (not scan_receive_)
+			if (!scan_receive_) {
 				RCLCPP_WARN(
 				  get_logger(),
 				  "Not yet received scan. Therefore, MCL cannot be initiated.");
-			if (not map_receive_)
+			}
+			if (!map_receive_) {
 				RCLCPP_WARN(
 				  get_logger(),
 				  "Not yet received map. Therefore, MCL cannot be initiated.");
+			}
 		}
 	} else {
 		init_request_ = true;
@@ -223,7 +225,7 @@ void EMcl2Node::loop(void)
 
 	if (init_pf_) {
 		double x, y, t;
-		if (not getOdomPose(x, y, t)) {
+		if (!getOdomPose(x, y, t)) {
 			RCLCPP_INFO(get_logger(), "can't get odometry info");
 			return;
 		}
@@ -231,7 +233,7 @@ void EMcl2Node::loop(void)
 
 		double lx, ly, lt;
 		bool inv;
-		if (not getLidarPose(lx, ly, lt, inv)) {
+		if (!getLidarPose(lx, ly, lt, inv)) {
 			RCLCPP_INFO(get_logger(), "can't get lidar pose info");
 			return;
 		}
@@ -249,14 +251,16 @@ void EMcl2Node::loop(void)
 		alpha_msg.data = static_cast<float>(pf_->alpha_);
 		alpha_pub_->publish(alpha_msg);
 	} else {
-		if (not scan_receive_)
+		if (!scan_receive_) {
 			RCLCPP_WARN(
 			  get_logger(),
 			  "Not yet received scan. Therefore, MCL cannot be initiated.");
-		if (not map_receive_)
+		}
+		if (!map_receive_) {
 			RCLCPP_WARN(
 			  get_logger(),
 			  "Not yet received map. Therefore, MCL cannot be initiated.");
+		}
 	}
 }
 
@@ -300,7 +304,6 @@ void EMcl2Node::publishOdomFrame(double x, double y, double t)
 		tf2::toMsg(tmp_tf.inverse(), tmp_tf_stamped.pose);
 
 		tf_->transform(tmp_tf_stamped, odom_to_map, odom_frame_id_);
-
 	} catch (tf2::TransformException & e) {
 		RCLCPP_DEBUG(get_logger(), "Failed to subtract base to odom transform");
 		return;

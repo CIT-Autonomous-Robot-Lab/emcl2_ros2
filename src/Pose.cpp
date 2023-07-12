@@ -1,5 +1,5 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: LGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "emcl2/Pose.h"
 
@@ -35,8 +35,12 @@ std::string Pose::to_s(void)
 
 void Pose::normalizeAngle(void)
 {
-	while (t_ > M_PI) t_ -= 2 * M_PI;
-	while (t_ < -M_PI) t_ += 2 * M_PI;
+	while (t_ > M_PI) {
+		t_ -= 2 * M_PI;
+	}
+	while (t_ < -M_PI) {
+		t_ += 2 * M_PI;
+	}
 }
 
 Pose Pose::operator-(const Pose & p) const
@@ -65,13 +69,17 @@ void Pose::move(double length, double direction, double rotation, double fw_nois
 	normalizeAngle();
 }
 
-bool Pose::nearlyZero(void) { return fabs(x_) < 0.001 and fabs(y_) < 0.001 and fabs(t_) < 0.001; }
+bool Pose::nearlyZero(void) { return fabs(x_) < 0.001 && fabs(y_) < 0.001 && fabs(t_) < 0.001; }
 
 uint16_t Pose::get16bitRepresentation(void)
 {
 	int tmp = t_ / M_PI * (1 << 15);
-	while (tmp < 0) tmp += (1 << 16);
-	while (tmp >= (1 << 16)) tmp -= (1 << 16);
+	while (tmp < 0) {
+		tmp += (1 << 16);
+	}
+	while (tmp >= (1 << 16)) {
+		tmp -= (1 << 16);
+	}
 
 	return (uint16_t)tmp;
 }
@@ -79,8 +87,12 @@ uint16_t Pose::get16bitRepresentation(void)
 uint16_t Pose::get16bitRepresentation(double t)
 {
 	int tmp = t / M_PI * (1 << 15);
-	while (tmp < 0) tmp += (1 << 16);
-	while (tmp >= (1 << 16)) tmp -= (1 << 16);
+	while (tmp < 0) {
+		tmp += (1 << 16);
+	}
+	while (tmp >= (1 << 16)) {
+		tmp -= (1 << 16);
+	}
 
 	return (uint16_t)tmp;
 }
