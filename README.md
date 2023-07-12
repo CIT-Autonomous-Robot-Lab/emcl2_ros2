@@ -40,7 +40,7 @@ This node also has a sensor resetting algorithm. When `sensor_reset` is true, a 
 | ------------- | --------------------------------------- | --------------------------------------------------------------------------------------- | 
 | `mcl_pose`      | [`geometry_msgs/PoseWithCovarianceStamped`](http://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/PoseWithCovarianceStamped.html) | the mean pose of the particles with covariance                                          | 
 | `particlecloud` | [`geometry_msgs/PoseArray`](http://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/PoseArray.html)                 | poses of the particles                                                                  | 
-| `tf`            | [`tf/tfMessage`](http://docs.ros.org/en/noetic/api/tf/html/msg/tfMessage.html)                            | the transform from odom (which can be remapped via the ~odom_frame_id parameter) to map | 
+| `tf`            | [`tf/tfMessage`](http://docs.ros.org/en/noetic/api/tf/html/msg/tfMessage.html)                            | the transform from odom (which can be remapped via the odom_frame_id parameter) to map | 
 | `alpha`         | [`std_msgs/Float32`](http://docs.ros.org/en/noetic/api/std_msgs/html/msg/Float32.html)                        | marginal likelihood of particles after sensor update                                    | 
 
 #### Parameters
@@ -51,7 +51,7 @@ This node also has a sensor resetting algorithm. When `sensor_reset` is true, a 
 | `num_particles`                | `int`     | 500       | number of particles                                                |
 | `odom_frame_id`                | `string`  | "odom"     | the frame for odometry                                             |
 | `footprint_frame_id`           | `string`  | "base_footprint" | the frame of the localized robot's base                    |
-| `base_frame_id`                | `string`  | "base_link" | the frame of the robot's base. It is used for calculating the position and orientation of the LiDAR. |
+| `base_frame_id`                | `string`  | "base_link" | the frame of the robot's base. It is used for calculating the position and orientation of the LiDAR |
 | `global_frame_id`              | `string`  | "map"      | the frame for localization                                         |
 | `initial_pose_x`               | `double`  | 0.0 [m]    | initial x coordinate of particles                                  |
 | `initial_pose_y`               | `double`  | 0.0 [m]    | initial y coordinate of particles                                  |
