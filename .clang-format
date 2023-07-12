@@ -1,4 +1,3 @@
----
 Language: Cpp
 BasedOnStyle: Google
 
@@ -19,4 +18,26 @@ IndentWidth: 8
 TabWidth: 8
 PointerAlignment: Middle
 ReflowComments: false
-...
+
+IncludeCategories:
+  - Regex: <[a-z_]*>
+    Priority: 6
+    CaseSensitive: true
+  - Regex: <.*\.h>
+    Priority: 5
+    CaseSensitive: true
+  - Regex: boost/.*
+    Priority: 4
+    CaseSensitive: true
+  - Regex: .*_msgs/.*
+    Priority: 3
+    CaseSensitive: true
+  - Regex: .*_srvs/.*
+    Priority: 3
+    CaseSensitive: true
+  - Regex: <.*>
+    Priority: 2
+    CaseSensitive: true
+  - Regex: '".*"'
+    Priority: 1
+    CaseSensitive: true

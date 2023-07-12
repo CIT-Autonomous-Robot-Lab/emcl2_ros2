@@ -1,9 +1,8 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: BSD-3-Clause
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include "emcl/OdomModel.h"
+#include "emcl2/OdomModel.h"
 
-#include <ros/ros.h>
 #include <stdlib.h>
 
 #include <cmath>
@@ -11,9 +10,8 @@
 
 namespace emcl2
 {
-
 OdomModel::OdomModel(double ff, double fr, double rf, double rr)
-: std_norm_dist_(0.0, 1.0), fw_dev_(0.0), rot_dev_(0.0), engine_(seed_gen_())
+: fw_dev_(0.0), rot_dev_(0.0), engine_(seed_gen_()), std_norm_dist_(0.0, 1.0)
 {
 	fw_var_per_fw_ = ff * ff;
 	fw_var_per_rot_ = fr * fr;

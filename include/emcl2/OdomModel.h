@@ -1,14 +1,13 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: BSD-3-Clause
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-#ifndef ODOM_MODEL_H__
-#define ODOM_MODEL_H__
+#ifndef EMCL2__ODOMMODEL_H_
+#define EMCL2__ODOMMODEL_H_
 
 #include <random>
 
 namespace emcl2
 {
-
 class OdomModel
 {
       public:
@@ -26,12 +25,12 @@ class OdomModel
 	double rot_var_per_fw_;
 	double rot_var_per_rot_;
 
-	std::normal_distribution<> std_norm_dist_;
-
 	std::random_device seed_gen_;
-	std::default_random_engine engine_;
+	std::default_random_engine engine_{seed_gen_()};
+
+	std::normal_distribution<> std_norm_dist_;
 };
 
 }  // namespace emcl2
 
-#endif
+#endif	// EMCL2__ODOMMODEL_H_

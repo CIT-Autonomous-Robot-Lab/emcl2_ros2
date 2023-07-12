@@ -1,26 +1,33 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: BSD-3-Clause
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-#ifndef PARTICLE_H__
-#define PARTICLE_H__
+#ifndef EMCL2__PARTICLE_H_
+#define EMCL2__PARTICLE_H_
 
-#include "emcl/LikelihoodFieldMap.h"
-#include "emcl/Pose.h"
+#include "emcl2/LikelihoodFieldMap.h"
+#include "emcl2/Pose.h"
 
 namespace emcl2
 {
-
 class Particle
 {
       public:
 	Particle(double x, double y, double t, double w);
+	Particle(const Particle & other) = default;
+
+	Particle & operator=(const Particle & other)
+	{
+		if (this != &other) {
+			this->p_ = other.p_;
+			this->w_ = other.w_;
+		}
+		return *this;
+	}
 
 	double likelihood(LikelihoodFieldMap * map, Scan & scan);
 	bool wallConflict(LikelihoodFieldMap * map, Scan & scan, double threshold, bool replace);
 	Pose p_;
 	double w_;
-
-	Particle operator=(const Particle & p);
 
       private:
 	bool isPenetrating(
@@ -38,4 +45,4 @@ class Particle
 
 }  // namespace emcl2
 
-#endif
+#endif	// EMCL2__PARTICLE_H_

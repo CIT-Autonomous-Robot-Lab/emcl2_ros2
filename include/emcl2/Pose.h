@@ -1,10 +1,11 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: BSD-3-Clause
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-#ifndef POSE_H__
-#define POSE_H__
+#ifndef EMCL2__POSE_H_
+#define EMCL2__POSE_H_
 
 #include <sstream>
+#include <string>
 
 namespace emcl2
 {
@@ -14,6 +15,7 @@ class Pose
       public:
 	Pose() {}
 	Pose(double x, double y, double t);
+	Pose(const Pose & other);
 
 	void set(double x, double y, double t);
 	void set(const Pose & p);
@@ -36,4 +38,4 @@ class Pose
 
 }  // namespace emcl2
 
-#endif
+#endif	// EMCL2__POSE_H_

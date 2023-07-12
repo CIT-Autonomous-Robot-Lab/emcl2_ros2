@@ -1,14 +1,15 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: BSD-3-Clause
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-#ifndef EXP_PF2_H__
-#define EXP_PF2_H__
+#ifndef EMCL2__EXPRESETMCL2_H_
+#define EMCL2__EXPRESETMCL2_H_
 
-#include "emcl/Mcl.h"
+#include "emcl2/Mcl.h"
+
+#include <memory>
 
 namespace emcl2
 {
-
 class ExpResetMcl2 : public Mcl
 {
       public:
@@ -32,10 +33,10 @@ class ExpResetMcl2 : public Mcl
 
 	void expansionReset(void);
 
-	//bool Particle::isPenetrating(
+	// bool Particle::isPenetrating(
 	double nonPenetrationRate(int skip, LikelihoodFieldMap * map, Scan & scan);
 };
 
 }  // namespace emcl2
 
-#endif
+#endif	// EMCL2__EXPRESETMCL2_H_

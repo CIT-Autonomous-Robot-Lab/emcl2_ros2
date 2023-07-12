@@ -1,15 +1,14 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: BSD-3-Clause
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include "emcl/Particle.h"
+#include "emcl2/Particle.h"
+
+#include "emcl2/Mcl.h"
 
 #include <cmath>
 
-#include "emcl/Mcl.h"
-
 namespace emcl2
 {
-
 Particle::Particle(double x, double y, double t, double w) : p_(x, y, t) { w_ = w; }
 
 double Particle::likelihood(LikelihoodFieldMap * map, Scan & scan)
@@ -22,8 +21,10 @@ double Particle::likelihood(LikelihoodFieldMap * map, Scan & scan)
 	uint16_t lidar_yaw = Pose::get16bitRepresentation(scan.lidar_pose_yaw_);
 
 	double ans = 0.0;
-	for (int i = 0; i < scan.ranges_.size(); i += scan.scan_increment_) {
-		if (not scan.valid(scan.ranges_[i])) continue;
+	for (size_t i = 0; i < scan.ranges_.size(); i += scan.scan_increment_) {
+		if (!scan.valid(scan.ranges_[i])) {
+			continue;
+		}
 		uint16_t a = scan.directions_16bit_[i] + t + lidar_yaw;
 		double lx = lidar_x + scan.ranges_[i] * Mcl::cos_[a];
 		double ly = lidar_y + scan.ranges_[i] * Mcl::sin_[a];
@@ -44,23 +45,27 @@ bool Particle::wallConflict(LikelihoodFieldMap * map, Scan & scan, double thresh
 
 	std::vector<int> order;
 	if (rand() % 2) {
-		for (int i = 0; i < scan.ranges_.size(); i += scan.scan_increment_)
+		for (size_t i = 0; i < scan.ranges_.size(); i += scan.scan_increment_) {
 			order.push_back(i);
+		}
 	} else {
-		for (int i = scan.ranges_.size() - 1; i >= 0; i -= scan.scan_increment_)
+		for (int i = scan.ranges_.size() - 1; i >= 0; i -= scan.scan_increment_) {
 			order.push_back(i);
+		}
 	}
 
 	int hit_counter = 0;
 	for (int i : order) {
-		if (not scan.valid(scan.ranges_[i])) continue;
+		if (!scan.valid(scan.ranges_[i])) {
+			continue;
+		}
 
 		double range = scan.ranges_[i];
 		uint16_t a = scan.directions_16bit_[i] + t + lidar_yaw;
 
-		double hit_lx, hit_ly;
-		double hit_lx1, hit_ly1, r1;
-		uint16_t a1;
+		double hit_lx = 0.0, hit_ly = 0.0;
+		double hit_lx1 = 0.0, hit_ly1 = 0.0, r1 = 0.0;
+		uint16_t a1 = 0;
 		if (isPenetrating(lidar_x, lidar_y, range, a, map, hit_lx, hit_ly)) {
 			if (hit_counter == 0) {
 				hit_lx1 = hit_lx;
@@ -70,14 +75,16 @@ bool Particle::wallConflict(LikelihoodFieldMap * map, Scan & scan, double thresh
 			}
 
 			hit_counter++;
-		} else
+		} else {
 			hit_counter = 0;
+		}
 
 		if (hit_counter * scan.angle_increment_ >= threshold) {
-			if (replace)
+			if (replace) {
 				sensorReset(
 				  lidar_x, lidar_y, r1, a1, hit_lx1, hit_ly1, range, a, hit_lx,
 				  hit_ly);
+			}
 			return true;
 		}
 	}
@@ -93,12 +100,12 @@ bool Particle::isPenetrating(
 		double lx = ox + d * Mcl::cos_[direction];
 		double ly = oy + d * Mcl::sin_[direction];
 
-		if ((not hit) and map->likelihood(lx, ly) > 0.99) {
+		if ((!hit) && map->likelihood(lx, ly) > 0.99) {
 			hit = true;
 			hit_lx = lx;
 			hit_ly = ly;
-		} else if (hit and map->likelihood(lx, ly) == 0.0) {  // openspace after hit
-			return true;				      // penetration
+		} else if (hit && map->likelihood(lx, ly) == 0.0) {  // openspace after hit
+			return true;				     // penetration
 		}
 	}
 	return false;
@@ -121,21 +128,14 @@ void Particle::sensorReset(
 
 	double theta_delta =
 	  atan2(p2_y - p1_y, p2_x - p1_x) - atan2(hit_ly2 - hit_ly1, hit_lx2 - hit_lx1);
-	/*
-	double d = std::sqrt((p_.x_ - cx)*(p_.x_ - cx) + (p_.y_ - cy)*(p_.y_ - cy));
 
-	double theta = atan2(p_.y_ - cy, p_.x_ - cx) - theta_delta;
-	p_.x_ = cx + d * std::cos(theta);
-	p_.y_ = cy + d * std::cos(theta);
-*/
+	// double d = std::sqrt((p_.x_ - cx)*(p_.x_ - cx) + (p_.y_ - cy)*(p_.y_ - cy));
+
+	// double theta = atan2(p_.y_ - cy, p_.x_ - cx) - theta_delta;
+	// p_.x_ = cx + d * std::cos(theta);
+	// p_.y_ = cy + d * std::cos(theta);
+
 	p_.t_ -= theta_delta;
-}
-
-Particle Particle::operator=(const Particle & p)
-{
-	p_ = p.p_;
-	w_ = p.w_;
-	return *this;
 }
 
 }  // namespace emcl2
