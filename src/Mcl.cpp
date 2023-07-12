@@ -116,16 +116,6 @@ void Mcl::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv)
 		p.w_ *= p.likelihood(map_.get(), scan);
 	}
 
-	/*
-alpha_ = normalizeBelief()/valid_beams;
-if(alpha_ < alpha_threshold_ and valid_pct > open_space_threshold_){
-    ROS_INFO("RESET");
-    expansionReset();
-    for(auto &p : particles_)
-            p.w_ *= p.likelihood(map_.get(), scan);
-}
-*/
-
 	if (normalizeBelief() > 0.000001) {
 		resampling();
 	} else {

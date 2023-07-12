@@ -128,13 +128,13 @@ void Particle::sensorReset(
 
 	double theta_delta =
 	  atan2(p2_y - p1_y, p2_x - p1_x) - atan2(hit_ly2 - hit_ly1, hit_lx2 - hit_lx1);
-	/*
-double d = std::sqrt((p_.x_ - cx)*(p_.x_ - cx) + (p_.y_ - cy)*(p_.y_ - cy));
 
-double theta = atan2(p_.y_ - cy, p_.x_ - cx) - theta_delta;
-p_.x_ = cx + d * std::cos(theta);
-p_.y_ = cy + d * std::cos(theta);
-*/
+	// double d = std::sqrt((p_.x_ - cx)*(p_.x_ - cx) + (p_.y_ - cy)*(p_.y_ - cy));
+
+	// double theta = atan2(p_.y_ - cy, p_.x_ - cx) - theta_delta;
+	// p_.x_ = cx + d * std::cos(theta);
+	// p_.y_ = cy + d * std::cos(theta);
+
 	p_.t_ -= theta_delta;
 }
 

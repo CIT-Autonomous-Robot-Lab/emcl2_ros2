@@ -87,6 +87,7 @@ void ExpResetMcl::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, b
 }
 
 void ExpResetMcl::expansionReset(void)
+
 {
 	for (auto & p : particles_) {
 		double length =
