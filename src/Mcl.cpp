@@ -1,5 +1,5 @@
-//SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
-//SPDX-License-Identifier: LGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
+// SPDX-License-Identifier: LGPL-3.0-or-later
 #include "emcl2/Mcl.h"
 
 #include <rclcpp/rclcpp.hpp>
@@ -25,7 +25,9 @@ Mcl::Mcl(
 	}
 
 	Particle particle(p.x_, p.y_, p.t_, 1.0 / num);
-	for (int i = 0; i < num; i++) particles_.push_back(particle);
+	for (int i = 0; i < num; i++) {
+		particles_.push_back(particle);
+	}
 
 	processed_seq_ = -1;
 	alpha_ = 1.0;
@@ -52,7 +54,7 @@ void Mcl::resampling(void)
 
 	std::vector<Particle> old(particles_);
 
-	double start = (double)rand() / (RAND_MAX * particles_.size());
+	double start = static_cast<double>(rand()) / (RAND_MAX * particles_.size());
 	double step = 1.0 / particles_.size();
 
 	std::vector<int> chosen;
@@ -69,16 +71,20 @@ void Mcl::resampling(void)
 		chosen.push_back(tick);
 	}
 
-	for (size_t i = 0; i < particles_.size(); i++) particles_[i] = old[chosen[i]];
+	for (size_t i = 0; i < particles_.size(); i++) {
+		particles_[i] = old[chosen[i]];
+	}
 }
 
 void Mcl::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv)
 {
-	if (processed_seq_ == scan_.seq_) return;
+	if (processed_seq_ == scan_.seq_) {
+		return;
+	}
 
 	Scan scan;
 	int seq = -1;
-	while (seq != scan_.seq_) {  //trying to copy the latest scan before next
+	while (seq != scan_.seq_) {  // trying to copy the latest scan before next
 		seq = scan_.seq_;
 		scan = scan_;
 	}
@@ -89,35 +95,32 @@ void Mcl::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv)
 
 	int i = 0;
 	if (!inv) {
-		for ([[maybe_unused]] auto & _ : scan.ranges_)
+		for ([[maybe_unused]] auto & _ : scan.ranges_) {
 			scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
 			  scan.angle_min_ + (i++) * scan.angle_increment_));
+		}
 	} else {
-		for ([[maybe_unused]] auto & _ : scan.ranges_)
+		for ([[maybe_unused]] auto & _ : scan.ranges_) {
 			scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
 			  scan.angle_max_ - (i++) * scan.angle_increment_));
+		}
 	}
 
 	double valid_pct = 0.0;
 	int valid_beams = scan.countValidBeams(&valid_pct);
-	if (valid_beams == 0) return;
-
-	for (auto & p : particles_) p.w_ *= p.likelihood(map_.get(), scan);
-
-	/*
-	alpha_ = normalizeBelief()/valid_beams;
-	if(alpha_ < alpha_threshold_ and valid_pct > open_space_threshold_){
-		ROS_INFO("RESET");
-		expansionReset();
-		for(auto &p : particles_)
-			p.w_ *= p.likelihood(map_.get(), scan);
+	if (valid_beams == 0) {
+		return;
 	}
-	*/
 
-	if (normalizeBelief() > 0.000001)
+	for (auto & p : particles_) {
+		p.w_ *= p.likelihood(map_.get(), scan);
+	}
+
+	if (normalizeBelief() > 0.000001) {
 		resampling();
-	else
+	} else {
 		resetWeight();
+	}
 
 	processed_seq_ = scan_.seq_;
 }
@@ -128,21 +131,25 @@ void Mcl::motionUpdate(double x, double y, double t)
 		last_odom_ = new Pose(x, y, t);
 		prev_odom_ = new Pose(x, y, t);
 		return;
-	} else
+	} else {
 		last_odom_->set(x, y, t);
+	}
 
 	Pose d = *last_odom_ - *prev_odom_;
-	if (d.nearlyZero()) return;
+	if (d.nearlyZero()) {
+		return;
+	}
 
 	double fw_length = sqrt(d.x_ * d.x_ + d.y_ * d.y_);
 	double fw_direction = atan2(d.y_, d.x_) - prev_odom_->t_;
 
 	odom_model_->setDev(fw_length, d.t_);
 
-	for (auto & p : particles_)
+	for (auto & p : particles_) {
 		p.p_.move(
 		  fw_length, fw_direction, d.t_, odom_model_->drawFwNoise(),
 		  odom_model_->drawRotNoise());
+	}
 
 	prev_odom_->set(*last_odom_);
 }
@@ -198,18 +205,26 @@ void Mcl::meanPose(
 
 double Mcl::normalizeAngle(double t)
 {
-	while (t > M_PI) t -= 2 * M_PI;
-	while (t < -M_PI) t += 2 * M_PI;
+	while (t > M_PI) {
+		t -= 2 * M_PI;
+	}
+	while (t < -M_PI) {
+		t += 2 * M_PI;
+	}
 
 	return t;
 }
 
 void Mcl::setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 {
-	if (msg->ranges.size() != scan_.ranges_.size()) scan_.ranges_.resize(msg->ranges.size());
+	if (msg->ranges.size() != scan_.ranges_.size()) {
+		scan_.ranges_.resize(msg->ranges.size());
+	}
 
 	scan_.seq_ = msg->header.stamp.sec;
-	for (size_t i = 0; i < msg->ranges.size(); i++) scan_.ranges_[i] = msg->ranges[i];
+	for (size_t i = 0; i < msg->ranges.size(); i++) {
+		scan_.ranges_[i] = msg->ranges[i];
+	}
 
 	scan_.angle_min_ = msg->angle_min;
 	scan_.angle_max_ = msg->angle_max;
@@ -221,24 +236,34 @@ void Mcl::setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 double Mcl::normalizeBelief(void)
 {
 	double sum = 0.0;
-	for (const auto & p : particles_) sum += p.w_;
+	for (const auto & p : particles_) {
+		sum += p.w_;
+	}
 
-	if (sum < 0.000000000001) return sum;
+	if (sum < 0.000000000001) {
+		return sum;
+	}
 
-	for (auto & p : particles_) p.w_ /= sum;
+	for (auto & p : particles_) {
+		p.w_ /= sum;
+	}
 
 	return sum;
 }
 
 void Mcl::resetWeight(void)
 {
-	for (auto & p : particles_) p.w_ = 1.0 / particles_.size();
+	for (auto & p : particles_) {
+		p.w_ = 1.0 / particles_.size();
+	}
 }
 
 void Mcl::initialize(double x, double y, double t)
 {
 	Pose new_pose(x, y, t);
-	for (auto & p : particles_) p.p_ = new_pose;
+	for (auto & p : particles_) {
+		p.p_ = new_pose;
+	}
 
 	resetWeight();
 }
