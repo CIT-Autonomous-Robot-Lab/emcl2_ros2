@@ -115,6 +115,7 @@ void EMcl2Node::initPF(void)
 	int num_particles;
 	double alpha_th;
 	double ex_rad_pos, ex_rad_ori;
+	this->declare_parameter("num_particles", 500);
 	this->declare_parameter("alpha_threshold", 0.5);
 	this->declare_parameter("expansion_radius_position", 0.1);
 	this->declare_parameter("expansion_radius_orientation", 0.2);
@@ -158,10 +159,6 @@ std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 	double likelihood_range;
 	this->declare_parameter("laser_likelihood_max_dist", 0.2);
 	this->get_parameter("laser_likelihood_max_dist", likelihood_range);
-
-	int num;
-	this->declare_parameter("num_particles", 0);
-	this->get_parameter("num_particles", num);
 
 	return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(map_, likelihood_range));
 }
