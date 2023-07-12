@@ -6,24 +6,25 @@
 
 #include <sstream>
 
-namespace emcl2 {
+namespace emcl2
+{
 
 class Pose
 {
-public:
-	Pose(){}
+      public:
+	Pose() {}
 	Pose(double x, double y, double t);
 
 	void set(double x, double y, double t);
-	void set(const Pose &p);
+	void set(const Pose & p);
 	std::string to_s(void);
 
 	void normalizeAngle(void);
-	void move(double length, double direction, double rotation,
-		  double fw_noise, double rot_noise);
+	void move(
+	  double length, double direction, double rotation, double fw_noise, double rot_noise);
 
-	Pose operator -(const Pose &p) const;
-	Pose operator =(const Pose &p);
+	Pose operator-(const Pose & p) const;
+	Pose operator=(const Pose & p);
 
 	bool nearlyZero(void);
 
@@ -33,6 +34,6 @@ public:
 	static uint16_t get16bitRepresentation(double);
 };
 
-}
+}  // namespace emcl2
 
 #endif

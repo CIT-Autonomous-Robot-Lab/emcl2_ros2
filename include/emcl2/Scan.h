@@ -7,11 +7,12 @@
 #include <iostream>
 #include <vector>
 
-namespace emcl2 {
+namespace emcl2
+{
 
 class Scan
 {
-public: 
+      public:
 	int seq_;
 	int scan_increment_;
 	double angle_max_;
@@ -27,11 +28,11 @@ public:
 	std::vector<double> ranges_;
 	std::vector<uint16_t> directions_16bit_;
 
-	Scan& operator=(const Scan &s);
-	int countValidBeams(double *rate = NULL);
+	Scan & operator=(const Scan & s);
+	int countValidBeams(double * rate = NULL);
 	bool valid(double range);
 };
 
-}
+}  // namespace emcl2
 
 #endif

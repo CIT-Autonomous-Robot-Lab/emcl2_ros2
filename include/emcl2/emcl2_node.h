@@ -1,35 +1,37 @@
 //SPDX-FileCopyrightText: 2022 Ryuichi Ueda ryuichiueda@gmail.com
 //SPDX-License-Identifier: BSD-3-Clause
-//CAUTION: Some lines came from amcl (LGPL). These lines are commented out now. 
+//CAUTION: Some lines came from amcl (LGPL). These lines are commented out now.
 
 #ifndef INTERFACE_EMCL2_H__
 #define INTERFACE_EMCL2_H__
 
 #include <ros/ros.h>
+
 #include "emcl/ExpResetMcl2.h"
 
 /* came from amcl (LGPL). But these lines will be the same even if anyone creates. 
+#include "tf2_ros/message_filter.h"
 #include "tf2_ros/transform_broadcaster.h"
 #include "tf2_ros/transform_listener.h"
-#include "tf2_ros/message_filter.h"
 */
+#include "geometry_msgs/PoseWithCovarianceStamped.h"
+#include "sensor_msgs/LaserScan.h"
+#include "std_srvs/Empty.h"
 #include "tf2/LinearMath/Transform.h"
 
-#include "sensor_msgs/LaserScan.h"
-#include "geometry_msgs/PoseWithCovarianceStamped.h"
-#include "std_srvs/Empty.h"
-
-namespace emcl2 {
+namespace emcl2
+{
 
 class EMcl2Node
 {
-public:
+      public:
 	EMcl2Node();
 	~EMcl2Node();
 
 	void loop(void);
 	int getOdomFreq(void);
-private:
+
+      private:
 	std::shared_ptr<ExpResetMcl2> pf_;
 	/* came from amcl. 
 	ros::NodeHandle nh_;
@@ -69,25 +71,26 @@ private:
 	bool simple_reset_request_;
 	double init_x_, init_y_, init_t_;
 
-	void publishPose(double x, double y, double t,
-			double x_dev, double y_dev, double t_dev,
-			double xy_cov, double yt_cov, double tx_cov);
+	void publishPose(
+	  double x, double y, double t, double x_dev, double y_dev, double t_dev, double xy_cov,
+	  double yt_cov, double tx_cov);
 	void publishOdomFrame(double x, double y, double t);
 	void publishParticles(void);
 	void sendTf(void);
-	bool getOdomPose(double& x, double& y, double& yaw); //same name is found in amcl
-	bool getLidarPose(double& x, double& y, double& yaw, bool& inv);
+	bool getOdomPose(double & x, double & y, double & yaw);	 //same name is found in amcl
+	bool getLidarPose(double & x, double & y, double & yaw, bool & inv);
 
 	void initCommunication(void);
 	void initPF(void);
 	std::shared_ptr<LikelihoodFieldMap> initMap(void);
 	std::shared_ptr<OdomModel> initOdometry(void);
 
-	void cbScan(const sensor_msgs::LaserScan::ConstPtr &msg);
-	bool cbSimpleReset(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
-	void initialPoseReceived(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg); //same name is found in amcl
+	void cbScan(const sensor_msgs::LaserScan::ConstPtr & msg);
+	bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
+	void initialPoseReceived(const geometry_msgs::PoseWithCovarianceStampedConstPtr &
+				   msg);  //same name is found in amcl
 };
 
-}
+}  // namespace emcl2
 
 #endif

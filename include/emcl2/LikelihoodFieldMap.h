@@ -4,18 +4,20 @@
 #ifndef OCC_GRID_MAP_H__
 #define OCC_GRID_MAP_H__
 
-#include <vector>
 #include <utility>
-#include "emcl/Scan.h"
+#include <vector>
+
 #include "emcl/Pose.h"
+#include "emcl/Scan.h"
 #include "nav_msgs/OccupancyGrid.h"
 
-namespace emcl2 {
+namespace emcl2
+{
 
 class LikelihoodFieldMap
 {
-public: 
-	LikelihoodFieldMap(const nav_msgs::OccupancyGrid &map, double likelihood_range);
+      public:
+	LikelihoodFieldMap(const nav_msgs::OccupancyGrid & map, double likelihood_range);
 	~LikelihoodFieldMap();
 
 	void setLikelihood(int x, int y, double range);
@@ -29,14 +31,14 @@ public:
 	double origin_x_;
 	double origin_y_;
 
-	void drawFreePoses(int num, std::vector<Pose> &result);
-private:
+	void drawFreePoses(int num, std::vector<Pose> & result);
+
+      private:
 	std::vector<std::pair<int, int> > free_cells_;
 
 	void normalize(void);
 };
 
-}
+}  // namespace emcl2
 
 #endif
-

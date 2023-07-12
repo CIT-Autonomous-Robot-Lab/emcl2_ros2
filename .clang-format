@@ -14,6 +14,9 @@ ColumnLimit: 100
 ConstructorInitializerIndentWidth: 0
 ContinuationIndentWidth: 2
 DerivePointerAlignment: false
+UseTab: Always
+IndentWidth: 8
+TabWidth: 8
 PointerAlignment: Middle
 ReflowComments: false
 ...
