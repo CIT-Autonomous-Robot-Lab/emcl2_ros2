@@ -1,4 +1,4 @@
-emcl2_node:
+/**:
   ros__parameters:
     odom_freq: 20
     global_frame_id: "map"
