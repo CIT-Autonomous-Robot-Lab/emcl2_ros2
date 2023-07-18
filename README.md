@@ -2,9 +2,9 @@
 
 [![test](https://github.com/CIT-Autonomous-Robot-Lab/emcl2_ros2/actions/workflows/test.yml/badge.svg)](https://github.com/CIT-Autonomous-Robot-Lab/emcl2_ros2/actions/workflows/test.yml)
 
-emcl is an alternative Monte Carlo localization (MCL) package to amcl (http://wiki.ros.org/amcl). Differently from amcl, KLD-sampling and adaptive MCL are not implemented. Instead, the expansion resetting and other features are implemented[^1][^2].
+Emcl is an alternative Monte Carlo localization (MCL) package to amcl (http://wiki.ros.org/amcl). Differently from amcl, KLD-sampling and adaptive MCL are not implemented. Instead, the expansion resetting and other features are implemented[^1][^2].
 
-This package is an improved version of [ryuichi/emcl](https://github.com/ryuichiueda/emcl). This version works well in crowded or outdoor environments. 
+This package is ROS 2 version of [ryuichiueda/emcl2](https://github.com/ryuichiueda/emcl2). 
 
 ## demo movies 
 
@@ -16,7 +16,7 @@ This package is an improved version of [ryuichi/emcl](https://github.com/ryuichi
 
 ### emcl2_node
 
-This node calculates the alpha value with a different algorithm than `emcl_node` in [ryuichi/emcl](https://github.com/ryuichiueda/emcl). This node counts the particles that make lasers penetrate occupancy cells. Specifically, this node chooses some particles at a rate of `extraction_rate` and checks each of them with the following procedure:
+This node calculates the alpha value with a different algorithm than `emcl_node` in [ryuichiueda/emcl](https://github.com/ryuichiueda/emcl). This node counts the particles that make lasers penetrate occupancy cells. Specifically, this node chooses some particles at a rate of `extraction_rate` and checks each of them with the following procedure:
 
 * maps a set of laser scan on the occupancy grid map based on the pose of the particle
 * judges the pose of the particle as wrong if all of lasers in a `range_threshold`[rad] range penatrate occupancy grids
