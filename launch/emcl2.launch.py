@@ -5,13 +5,11 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction
 from launch.substitutions import LaunchConfiguration, TextSubstitution
-from launch_ros.actions import SetParameter
-from launch_ros.actions import Node
+from launch_ros.actions import Node, SetParameter
 
 
 def generate_launch_description():
     params_file = LaunchConfiguration('params_file')
-
     map_yaml_file = LaunchConfiguration('map')
     use_sim_time = LaunchConfiguration('use_sim_time')
 
