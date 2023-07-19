@@ -8,7 +8,7 @@
     laser_min_range: 0.0
     laser_max_range: 100000000.0
     scan_increment: 1
-    initial_pose_x: -20.0
+    initial_pose_x: -2.0
     initial_pose_y: -0.5
     initial_pose_a: 0.0
     num_particles: 500
