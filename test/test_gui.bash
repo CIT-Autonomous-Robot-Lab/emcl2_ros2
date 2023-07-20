@@ -24,7 +24,7 @@ pose:
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0]" --once
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0]" | head -n 5
 
 # Check if position is within a threshold
 ros2 topic echo /mcl_pose --csv | 
@@ -43,7 +43,7 @@ sleep 10
 
 ### NAVIGATION TEST ###
 # Publish nav2 goal
-ros2 topic pub --qos-history keep_all --qos-reliability reliable --qos-durability transient_local /goal_pose geometry_msgs/msg/PoseStamped "
+ros2 topic pub /goal_pose geometry_msgs/msg/PoseStamped "
 header:
   stamp:
     sec: 0
@@ -51,7 +51,7 @@ header:
   frame_id: 'map'
 pose:
   position: {x: -0.5, y: -0.5, z: 0.0}
-  orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}" --once
+  orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}" | head -n 5
 
 # Check if position is within a threshold
 ros2 topic echo /mcl_pose --csv | 
