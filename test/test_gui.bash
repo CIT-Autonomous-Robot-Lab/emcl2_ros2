@@ -3,7 +3,7 @@
 ros2 daemon stop
 ros2 daemon start
 
-xvfb-run --auto-servernum -s "-screen 0 1400x900x24" ros2 launch emcl2 test.launch.xml &
+ros2 launch emcl2 test.launch.xml &
 sleep 30
 
 ### ESTIMATION RECOVERY TEST ###
@@ -13,7 +13,7 @@ header:
   stamp:
     sec: 0
     nanosec: 0
-  frame_id: 'map'
+  frame_id: ''
 pose:
   pose:
     position: {x: -2.5, y: 0.0, z: 0.0}
@@ -60,8 +60,8 @@ awk -F',' '{print $4" "$5}
      sqrt( ($4+0.5)^2 + ($5+0.5)^2 ) < 0.3 {printf "\033[42m%s\033[m\n", "OK";exit(0)}
      NR==1000{printf "\033[41m%s\033[m\n", "TIMEOUT";exit(1)}'
 
-# ps aux | grep ros | grep -v grep | awk '{ print "kill -9", $2 }' | sh
-# killall -9 gzclient gzserver rviz2
+ps aux | grep ros | grep -v grep | awk '{ print "kill -9", $2 }' | sh
+killall -9 gzclient gzserver rviz2
 
 if [ "$?" -ne 0 ]; then
   exit 1
