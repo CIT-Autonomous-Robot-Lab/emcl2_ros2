@@ -15,9 +15,5 @@
     <arg name="use_sim_time"  value="$(var use_sim_time)"/>
   </include>
 
-  <include file="$(find-pkg-share nav2_bringup)/launch/navigation_launch.py">
-    <arg name="use_sim_time"    value="$(var use_sim_time)"/>
-  </include>
-
-  <executable cmd="bash -c 'sleep 10; ros2 launch nav2_bringup navigation_launch.py use_sim_time:=true'" cwd="/" launch-prefix="" output="screen"/>
+  <executable cmd="bash -c 'sleep 30; ros2 launch nav2_bringup navigation_launch.py use_sim_time:=true'" cwd="/" launch-prefix="" output="screen"/>
 </launch>
