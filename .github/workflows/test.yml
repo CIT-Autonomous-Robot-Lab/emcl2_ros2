@@ -32,5 +32,3 @@ jobs:
           ros2 run emcl2 test.bash
         shell: bash
         
-
-          
