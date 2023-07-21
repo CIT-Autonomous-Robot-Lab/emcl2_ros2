@@ -60,13 +60,10 @@ awk -F',' '{print $4" "$5}
      sqrt( ($4+0.5)^2 + ($5+0.5)^2 ) < 0.3 {printf "\033[42m%s\033[m\n", "OK";exit(0)}
      NR==1000{printf "\033[41m%s\033[m\n", "TIMEOUT";exit(1)}'
 
-# ps aux | grep ros | grep -v grep | awk '{ print "kill -9", $2 }' | sh
-# killall -9 gzclient gzserver rviz2
+RESULT=$?
 
 if [ "$?" -ne 0 ]; then
   exit 1
 fi
-
-RESULT=$?
 
 exit $RESULT
