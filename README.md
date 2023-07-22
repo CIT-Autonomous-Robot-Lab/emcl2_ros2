@@ -6,6 +6,32 @@ Emcl is an alternative Monte Carlo localization (MCL) package to amcl (http://wi
 
 This package is ROS 2 version of [ryuichiueda/emcl2](https://github.com/ryuichiueda/emcl2). 
 
+## ROS 2 version 
+
+* ROS 2 Humble Hawksbill
+
+## quick start
+
+### Install & Build
+```
+mkdir catkin_ws && cd catkin_ws
+git clone git@github.com:CIT-Autonomous-Robot-Lab/emcl2_ros2.git ./src/emcl2_ros2
+rosdep update
+rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
+sudo apt install -y ros-$ROS_DISTRO-navigation2 ros-$ROS_DISTRO-nav2-bringup ros-$ROS_DISTRO-turtlebot3-gazebo
+colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+source install/setup.bash
+```
+
+### Try emcl2 in simulator
+```
+export TURTLEBOT3_MODEL=burger
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+ros2 launch nav2_bringup rviz_launch.py
+ros2 launch emcl2 emcl2.launch.py params_file:=$(ros2 pkg prefix --share emcl2)/config/emcl2_quick_start.param.yaml map:=$(ros2 pkg prefix --share nav2_bringup)/maps/turtlebot3_world.yaml use_sim_time:=true
+ros2 launch nav2_bringup navigation_launch.py use_sim_time:=true
+```
+
 ## demo movies 
 
 [![](https://img.youtube.com/vi/dqS7KgGxwBs/0.jpg)](https://www.youtube.com/watch?v=dqS7KgGxwBs)
@@ -78,32 +104,6 @@ The followings have never been implemented yet.
 |-------------------|--------|------------------|-----------------------------------------------------------|
 | `laser_min_range`  | `double` | 0.0 [m]          | threshold for discarding scans whose ranges are smaller than this value |
 | `laser_max_range`  | `double` | 100000000.0 [m]  | threshold for discarding scans whose ranges are larger than this value  |
-
-## ROS 2 version 
-
-* ROS 2 Humble Hawksbill
-
-## quick start
-
-### Install & Build
-```
-mkdir catkin_ws && cd catkin_ws
-git clone git@github.com:CIT-Autonomous-Robot-Lab/emcl2_ros2.git ./src/emcl2_ros2
-rosdep update
-rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
-sudo apt install -y ros-$ROS_DISTRO-navigation2 ros-$ROS_DISTRO-nav2-bringup ros-$ROS_DISTRO-turtlebot3-gazebo
-colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
-source install/setup.bash
-```
-
-### Try emcl2 in simulator
-```
-export TURTLEBOT3_MODEL=burger
-ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
-ros2 launch nav2_bringup rviz_launch.py
-ros2 launch emcl2 emcl2.launch.py params_file:=$(ros2 pkg prefix --share emcl2)/config/emcl2_quick_start.param.yaml map:=$(ros2 pkg prefix --share nav2_bringup)/maps/turtlebot3_world.yaml use_sim_time:=true
-ros2 launch nav2_bringup navigation_launch.py use_sim_time:=true
-```
 
 ## To do
 
