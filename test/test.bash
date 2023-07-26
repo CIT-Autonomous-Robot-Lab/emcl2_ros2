@@ -3,6 +3,8 @@
 ros2 daemon stop
 ros2 daemon start
 
+sleep 5
+
 xvfb-run --auto-servernum -s "-screen 0 1400x900x24" ros2 launch emcl2 test.launch.xml &
 sleep 30
 
@@ -24,7 +26,7 @@ pose:
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0]" | head -n 10
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0]" | head -n 5
 
 # Check if position is within a threshold
 ros2 topic echo /mcl_pose --csv | 
