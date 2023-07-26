@@ -1,8 +1,13 @@
 name: test
-on: 
+
+on:
   push:
     paths-ignore:
     - '**.md'
+  pull_request:
+    paths-ignore:
+    - '**.md'
+
 jobs: 
   test: 
     runs-on: ubuntu-22.04 
