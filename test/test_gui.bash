@@ -4,7 +4,7 @@ ros2 daemon stop
 ros2 daemon start
 
 ros2 launch emcl2 test.launch.xml &
-sleep 30
+sleep 50
 
 ### ESTIMATION RECOVERY TEST ###
 # Publish initial pose

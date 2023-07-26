@@ -9,7 +9,7 @@
 
   <include file="$(find-pkg-share nav2_bringup)/launch/rviz_launch.py"/>
 
-  <executable cmd="bash -c 'sleep 5; ros2 launch emcl2 emcl2.launch.py params_file:=$params_file map:=$map use_sim_time:=$use_sim_time'" cwd="/" launch-prefix="" output="screen"/>
+  <executable cmd="bash -c 'sleep 30; ros2 launch emcl2 emcl2.launch.py params_file:=$params_file map:=$map use_sim_time:=$use_sim_time'" cwd="/" launch-prefix="" output="screen"/>
 
-  <executable cmd="bash -c 'sleep 30; ros2 launch nav2_bringup navigation_launch.py use_sim_time:=true'" cwd="/" launch-prefix="" output="screen"/>
+  <executable cmd="bash -c 'sleep 40; ros2 launch nav2_bringup navigation_launch.py use_sim_time:=true'" cwd="/" launch-prefix="" output="screen"/>
 </launch>
