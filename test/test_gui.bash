@@ -24,14 +24,14 @@ pose:
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0]" | head -n 5
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0]" | head -n 10
 
 # Check if position is within a threshold
 ros2 topic echo /mcl_pose --csv | 
 head -n 1000 |
 awk -F',' '{print $4" "$5}
-     sqrt( ($4+2.0)^2 + ($5+0.5)^2 ) < 0.2 {printf "\033[42m%s\033[m\n", "OK";exit(0)}
-     NR==1000{printf "\033[41m%s\033[m\n", "TIMEOUT";exit(1)}'
+     sqrt( ($4+2.0)^2 + ($5+0.5)^2 ) < 0.2 {printf "\033[42m%s\033[m\n", "ESTIMATION RECOVERY TEST OK";exit(0)}
+     NR==1000{printf "\033[41m%s\033[m\n", "ESTIMATION RECOVERY TEST TIMEOUT";exit(1)}'
 
 if [ "$?" -ne 0 ]; then
   ps aux | grep ros | grep -v grep | awk '{ print "kill -9", $2 }' | sh
@@ -59,8 +59,8 @@ pose:
 ros2 topic echo /mcl_pose --csv | 
 head -n 1000 |
 awk -F',' '{print $4" "$5}
-     sqrt( ($4+0.5)^2 + ($5+0.5)^2 ) < 0.3 {printf "\033[42m%s\033[m\n", "OK";exit(0)}
-     NR==1000{printf "\033[41m%s\033[m\n", "TIMEOUT";exit(1)}'
+     sqrt( ($4+0.5)^2 + ($5+0.5)^2 ) < 0.3 {printf "\033[42m%s\033[m\n", "NAVIGATION TEST OK";exit(0)}
+     NR==1000{printf "\033[41m%s\033[m\n", "NAVIGATION TEST TIMEOUT";exit(1)}'
 
 RESULT=$?
 
