@@ -62,8 +62,4 @@ awk -F',' '{print $4" "$5}
 
 RESULT=$?
 
-if [ "$?" -ne 0 ]; then
-  exit 1
-fi
-
 exit $RESULT

@@ -64,12 +64,6 @@ awk -F',' '{print $4" "$5}
 
 RESULT=$?
 
-if [ "$?" -ne 0 ]; then
-  ps aux | grep ros | grep -v grep | awk '{ print "kill -9", $2 }' | sh
-  killall -9 gzclient gzserver rviz2
-  exit 1
-fi
-
 ps aux | grep ros | grep -v grep | awk '{ print "kill -9", $2 }' | sh
 killall -9 gzclient gzserver rviz2
 
