@@ -347,6 +347,12 @@ bool EMcl2Node::getOdomPose(double & x, double & y, double & yaw)
 	ident.header.stamp = rclcpp::Time(0);
 	tf2::toMsg(tf2::Transform::getIdentity(), ident.pose);
 
+	while (!tf_->canTransform(
+	  footprint_frame_id_, odom_frame_id_, rclcpp::Time(0),
+	  rclcpp::Duration(std::chrono::microseconds(100)))) {
+		RCLCPP_WARN(get_logger(), "Wait can transform");
+	}
+
 	geometry_msgs::msg::PoseStamped odom_pose;
 	try {
 		this->tf_->transform(ident, odom_pose, odom_frame_id_);
