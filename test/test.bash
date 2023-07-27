@@ -39,7 +39,7 @@ fi
 
 ros2 service call /global_costmap/clear_entirely_global_costmap nav2_msgs/srv/ClearEntireCostmap request:\ {}\ 
 
-sleep 10
+sleep 20
 
 ### NAVIGATION TEST ###
 # Publish nav2 goal
