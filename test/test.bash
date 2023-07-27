@@ -4,7 +4,7 @@ ros2 daemon stop
 ros2 daemon start
 
 xvfb-run --auto-servernum -s "-screen 0 1400x900x24" ros2 launch emcl2 test.launch.xml &
-sleep 50
+sleep 30
 
 ### ESTIMATION RECOVERY TEST ###
 # Publish initial pose
