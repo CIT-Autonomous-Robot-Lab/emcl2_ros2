@@ -1,8 +1,5 @@
 #!/bin/bash -evx
 
-ros2 daemon stop
-ros2 daemon start
-
 ros2 launch emcl2 test.launch.xml &
 sleep 50
 
