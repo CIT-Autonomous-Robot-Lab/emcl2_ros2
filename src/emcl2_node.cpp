@@ -349,8 +349,9 @@ bool EMcl2Node::getOdomPose(double & x, double & y, double & yaw)
 
 	while (!tf_->canTransform(
 	  footprint_frame_id_, odom_frame_id_, rclcpp::Time(0),
-	  rclcpp::Duration(std::chrono::microseconds(100)))) {
+	  rclcpp::Duration(std::chrono::seconds(1)))) {
 		RCLCPP_WARN(get_logger(), "Wait can transform");
+		rclcpp::sleep_for(std::chrono::seconds(1));
 	}
 
 	geometry_msgs::msg::PoseStamped odom_pose;
