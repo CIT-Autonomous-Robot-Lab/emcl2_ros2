@@ -310,7 +310,7 @@ void EMcl2Node::publishOdomFrame(double x, double y, double t)
 	}
 	tf2::convert(odom_to_map.pose, latest_tf_);
 	auto stamp = tf2_ros::fromMsg(scan_time_stamp_);
-	tf2::TimePoint transform_tolerance_ = stamp + tf2::durationFromSec(0.2);
+	tf2::TimePoint transform_tolerance_ = stamp + tf2::durationFromSec(1.0);
 
 	geometry_msgs::msg::TransformStamped tmp_tf_stamped;
 	tmp_tf_stamped.header.frame_id = global_frame_id_;
