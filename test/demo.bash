@@ -4,7 +4,7 @@ ros2 pkg list | grep -q turtlebot3_gazebo || { echo install turtlebot3_gazebo ; 
 ros2 pkg list | grep -q nav2_bringup || { echo install nav2_bringup ; exit 1; }
 
 TURTLEBOT3_MODEL=burger ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py &
-sleep 1
+sleep 3
 ros2 launch nav2_bringup rviz_launch.py &
 sleep 1
 ros2 launch nav2_bringup navigation_launch.py use_sim_time:=true &

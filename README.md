@@ -25,7 +25,7 @@ source install/setup.bash
 
 ### Try emcl2 in simulator
 
-You may wait Gazebo to be initilalized. 
+You may wait Gazebo to be initilalized. You can also use `./test/demo.bash`, in which the following procedure is written. 
 
 ```
 export TURTLEBOT3_MODEL=burger

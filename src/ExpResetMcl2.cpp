@@ -39,19 +39,11 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 	scan.lidar_pose_yaw_ = lidar_t;
 
 	double origin = inv ? scan.angle_max_ : scan.angle_min_;
-	int i = 0;
-	//if (!inv) {
-		for ([[maybe_unused]] auto & _ : scan.ranges_) {
-			scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
-				origin + (i++) * scan.angle_increment_));
-		}
-		/*
-	} else {
-		for ([[maybe_unused]] auto & _ : scan.ranges_) {
-			scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
-			  scan.angle_max_ - (i++) * scan.angle_increment_));
-		}
-	}*/
+	int sgn = inv ? -1 : 1;
+	for(size_t i = 0; i < scan.ranges_.size() ; i++) {
+		scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
+			origin + sgn * i * scan.angle_increment_));
+	}
 
 	double valid_pct = 0.0;
 	int valid_beams = scan.countValidBeams(&valid_pct);
