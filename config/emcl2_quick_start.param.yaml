@@ -22,4 +22,4 @@
     odom_fw_dev_per_rot: 0.0001
     odom_rot_dev_per_fw: 0.13
     odom_rot_dev_per_rot: 0.2
-    laser_likelihood_max_dist: 0.2
+    laser_likelihood_max_dist: 0.1
