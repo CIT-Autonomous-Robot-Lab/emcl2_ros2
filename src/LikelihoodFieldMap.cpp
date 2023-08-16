@@ -22,10 +22,10 @@ LikelihoodFieldMap::LikelihoodFieldMap(
 	resolution_ = map.info.resolution;
 
 	for (int x = 0; x < width_; x++) {
-		likelihoods_.push_back(new double[height_]);
+		likelihoods_.push_back(new uint8_t[height_]);
 
 		for (int y = 0; y < height_; y++) {
-			likelihoods_[x][y] = 0.0;
+			likelihoods_[x][y] = 0;
 		}
 	}
 
@@ -40,7 +40,7 @@ LikelihoodFieldMap::LikelihoodFieldMap(
 		}
 	}
 
-	normalize();
+	//normalize();
 }
 
 LikelihoodFieldMap::~LikelihoodFieldMap()
@@ -50,7 +50,7 @@ LikelihoodFieldMap::~LikelihoodFieldMap()
 	}
 }
 
-double LikelihoodFieldMap::likelihood(double x, double y)
+uint8_t LikelihoodFieldMap::likelihood(double x, double y)
 {
 	int ix = static_cast<int>(floor((x - origin_x_) / resolution_));
 	int iy = static_cast<int>(floor((y - origin_y_) / resolution_));
@@ -65,9 +65,9 @@ double LikelihoodFieldMap::likelihood(double x, double y)
 void LikelihoodFieldMap::setLikelihood(int x, int y, double range)
 {
 	int cell_num = static_cast<int>(ceil(range / resolution_));
-	std::vector<double> weights;
+	std::vector<uint8_t> weights;
 	for (int i = 0; i <= cell_num; i++) {
-		weights.push_back(1.0 - static_cast<double>(i) / cell_num);
+		weights.push_back(static_cast<int>(255*(1.0 - static_cast<double>(i) / cell_num)));
 	}
 
 	for (int i = -cell_num; i <= cell_num; i++) {
@@ -81,9 +81,10 @@ void LikelihoodFieldMap::setLikelihood(int x, int y, double range)
 	}
 }
 
+/*
 void LikelihoodFieldMap::normalize(void)
 {
-	double maximum = 0.0;
+	uint8_t maximum = 0;
 	for (int x = 0; x < width_; x++) {
 		for (int y = 0; y < height_; y++) {
 			maximum = std::max(likelihoods_[x][y], maximum);
@@ -96,6 +97,7 @@ void LikelihoodFieldMap::normalize(void)
 		}
 	}
 }
+*/
 
 void LikelihoodFieldMap::drawFreePoses(int num, std::vector<Pose> & result)
 {

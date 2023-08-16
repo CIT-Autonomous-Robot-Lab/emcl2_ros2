@@ -100,7 +100,7 @@ bool Particle::isPenetrating(
 		double lx = ox + d * Mcl::cos_[direction];
 		double ly = oy + d * Mcl::sin_[direction];
 
-		if ((!hit) && map->likelihood(lx, ly) > 0.99) {
+		if ((!hit) && map->likelihood(lx, ly) == 255) {
 			hit = true;
 			hit_lx = lx;
 			hit_ly = ly;
