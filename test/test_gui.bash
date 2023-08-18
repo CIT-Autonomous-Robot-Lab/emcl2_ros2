@@ -1,10 +1,7 @@
 #!/bin/bash -evx
 
-ros2 daemon stop
-ros2 daemon start
-
 ros2 launch emcl2 test.launch.xml &
-sleep 30
+sleep 50
 
 ### ESTIMATION RECOVERY TEST ###
 # Publish initial pose
@@ -24,14 +21,14 @@ pose:
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0]" | head -n 5
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0]" | head -n 10
 
 # Check if position is within a threshold
 ros2 topic echo /mcl_pose --csv | 
 head -n 1000 |
 awk -F',' '{print $4" "$5}
-     sqrt( ($4+2.0)^2 + ($5+0.5)^2 ) < 0.2 {printf "\033[42m%s\033[m\n", "OK";exit(0)}
-     NR==1000{printf "\033[41m%s\033[m\n", "TIMEOUT";exit(1)}'
+     sqrt( ($4+2.0)^2 + ($5+0.5)^2 ) < 0.2 {printf "\033[42m%s\033[m\n", "ESTIMATION RECOVERY TEST OK";exit(0)}
+     NR==1000{printf "\033[41m%s\033[m\n", "ESTIMATION RECOVERY TEST TIMEOUT";exit(1)}'
 
 if [ "$?" -ne 0 ]; then
   ps aux | grep ros | grep -v grep | awk '{ print "kill -9", $2 }' | sh
@@ -45,30 +42,24 @@ sleep 10
 
 ### NAVIGATION TEST ###
 # Publish nav2 goal
-ros2 topic pub /goal_pose geometry_msgs/msg/PoseStamped "
-header:
-  stamp:
-    sec: 0
-    nanosec: 0
-  frame_id: 'map'
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose "
 pose:
-  position: {x: -0.5, y: -0.5, z: 0.0}
-  orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}" | head -n 5
+  header: 
+    stamp: 
+      sec: 0
+    frame_id: 'map'
+  pose:
+    position: { x: -0.5, y: -0.5, z: 0.0}
+    orientation: { x: 0.0, y: 0.0, z: 0.0, w: 1.0}" &
 
 # Check if position is within a threshold
 ros2 topic echo /mcl_pose --csv | 
 head -n 1000 |
 awk -F',' '{print $4" "$5}
-     sqrt( ($4+0.5)^2 + ($5+0.5)^2 ) < 0.3 {printf "\033[42m%s\033[m\n", "OK";exit(0)}
-     NR==1000{printf "\033[41m%s\033[m\n", "TIMEOUT";exit(1)}'
+     sqrt( ($4+0.5)^2 + ($5+0.5)^2 ) < 0.3 {printf "\033[42m%s\033[m\n", "NAVIGATION TEST OK";exit(0)}
+     NR==1000{printf "\033[41m%s\033[m\n", "NAVIGATION TEST TIMEOUT";exit(1)}'
 
 RESULT=$?
-
-if [ "$?" -ne 0 ]; then
-  ps aux | grep ros | grep -v grep | awk '{ print "kill -9", $2 }' | sh
-  killall -9 gzclient gzserver rviz2
-  exit 1
-fi
 
 ps aux | grep ros | grep -v grep | awk '{ print "kill -9", $2 }' | sh
 killall -9 gzclient gzserver rviz2

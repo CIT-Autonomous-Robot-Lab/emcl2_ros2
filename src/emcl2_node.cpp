@@ -125,10 +125,10 @@ void EMcl2Node::initPF(void)
 	this->get_parameter("expansion_radius_orientation", ex_rad_ori);
 
 	double extraction_rate, range_threshold;
-	bool sensor_reset = true;
+	bool sensor_reset = false;
 	this->declare_parameter("extraction_rate", 0.1);
 	this->declare_parameter("range_threshold", 0.1);
-	this->declare_parameter("sensor_reset", true);
+	this->declare_parameter("sensor_reset", sensor_reset);
 	this->get_parameter("extraction_rate", extraction_rate);
 	this->get_parameter("range_threshold", range_threshold);
 	this->get_parameter("sensor_reset", sensor_reset);

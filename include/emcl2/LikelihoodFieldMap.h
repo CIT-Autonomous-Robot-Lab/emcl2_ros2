@@ -21,9 +21,9 @@ class LikelihoodFieldMap
 	~LikelihoodFieldMap();
 
 	void setLikelihood(int x, int y, double range);
-	double likelihood(double x, double y);
+	uint8_t likelihood(double x, double y);
 
-	std::vector<double *> likelihoods_;
+	std::vector<uint8_t *> likelihoods_;
 	int width_;
 	int height_;
 

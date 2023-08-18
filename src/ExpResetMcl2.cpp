@@ -31,30 +31,18 @@ ExpResetMcl2::~ExpResetMcl2() {}
 
 void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv)
 {
-	// if (processed_seq_ == scan_.seq_) return;
-
 	Scan scan;
-	// int seq = -1;
-	// while (seq != scan_.seq_) {  //trying to copy the latest scan before next
-	// seq = scan_.seq_;
 	scan = scan_;
-	// }
 
 	scan.lidar_pose_x_ = lidar_x;
 	scan.lidar_pose_y_ = lidar_y;
 	scan.lidar_pose_yaw_ = lidar_t;
 
-	int i = 0;
-	if (!inv) {
-		for ([[maybe_unused]] auto & _ : scan.ranges_) {
-			scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
-			  scan.angle_min_ + (i++) * scan.angle_increment_));
-		}
-	} else {
-		for ([[maybe_unused]] auto & _ : scan.ranges_) {
-			scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
-			  scan.angle_max_ - (i++) * scan.angle_increment_));
-		}
+	double origin = inv ? scan.angle_max_ : scan.angle_min_;
+	int sgn = inv ? -1 : 1;
+	for(size_t i = 0; i < scan.ranges_.size() ; i++) {
+		scan.directions_16bit_.push_back(Pose::get16bitRepresentation(
+			origin + sgn * i * scan.angle_increment_));
 	}
 
 	double valid_pct = 0.0;
@@ -67,8 +55,7 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 		p.w_ *= p.likelihood(map_.get(), scan);
 	}
 
-	alpha_ = nonPenetrationRate(
-	  static_cast<int>(particles_.size() * extraction_rate_), map_.get(), scan);
+	alpha_ = nonPenetrationRate(static_cast<int>(particles_.size() * extraction_rate_), map_.get(), scan);
 	RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "ALPHA: %f / %f", alpha_, alpha_threshold_);
 	if (alpha_ < alpha_threshold_) {
 		RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "RESET");

@@ -14,7 +14,7 @@ This package is ROS 2 version of [ryuichiueda/emcl2](https://github.com/ryuichiu
 
 ### Install & Build
 ```
-mkdir catkin_ws && cd catkin_ws
+mkdir ros2_ws && cd ros2_ws
 git clone git@github.com:CIT-Autonomous-Robot-Lab/emcl2_ros2.git ./src/emcl2_ros2
 rosdep update
 rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
@@ -24,6 +24,9 @@ source install/setup.bash
 ```
 
 ### Try emcl2 in simulator
+
+You may wait Gazebo to be initilalized. You can also use `./test/demo.bash`, in which the following procedure is written. 
+
 ```
 export TURTLEBOT3_MODEL=burger
 ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py

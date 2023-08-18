@@ -17,9 +17,9 @@
     expansion_radius_orientation: 0.2
     extraction_rate: 0.1
     range_threshold: 0.3
-    sensor_reset: true
+    sensor_reset: false
     odom_fw_dev_per_fw: 0.19
     odom_fw_dev_per_rot: 0.0001
     odom_rot_dev_per_fw: 0.13
     odom_rot_dev_per_rot: 0.2
-    laser_likelihood_max_dist: 0.2
+    laser_likelihood_max_dist: 0.1
