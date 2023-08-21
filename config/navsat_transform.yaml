@@ -13,7 +13,7 @@ navsat_transform_node:
 
 # If your IMU does not account for magnetic declination, enter the value for your location here. If you don't know it,
 # see http://www.ngdc.noaa.gov/geomag-web/ (make sure to convert the value to radians). This parameter is mandatory.
-        magnetic_declination_radians: 1.30
+        magnetic_declination_radians: 0.78
 
 # Your IMU's yaw, once the magentic_declination_radians value is added to it, should report 0 when facing east. If it
 # doesn't, enter the offset here. Defaults to 0.
@@ -32,7 +32,7 @@ navsat_transform_node:
 
 # If this is true, all received odometry data is converted back to a lat/lon and published as a NavSatFix message as
 # /gps/filtered. Defaults to false.
-        publish_filtered_gps: false
+        publish_filtered_gps: true
 
 # If this is true, the node ignores the IMU data and gets its heading from the odometry source (typically the
 # /odometry/filtered topic coming from one of robot_localization's state estimation nodes). BE CAREFUL when using this!
@@ -47,6 +47,6 @@ navsat_transform_node:
 # Instead of using the first GPS location and IMU-based heading for the local-frame origin, users can specify the
 # origin (datum) using this parameter. The fields in the parameter represent latitude and longitude in decimal degrees,
 # and heading in radians. As navsat_transform_node assumes an ENU standard, a 0 heading corresponds to east.
-        datum: [35.688793438333335, 140.02124129333333, 0.0]
+        datum: [35.688749345, 140.02118468166665, 0.0]
 
 

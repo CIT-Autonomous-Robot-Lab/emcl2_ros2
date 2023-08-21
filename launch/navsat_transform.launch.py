@@ -25,6 +25,6 @@ def generate_launch_description():
             name='navsat_transform_node',
             output='screen',
             parameters=[os.path.join(get_package_share_directory("emcl2"), 'config', 'navsat_transform.yaml')],
-            remappings=[('gps/fix', '/gnss/fix'), ('odometry/gps',  '/odom/gnss'), ('odometry/filtered', '/odom/mcl')]
+            remappings=[('gps/fix', '/gnss/fix'), ('odometry/gps',  '/odom/gnss'), ('odometry/filtered', '/odom')]
            ),
 ])
