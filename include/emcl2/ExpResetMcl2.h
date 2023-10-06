@@ -5,7 +5,8 @@
 #define EMCL2__EXPRESETMCL2_H_
 
 #include "emcl2/Mcl.h"
-#include "emcl2/OdomGnss.h"
+#include "emcl2/GnssReset.h"
+#include <Eigen/Dense>
 
 #include <memory>
 namespace emcl2
@@ -17,7 +18,7 @@ class ExpResetMcl2 : public Mcl
 	  const Pose & p, int num, const Scan & scan, const std::shared_ptr<OdomModel> & odom_model,
 	  const std::shared_ptr<LikelihoodFieldMap> & map, double alpha_th,
 	  double expansion_radius_position, double expansion_radius_orientation,
-	  double extraction_rate, double successive_penetration_threshold, bool sensor_reset, const OdomGnss & odom_gnss);
+	  double extraction_rate, double successive_penetration_threshold, bool sensor_reset, const GnssReset & odom_gnss);
 	~ExpResetMcl2();
 
 	void sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv);
@@ -32,11 +33,12 @@ class ExpResetMcl2 : public Mcl
 	bool sensor_reset_;
 
 	void expansionReset(void);
-	double box_muller(double sigma);
-	void gnssReset(void);
+	// double boxMuller(double sigma);
+	// void gnssReset(void);
 
 	// bool Particle::isPenetrating(
 	double nonPenetrationRate(int skip, LikelihoodFieldMap * map, Scan & scan);
+	// double kld();
 };
 
 }  // namespace emcl2

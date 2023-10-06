@@ -187,7 +187,7 @@ void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 
 void EMcl2Node::cbOdomGnss(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
 {
-	pf_->setOdomGNss(msg);
+	pf_->setOdomGnss(msg);
 	// RCLCPP_INFO(get_logger(), "cbOdomGnss");
 }
 
@@ -239,6 +239,7 @@ void EMcl2Node::loop(void)
 			return;
 		}
 		pf_->motionUpdate(x, y, t);
+		pf_->setPfPose(x, y);
 
 		double lx, ly, lt;
 		bool inv;

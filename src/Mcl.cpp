@@ -13,7 +13,7 @@ namespace emcl2
 {
 Mcl::Mcl(
   const Pose & p, int num, const Scan & scan, const std::shared_ptr<OdomModel> & odom_model,
-  const std::shared_ptr<LikelihoodFieldMap> & map, const OdomGnss & odom_gnss)
+  const std::shared_ptr<LikelihoodFieldMap> & map, const GnssReset & odom_gnss)
 : last_odom_(NULL), prev_odom_(NULL)
 {
 	odom_model_ = move(odom_model);
@@ -234,10 +234,16 @@ void Mcl::setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 	scan_.range_max_ = msg->range_max;
 }
 
-void Mcl::setOdomGNss(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
+void Mcl::setOdomGnss(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
 {
 	odom_gnss_.odom_gnss_x_ = msg->pose.pose.position.x;
 	odom_gnss_.odom_gnss_y_ = msg->pose.pose.position.y;
+}
+
+void Mcl::setPfPose(double x, double y)
+{
+	odom_gnss_.pf_x_ = x;
+	odom_gnss_.pf_y_ = y;
 }
 
 double Mcl::normalizeBelief(void)
