@@ -22,6 +22,7 @@ ament_auto_add_executable(emcl2_node
   src/Scan.cpp
   src/LikelihoodFieldMap.cpp
   src/emcl2_node.cpp
+  src/OdomGnss.cpp
 )
 
 if(BUILD_TESTING)

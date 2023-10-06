@@ -15,7 +15,8 @@ def generate_launch_description():
 
     declare_map_yaml = DeclareLaunchArgument(
         'map',
-        default_value='',
+        default_value='/home/ubuntu/ros2_ws/src/emcl2_ros2/map/map.yaml',
+        # default_value='/home/ubuntu/ros2_ws/src/emcl2_ros2/map/map_tsudanuma.yaml',
         description='Full path to map yaml file to load')
     declare_use_sim_time = DeclareLaunchArgument(
         'use_sim_time',

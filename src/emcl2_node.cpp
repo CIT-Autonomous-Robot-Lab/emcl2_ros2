@@ -48,6 +48,7 @@ void EMcl2Node::initCommunication(void)
 	particlecloud_pub_ = create_publisher<geometry_msgs::msg::PoseArray>("particlecloud", 2);
 	pose_pub_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("mcl_pose", 2);
 	alpha_pub_ = create_publisher<std_msgs::msg::Float32>("alpha", 2);
+	odom_pub_  = create_publisher<nav_msgs::msg::Odometry>("odom/mcl", 2);
 
 	laser_scan_sub_ = create_subscription<sensor_msgs::msg::LaserScan>(
 	  "scan", 2, std::bind(&EMcl2Node::cbScan, this, std::placeholders::_1));
@@ -57,6 +58,8 @@ void EMcl2Node::initCommunication(void)
 	map_sub_ = create_subscription<nav_msgs::msg::OccupancyGrid>(
 	  "map", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
 	  std::bind(&EMcl2Node::receiveMap, this, std::placeholders::_1));
+	odom_gnss_sub_ = create_subscription<nav_msgs::msg::Odometry>(
+	  "odom/gnss", 2, std::bind(&EMcl2Node::cbOdomGnss, this, std::placeholders::_1));	
 
 	global_loc_srv_ = create_service<std_srvs::srv::Empty>(
 	  "global_localization",
@@ -135,7 +138,7 @@ void EMcl2Node::initPF(void)
 
 	pf_.reset(new ExpResetMcl2(
 	  init_pose, num_particles, scan, om, map, alpha_th, ex_rad_pos, ex_rad_ori,
-	  extraction_rate, range_threshold, sensor_reset));
+	  extraction_rate, range_threshold, sensor_reset, odom_gnss_));
 
 	init_pf_ = true;
 }
@@ -180,6 +183,12 @@ void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 		scan_frame_id_ = msg->header.frame_id;
 		pf_->setScan(msg);
 	}
+}
+
+void EMcl2Node::cbOdomGnss(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
+{
+	pf_->setOdomGNss(msg);
+	// RCLCPP_INFO(get_logger(), "cbOdomGnss");
 }
 
 void EMcl2Node::initialPoseReceived(
@@ -245,6 +254,7 @@ void EMcl2Node::loop(void)
 
 		publishOdomFrame(x, y, t);
 		publishPose(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
+		publishOdom(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
 		publishParticles();
 
 		std_msgs::msg::Float32 alpha_msg;
@@ -288,6 +298,33 @@ void EMcl2Node::publishPose(
 	tf2::convert(q, p.pose.pose.orientation);
 
 	pose_pub_->publish(p);
+}
+
+void EMcl2Node::publishOdom(
+  double x, double y, double t, double x_dev, double y_dev, double t_dev, double xy_cov,
+  double yt_cov, double tx_cov)
+{
+	nav_msgs::msg::Odometry odom;
+	odom.header.frame_id = global_frame_id_;
+	odom.child_frame_id = base_frame_id_;
+	odom.header.stamp = ros_clock_.now();
+	odom.pose.pose.position.x = x;
+	odom.pose.pose.position.y = y;
+	odom.pose.covariance[6 * 0 + 0] = x_dev;
+	odom.pose.covariance[6 * 1 + 1] = y_dev;
+	odom.pose.covariance[6 * 2 + 2] = t_dev;
+	odom.pose.covariance[6 * 0 + 1] = xy_cov;
+	odom.pose.covariance[6 * 1 + 0] = xy_cov;
+	odom.pose.covariance[6 * 0 + 2] = tx_cov;
+	odom.pose.covariance[6 * 2 + 0] = tx_cov;
+	odom.pose.covariance[6 * 1 + 2] = yt_cov;
+	odom.pose.covariance[6 * 2 + 1] = yt_cov;
+
+	tf2::Quaternion q;
+	q.setRPY(0, 0, t);
+	tf2::convert(q, odom.pose.pose.orientation);
+
+	odom_pub_->publish(odom);
 }
 
 void EMcl2Node::publishOdomFrame(double x, double y, double t)

@@ -8,11 +8,14 @@
     laser_min_range: 0.0
     laser_max_range: 100000000.0
     scan_increment: 1
-    initial_pose_x: 0.0
-    initial_pose_y: 0.0
+    # initial_pose_x: 104.00839233398438
+    # initial_pose_y: 135.02162170410156
+    # initial_pose_a: 3.14
+    initial_pose_x: 2.0
+    initial_pose_y: -1.0
     initial_pose_a: 0.0
     num_particles: 500
-    alpha_threshold: 0.5
+    alpha_threshold: 0.7
     expansion_radius_position: 0.1
     expansion_radius_orientation: 0.2
     extraction_rate: 0.1

@@ -7,8 +7,10 @@
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
 #include "emcl2/Particle.h"
+#include "emcl2/OdomGnss.h"
 
 #include <nav_msgs/msg/occupancy_grid.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
 
 #include <memory>
@@ -24,7 +26,7 @@ class Mcl
 	Mcl() {}
 	Mcl(
 	  const Pose & p, int num, const Scan & scan, const std::shared_ptr<OdomModel> & odom_model,
-	  const std::shared_ptr<LikelihoodFieldMap> & map);
+	  const std::shared_ptr<LikelihoodFieldMap> & map, const OdomGnss & odom_gnss);
 	~Mcl();
 
 	std::vector<Particle> particles_;
@@ -36,6 +38,7 @@ class Mcl
 	void initialize(double x, double y, double t);
 
 	void setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
+	void setOdomGNss(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
 	void meanPose(
 	  double & x_mean, double & y_mean, double & t_mean, double & x_var, double & y_var,
 	  double & t_var, double & xy_cov, double & yt_cov, double & tx_cov);
@@ -50,6 +53,8 @@ class Mcl
 	Pose * prev_odom_;
 
 	Scan scan_;
+	OdomGnss odom_gnss_;
+	
 	int processed_seq_;
 
 	double normalizeAngle(double t);

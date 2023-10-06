@@ -8,13 +8,16 @@
 #include "emcl2/ExpResetMcl2.h"
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
+#include "emcl2/OdomGnss.h"
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/time.hpp>
 
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+
 #include <sensor_msgs/msg/laser_scan.hpp>
+#include <sensor_msgs/msg/nav_sat_fix.hpp>
 #include <std_msgs/msg/float32.hpp>
 #include <std_srvs/srv/empty.hpp>
 
@@ -22,6 +25,8 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
+
+#include <nav_msgs/msg/odometry.hpp>
 
 #include <memory>
 #include <string>
@@ -40,14 +45,17 @@ class EMcl2Node : public rclcpp::Node
 
       private:
 	std::shared_ptr<ExpResetMcl2> pf_;
+	OdomGnss odom_gnss_;
 
 	rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr particlecloud_pub_;
 	rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_pub_;
 	rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr alpha_pub_;
+	rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
 	rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_sub_;
 	rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
 	  initial_pose_sub_;
 	rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_;
+	rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_gnss_sub_;
 
 	// ros::ServiceServer global_loc_srv_;
 	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr global_loc_srv_;
@@ -79,6 +87,9 @@ class EMcl2Node : public rclcpp::Node
 	void publishPose(
 	  double x, double y, double t, double x_dev, double y_dev, double t_dev, double xy_cov,
 	  double yt_cov, double tx_cov);
+	void publishOdom(
+	  double x, double y, double t, double x_dev, double y_dev, double t_dev, double xy_cov,
+	  double yt_cov, double tx_cov);
 	void publishOdomFrame(double x, double y, double t);
 	void publishParticles(void);
 	bool getOdomPose(double & x, double & y, double & yaw);	 // same name is found in amcl
@@ -94,6 +105,7 @@ class EMcl2Node : public rclcpp::Node
 	nav_msgs::msg::OccupancyGrid map_;
 
 	void cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
+	void cbOdomGnss(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
 	// bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
 	bool cbSimpleReset(
 	  const std_srvs::srv::Empty::Request::ConstSharedPtr,
