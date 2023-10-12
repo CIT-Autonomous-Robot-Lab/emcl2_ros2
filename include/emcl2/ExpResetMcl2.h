@@ -6,7 +6,6 @@
 
 #include "emcl2/Mcl.h"
 #include "emcl2/GnssReset.h"
-#include <Eigen/Dense>
 
 #include <memory>
 namespace emcl2

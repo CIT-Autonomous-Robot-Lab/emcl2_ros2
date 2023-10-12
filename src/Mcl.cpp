@@ -236,14 +236,16 @@ void Mcl::setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 
 void Mcl::setOdomGnss(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
 {
-	odom_gnss_.odom_gnss_x_ = msg->pose.pose.position.x;
-	odom_gnss_.odom_gnss_y_ = msg->pose.pose.position.y;
+	odom_gnss_.odom_gnss_pos_ << msg->pose.pose.position.x, 
+							 msg->pose.pose.position.y;
 }
 
-void Mcl::setPfPose(double x, double y)
+void Mcl::setPfPose(double x, double y, double x_var, double y_var)
 {
-	odom_gnss_.pf_x_ = x;
-	odom_gnss_.pf_y_ = y;
+	odom_gnss_.pf_pos_ << x, 
+					      y;
+	odom_gnss_.pf_x_var_ = x_var;
+	odom_gnss_.pf_y_var_ = y_var;
 }
 
 double Mcl::normalizeBelief(void)

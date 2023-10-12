@@ -39,7 +39,7 @@ class Mcl
 
 	void setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
 	void setOdomGnss(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
-	void setPfPose(double x, double y);
+	void setPfPose(double x, double y, double x_var, double y_var);
 	void meanPose(
 	  double & x_mean, double & y_mean, double & t_mean, double & x_var, double & y_var,
 	  double & t_var, double & xy_cov, double & yt_cov, double & tx_cov);

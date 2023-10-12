@@ -58,12 +58,17 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 	alpha_ = nonPenetrationRate(static_cast<int>(particles_.size() * extraction_rate_), map_.get(), scan);
 	RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "ALPHA: %f / %f", alpha_, alpha_threshold_);
 	if (alpha_ < alpha_threshold_) {
-		RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "RESET");
-		// odom_gnss_.gnssReset(alpha_, alpha_threshold_, particles_);
-		// expansionReset();
-		// for (auto & p : particles_) {
-		// 	p.w_ *= p.likelihood(map_.get(), scan);
-		// }
+		if(odom_gnss_.kld() < 20 && odom_gnss_.pf_x_var_ < 20){
+			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "EXPANSION RESET");
+			expansionReset();
+			for (auto & p : particles_) {
+				p.w_ *= p.likelihood(map_.get(), scan);
+			}
+		}else{
+			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "GNSS RESET");
+			odom_gnss_.gnssReset(alpha_, alpha_threshold_, particles_);
+		}
+		
 	}
 
 	if (normalizeBelief() > 0.000001) {

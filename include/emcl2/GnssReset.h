@@ -6,18 +6,24 @@
 
 #include <nav_msgs/msg/odometry.hpp>
 #include "emcl2/Particle.h"
+#include <Eigen/Dense>
 
 namespace emcl2
 {
 class GnssReset
 {
       public:
-    GnssReset & operator=(const GnssReset & og);
-    double odom_gnss_x_, odom_gnss_y_, pf_x_, pf_y_;
+    GnssReset();
+    void setSigma(double odom_gnss_sigma, double pf_sigma);
+    Eigen::Vector2d odom_gnss_pos_, pf_pos_;
+    double pf_x_var_, pf_y_var_;
+    double kld();
 	  void gnssReset(double alpha, double alpha_th, std::vector<emcl2::Particle> & particles);
 
       private:
-    double kld();
+    Eigen::Matrix2d odom_gnss_sigma_, pf_sigma_;
+    double det_og_sigma, det_pf_sigma;
+    double tr_ogsi_ps;
     double boxMuller(double sigma);
 };
 }

@@ -6,11 +6,26 @@
 #include "rclcpp/rclcpp.hpp"
 
 namespace emcl2{
-GnssReset & GnssReset::operator=(const GnssReset & og)
+GnssReset::GnssReset()
 {
-    odom_gnss_x_ = og.odom_gnss_x_;
-    odom_gnss_y_ = og.odom_gnss_y_;
-    return *this;
+    odom_gnss_sigma_ << 5.0, 0, 
+                          0, 5.0;
+    pf_sigma_ << 1.0, 0, 
+                   0, 1.0;
+	det_og_sigma = odom_gnss_sigma_.determinant();
+	det_pf_sigma = pf_sigma_.determinant();
+	tr_ogsi_ps = (odom_gnss_sigma_.transpose() * pf_sigma_).trace();
+}
+
+void GnssReset::setSigma(double odom_gnss_sigma, double pf_sigma)
+{
+    odom_gnss_sigma_ << odom_gnss_sigma, 0, 
+                        0, odom_gnss_sigma;
+    pf_sigma_ << pf_sigma, 0, 
+                    0, pf_sigma;
+	det_og_sigma = odom_gnss_sigma_.determinant();
+	det_pf_sigma = pf_sigma_.determinant();
+	tr_ogsi_ps = (odom_gnss_sigma_.transpose() * pf_sigma_).trace();
 }
 
 double GnssReset::boxMuller(double sigma)
@@ -22,7 +37,7 @@ double GnssReset::boxMuller(double sigma)
 
 double GnssReset::kld()
 {
-	
+	return log10(det_og_sigma / det_pf_sigma) + tr_ogsi_ps + (pf_pos_ - odom_gnss_pos_).transpose() * odom_gnss_sigma_.transpose() * (pf_pos_ - odom_gnss_pos_);
 }
 
 void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Particle> & particles)
@@ -34,9 +49,9 @@ void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Part
 	for(int i=0; i<particle_num; ++i)
 	{
 		int index = rand() % particles.size();
-		double sigma = 0.1;
-		particles[index].p_.x_ = odom_gnss_x_ + boxMuller(sigma);
-		particles[index].p_.y_ = odom_gnss_y_ + boxMuller(sigma);
+		double sigma = 2.0;
+		particles[index].p_.x_ = odom_gnss_pos_[0] + boxMuller(sigma);
+		particles[index].p_.y_ = odom_gnss_pos_[1] + boxMuller(sigma);
 		particles[index].p_.t_ = (rand() % 314) / 100;
 	}
 }

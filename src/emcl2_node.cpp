@@ -187,8 +187,10 @@ void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 
 void EMcl2Node::cbOdomGnss(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
 {
-	pf_->setOdomGnss(msg);
-	// RCLCPP_INFO(get_logger(), "cbOdomGnss");
+	if(init_pf_)
+	{
+		pf_->setOdomGnss(msg);
+	}
 }
 
 void EMcl2Node::initialPoseReceived(
@@ -239,7 +241,6 @@ void EMcl2Node::loop(void)
 			return;
 		}
 		pf_->motionUpdate(x, y, t);
-		pf_->setPfPose(x, y);
 
 		double lx, ly, lt;
 		bool inv;
@@ -252,6 +253,7 @@ void EMcl2Node::loop(void)
 
 		double x_var, y_var, t_var, xy_cov, yt_cov, tx_cov;
 		pf_->meanPose(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
+		pf_->setPfPose(x, y, x_var, y_var);
 
 		publishOdomFrame(x, y, t);
 		publishPose(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
