@@ -52,7 +52,7 @@ void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Part
 		double sigma = 2.0;
 		particles[index].p_.x_ = odom_gnss_pos_[0] + boxMuller(sigma);
 		particles[index].p_.y_ = odom_gnss_pos_[1] + boxMuller(sigma);
-		particles[index].p_.t_ = (rand() % 314) / 100;
+		particles[index].p_.t_ = ((rand() % 628) - 314) / 100;
 	}
 }
 }

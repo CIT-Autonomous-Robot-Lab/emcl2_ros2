@@ -12,21 +12,20 @@ def generate_launch_description():
     params_file = LaunchConfiguration('params_file')
     map_yaml_file = LaunchConfiguration('map')
     use_sim_time = LaunchConfiguration('use_sim_time')
-
     declare_map_yaml = DeclareLaunchArgument(
         'map',
-        default_value='/home/ubuntu/ros2_ws/src/emcl2_ros2/map/map_tsudanuma.yaml',
+        default_value='/home/ubuntu/ros2_ws/src/emcl2_ros2/map/map.yaml',
         description='Full path to map yaml file to load')
     declare_use_sim_time = DeclareLaunchArgument(
         'use_sim_time',
-        default_value='false',
+        default_value='true',
         description='Use simulation (Gazebo) clock if true')
     declare_params_file = DeclareLaunchArgument(
         'params_file',
         default_value=[
             TextSubstitution(text=os.path.join(
                 get_package_share_directory('emcl2'), 'config', '')),
-            TextSubstitution(text='emcl2.param.yaml')],
+            TextSubstitution(text='emcl2_sim.param.yaml')],
         description='emcl2 param file path')
 
     lifecycle_nodes = ['map_server']
