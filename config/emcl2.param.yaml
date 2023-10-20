@@ -8,8 +8,8 @@
     laser_min_range: 0.0
     laser_max_range: 100000000.0
     scan_increment: 1
-    initial_pose_x: 103.7471923828125
-    initial_pose_y: 52.292213439941406 
+    initial_pose_x: 164.29392211251695
+    initial_pose_y: 47.40068430031194 
     initial_pose_a: 1.3
     num_particles: 500
     alpha_threshold: 0.5
@@ -23,4 +23,4 @@
     odom_rot_dev_per_fw: 0.13
     odom_rot_dev_per_rot: 0.2
     laser_likelihood_max_dist: 0.2
-    gnss_reset: false
+    gnss_reset: true

@@ -136,7 +136,7 @@ void EMcl2Node::initPF(void)
 	this->get_parameter("sensor_reset", sensor_reset);
 
 	bool gnss_reset = false;
-	this->declare_parameter("", true);
+	this->declare_parameter("gnss_reset", true);
 	this->get_parameter("gnss_reset", gnss_reset);
 
 	pf_.reset(new ExpResetMcl2(
