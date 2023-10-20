@@ -16,14 +16,15 @@ ExpResetMcl2::ExpResetMcl2(
   const Pose & p, int num, const Scan & scan, const std::shared_ptr<OdomModel> & odom_model,
   const std::shared_ptr<LikelihoodFieldMap> & map, double alpha_th,
   double expansion_radius_position, double expansion_radius_orientation, double extraction_rate,
-  double range_threshold, bool sensor_reset, const GnssReset & odom_gnss)
+  double range_threshold, bool sensor_reset, const GnssReset & odom_gnss, bool gnss_reset)
 : Mcl::Mcl(p, num, scan, odom_model, map, odom_gnss),
   alpha_threshold_(alpha_th),
   expansion_radius_position_(expansion_radius_position),
   expansion_radius_orientation_(expansion_radius_orientation),
   extraction_rate_(extraction_rate),
   range_threshold_(range_threshold),
-  sensor_reset_(sensor_reset)
+  sensor_reset_(sensor_reset), 
+  gnss_reset_(gnss_reset)
 {
 }
 
@@ -58,7 +59,8 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 	alpha_ = nonPenetrationRate(static_cast<int>(particles_.size() * extraction_rate_), map_.get(), scan);
 	RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "ALPHA: %f / %f", alpha_, alpha_threshold_);
 	if (alpha_ < alpha_threshold_) {
-		if(odom_gnss_.kld() < 20 && odom_gnss_.pf_x_var_ < 20){
+		RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "GNSS RESET: %d", gnss_reset_);
+		if((odom_gnss_.kld() < 20 && odom_gnss_.pf_x_var_ < 10) || !gnss_reset_){
 			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "EXPANSION RESET");
 			expansionReset();
 			for (auto & p : particles_) {
@@ -111,34 +113,5 @@ void ExpResetMcl2::expansionReset(void)
 		p.w_ = 1.0 / particles_.size();
 	}
 }
-
-// double ExpResetMcl2::boxMuller(double sigma)
-// {
-// 	double r1 = static_cast<double>(rand()) / RAND_MAX;
-// 	double r2 = static_cast<double>(rand()) / RAND_MAX;
-// 	return sigma * (-2.0 * log(r1) * cos(2*M_PI*r2));
-// }
-
-// double ExpResetMcl2::kld()
-// {
-	
-// }
-
-// void ExpResetMcl2::gnssReset()
-// {
-// 	double beta = alpha_ < alpha_threshold_ ? 1 - alpha_ / alpha_threshold_ : 0.0;
-// 	int particle_num = beta * particles_.size();
-// 	// RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "beta: %lf, num of replace particle: %d", beta, particle_num);
-// 	// RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "(odom_gnss.x, odom_gnss.y) = (%lf, %lf)", odom_gnss_.odom_gnss_x_, odom_gnss_.odom_gnss_y_);
-// 	for(int i=0; i<particle_num; ++i)
-// 	{
-// 		int index = rand() % particles_.size();
-// 		double sigma = 0.1;
-// 		particles_[index].p_.x_ = odom_gnss_.odom_gnss_x_ + boxMuller(sigma);
-// 		particles_[index].p_.y_ = odom_gnss_.odom_gnss_y_ + boxMuller(sigma);
-// 		particles_[index].p_.t_ = (rand() % 314) / 100;
-// 	}
-// }
-
 
 }  // namespace emcl2

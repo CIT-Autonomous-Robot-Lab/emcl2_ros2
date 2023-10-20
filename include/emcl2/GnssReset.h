@@ -22,6 +22,7 @@ class GnssReset
 
       private:
     Eigen::Matrix2d odom_gnss_sigma_, pf_sigma_;
+    double gnss_reset_sigma_ = 2.0;
     double det_og_sigma, det_pf_sigma;
     double tr_ogsi_ps;
     double boxMuller(double sigma);

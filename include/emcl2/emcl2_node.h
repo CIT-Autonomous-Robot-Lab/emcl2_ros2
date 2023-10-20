@@ -50,7 +50,6 @@ class EMcl2Node : public rclcpp::Node
 	rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr particlecloud_pub_;
 	rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_pub_;
 	rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr alpha_pub_;
-	rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
 	rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_sub_;
 	rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
 	  initial_pose_sub_;
@@ -85,9 +84,6 @@ class EMcl2Node : public rclcpp::Node
 	double init_x_, init_y_, init_t_;
 
 	void publishPose(
-	  double x, double y, double t, double x_dev, double y_dev, double t_dev, double xy_cov,
-	  double yt_cov, double tx_cov);
-	void publishOdom(
 	  double x, double y, double t, double x_dev, double y_dev, double t_dev, double xy_cov,
 	  double yt_cov, double tx_cov);
 	void publishOdomFrame(double x, double y, double t);

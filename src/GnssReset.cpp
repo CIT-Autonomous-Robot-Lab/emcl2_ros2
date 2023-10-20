@@ -8,13 +8,7 @@
 namespace emcl2{
 GnssReset::GnssReset()
 {
-    odom_gnss_sigma_ << 5.0, 0, 
-                          0, 5.0;
-    pf_sigma_ << 1.0, 0, 
-                   0, 1.0;
-	det_og_sigma = odom_gnss_sigma_.determinant();
-	det_pf_sigma = pf_sigma_.determinant();
-	tr_ogsi_ps = (odom_gnss_sigma_.transpose() * pf_sigma_).trace();
+	setSigma(5.0, 1.0);
 }
 
 void GnssReset::setSigma(double odom_gnss_sigma, double pf_sigma)
@@ -49,9 +43,8 @@ void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Part
 	for(int i=0; i<particle_num; ++i)
 	{
 		int index = rand() % particles.size();
-		double sigma = 2.0;
-		particles[index].p_.x_ = odom_gnss_pos_[0] + boxMuller(sigma);
-		particles[index].p_.y_ = odom_gnss_pos_[1] + boxMuller(sigma);
+		particles[index].p_.x_ = odom_gnss_pos_[0] + boxMuller(gnss_reset_sigma_);
+		particles[index].p_.y_ = odom_gnss_pos_[1] + boxMuller(gnss_reset_sigma_);
 		particles[index].p_.t_ = ((rand() % 628) - 314) / 100;
 	}
 }

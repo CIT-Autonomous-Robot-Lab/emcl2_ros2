@@ -18,7 +18,7 @@ def generate_launch_description():
         description='Full path to map yaml file to load')
     declare_use_sim_time = DeclareLaunchArgument(
         'use_sim_time',
-        default_value='true',
+        default_value='false',
         description='Use simulation (Gazebo) clock if true')
     declare_params_file = DeclareLaunchArgument(
         'params_file',
