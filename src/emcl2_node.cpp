@@ -119,13 +119,11 @@ void EMcl2Node::initPF(void)
 	this->declare_parameter("initial_pose_x", 0.0);
 	this->declare_parameter("initial_pose_y", 0.0);
 	this->declare_parameter("initial_pose_a", 0.0);
-	this->declare_parameter("initialpose_set", true);
 	this->get_parameter("initial_pose_x", init_pose.x_);
 	this->get_parameter("initial_pose_y", init_pose.y_);
 	this->get_parameter("initial_pose_a", init_pose.t_);
-	this->get_parameter("initialpose_set", isInitialPoseSet_);
 
-	
+
 	int num_particles;
 	double alpha_th;
 	double ex_rad_pos, ex_rad_ori;
