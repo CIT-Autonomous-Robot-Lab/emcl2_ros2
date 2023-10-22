@@ -51,6 +51,7 @@ class EMcl2Node : public rclcpp::Node
 
 	// ros::ServiceServer global_loc_srv_;
 	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr global_loc_srv_;
+	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr tf_publish_srv_;
 	rclcpp::Time scan_time_stamp_;
 
 	std::string footprint_frame_id_;
@@ -76,7 +77,7 @@ class EMcl2Node : public rclcpp::Node
 	bool simple_reset_request_;
 	bool scan_receive_;
 	bool map_receive_;
-	bool isInitialPoseSet_;
+	bool tf_publish_;
 	double init_x_, init_y_, init_t_;
 
 	void publishPose(
@@ -99,6 +100,9 @@ class EMcl2Node : public rclcpp::Node
 	void cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
 	// bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
 	bool cbSimpleReset(
+	  const std_srvs::srv::Empty::Request::ConstSharedPtr,
+	  std_srvs::srv::Empty::Response::SharedPtr);
+	bool cbTfPublishSet(
 	  const std_srvs::srv::Empty::Request::ConstSharedPtr,
 	  std_srvs::srv::Empty::Response::SharedPtr);
 	void initialPoseReceived(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr
