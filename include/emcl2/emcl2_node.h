@@ -58,6 +58,8 @@ class EMcl2Node : public rclcpp::Node
 	std::string odom_frame_id_;
 	std::string scan_frame_id_;
 	std::string base_frame_id_;
+	std::string scan_topic_;
+	std::string initialpose_topic_;
 
 	std::shared_ptr<tf2_ros::TransformBroadcaster> tfb_;
 	std::shared_ptr<tf2_ros::TransformListener> tfl_;
@@ -74,6 +76,7 @@ class EMcl2Node : public rclcpp::Node
 	bool simple_reset_request_;
 	bool scan_receive_;
 	bool map_receive_;
+	bool isInitialPoseSet_;
 	double init_x_, init_y_, init_t_;
 
 	void publishPose(

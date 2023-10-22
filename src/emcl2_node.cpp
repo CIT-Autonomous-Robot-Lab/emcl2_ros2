@@ -49,10 +49,33 @@ void EMcl2Node::initCommunication(void)
 	pose_pub_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("mcl_pose", 2);
 	alpha_pub_ = create_publisher<std_msgs::msg::Float32>("alpha", 2);
 
+
+
+	this->declare_parameter("global_frame_id", std::string("map"));
+	this->declare_parameter("footprint_frame_id", std::string("base_footprint"));
+	this->declare_parameter("odom_frame_id", std::string("odom"));
+	this->declare_parameter("base_frame_id", std::string("base_link"));
+	this->declare_parameter("scan_topic", std::string("scan"));
+	this->declare_parameter("initialpose_topic", std::string("initialpose"));
+	
+	this->get_parameter("global_frame_id", global_frame_id_);
+	this->get_parameter("footprint_frame_id", footprint_frame_id_);
+	this->get_parameter("odom_frame_id", odom_frame_id_);
+	this->get_parameter("base_frame_id", base_frame_id_);
+	this->declare_parameter("odom_freq", 20);
+	this->get_parameter("odom_freq", odom_freq_);
+
+
+	this->get_parameter("scan_topic", scan_topic_);
+	this->get_parameter("initialpose_topic", initialpose_topic_);
+	
+
+
+
 	laser_scan_sub_ = create_subscription<sensor_msgs::msg::LaserScan>(
-	  "scan", 2, std::bind(&EMcl2Node::cbScan, this, std::placeholders::_1));
+	  scan_topic_, 2, std::bind(&EMcl2Node::cbScan, this, std::placeholders::_1));
 	initial_pose_sub_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
-	  "initialpose", 2,
+	  initialpose_topic_, 2,
 	  std::bind(&EMcl2Node::initialPoseReceived, this, std::placeholders::_1));
 	map_sub_ = create_subscription<nav_msgs::msg::OccupancyGrid>(
 	  "map", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
@@ -61,18 +84,6 @@ void EMcl2Node::initCommunication(void)
 	global_loc_srv_ = create_service<std_srvs::srv::Empty>(
 	  "global_localization",
 	  std::bind(&EMcl2Node::cbSimpleReset, this, std::placeholders::_1, std::placeholders::_2));
-
-	this->declare_parameter("global_frame_id", std::string("map"));
-	this->declare_parameter("footprint_frame_id", std::string("base_footprint"));
-	this->declare_parameter("odom_frame_id", std::string("odom"));
-	this->declare_parameter("base_frame_id", std::string("base_link"));
-	this->get_parameter("global_frame_id", global_frame_id_);
-	this->get_parameter("footprint_frame_id", footprint_frame_id_);
-	this->get_parameter("odom_frame_id", odom_frame_id_);
-	this->get_parameter("base_frame_id", base_frame_id_);
-
-	this->declare_parameter("odom_freq", 20);
-	this->get_parameter("odom_freq", odom_freq_);
 }
 
 void EMcl2Node::initTF(void)
@@ -108,10 +119,13 @@ void EMcl2Node::initPF(void)
 	this->declare_parameter("initial_pose_x", 0.0);
 	this->declare_parameter("initial_pose_y", 0.0);
 	this->declare_parameter("initial_pose_a", 0.0);
+	this->declare_parameter("initialpose_set", true);
 	this->get_parameter("initial_pose_x", init_pose.x_);
 	this->get_parameter("initial_pose_y", init_pose.y_);
 	this->get_parameter("initial_pose_a", init_pose.t_);
+	this->get_parameter("initialpose_set", isInitialPoseSet_);
 
+	
 	int num_particles;
 	double alpha_th;
 	double ex_rad_pos, ex_rad_ori;
