@@ -70,10 +70,14 @@ void EMcl2Node::initCommunication(void)
 	this->get_parameter("initialpose_topic", initialpose_topic_);
 	
 
+	rclcpp::QoS qos(2);
+	qos.reliability(rclcpp::ReliabilityPolicy::BestEffort);
 
-
-	laser_scan_sub_ = create_subscription<sensor_msgs::msg::LaserScan>(
-	  scan_topic_, 2, std::bind(&EMcl2Node::cbScan, this, std::placeholders::_1));
+	// Create the subscription with the defined QoS settings
+	laser_scan_sub_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
+    scan_topic_, 
+    qos,
+    std::bind(&EMcl2Node::cbScan, this, std::placeholders::_1));
 	initial_pose_sub_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
 	  initialpose_topic_, 2,
 	  std::bind(&EMcl2Node::initialPoseReceived, this, std::placeholders::_1));
