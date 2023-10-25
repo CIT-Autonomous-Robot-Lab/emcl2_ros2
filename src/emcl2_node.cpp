@@ -327,7 +327,7 @@ void EMcl2Node::publishOdomFrame(double x, double y, double t)
 
 		tf_->transform(tmp_tf_stamped, odom_to_map, odom_frame_id_);
 	} catch (tf2::TransformException & e) {
-		RCLCPP_DEBUG(get_logger(), "Failed to subtract base to odom transform");
+		RCLCPP_ERROR(get_logger(), "\033[1;31mFailed to subtract base to odom transform\033[0m");
 		return;
 	}
 	tf2::convert(odom_to_map.pose, latest_tf_);
@@ -339,8 +339,11 @@ void EMcl2Node::publishOdomFrame(double x, double y, double t)
 	tmp_tf_stamped.header.stamp = tf2_ros::toMsg(transform_tolerance_);
 	tmp_tf_stamped.child_frame_id = "emcl_odom"; //odom_frame_id_;
 	tf2::convert(latest_tf_.inverse(), tmp_tf_stamped.transform);
-	if (tf_publish_)
+	if (tf_publish_){
+		RCLCPP_INFO(get_logger(), "\033[1;32mPublishing the emcl_odom\033[0m");
 		tfb_->sendTransform(tmp_tf_stamped);
+	}
+		
 }
 
 void EMcl2Node::publishParticles(void)
