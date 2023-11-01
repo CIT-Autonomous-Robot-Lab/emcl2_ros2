@@ -31,6 +31,7 @@ double GnssReset::boxMuller(double sigma)
 
 double GnssReset::kld()
 {
+    if(isNAN()) return NAN;
 	return log10(det_og_sigma / det_pf_sigma) + tr_ogsi_ps + (pf_pos_ - odom_gnss_pos_).transpose() * odom_gnss_sigma_.transpose() * (pf_pos_ - odom_gnss_pos_);
 }
 
