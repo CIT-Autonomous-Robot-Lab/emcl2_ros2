@@ -16,7 +16,8 @@ ExpResetMcl2::ExpResetMcl2(
   const Pose & p, int num, const Scan & scan, const std::shared_ptr<OdomModel> & odom_model,
   const std::shared_ptr<LikelihoodFieldMap> & map, double alpha_th,
   double expansion_radius_position, double expansion_radius_orientation, double extraction_rate,
-  double range_threshold, bool sensor_reset, const GnssReset & odom_gnss, bool gnss_reset)
+  double range_threshold, bool sensor_reset, 
+  const GnssReset & odom_gnss, bool gnss_reset, bool wall_tracking)
 : Mcl::Mcl(p, num, scan, odom_model, map, odom_gnss),
   alpha_threshold_(alpha_th),
   expansion_radius_position_(expansion_radius_position),
@@ -57,9 +58,8 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 	}
 
 	alpha_ = nonPenetrationRate(static_cast<int>(particles_.size() * extraction_rate_), map_.get(), scan);
-	RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "ALPHA: %f / %f", alpha_, alpha_threshold_);
+	// RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "ALPHA: %f / %f", alpha_, alpha_threshold_);
 	if (alpha_ < alpha_threshold_) {
-		RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "GNSS RESET: %d", gnss_reset_);
 		if((odom_gnss_.kld() < 20 && odom_gnss_.pf_x_var_ < 10) || !gnss_reset_){
 			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "EXPANSION RESET");
 			expansionReset();
@@ -67,10 +67,14 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 				p.w_ *= p.likelihood(map_.get(), scan);
 			}
 		}else{
-			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "GNSS RESET");
-			odom_gnss_.gnssReset(alpha_, alpha_threshold_, particles_);
-		}
-		
+            if(!odom_gnss_.isNAN() || !wall_tracking_){
+                RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "GNSS RESET");
+                odom_gnss_.gnssReset(alpha_, alpha_threshold_, particles_);
+                wall_tracking_ = false;
+            }else{
+                wall_tracking_ = true;
+            }
+        }
 	}
 
 	if (normalizeBelief() > 0.000001) {
@@ -113,5 +117,8 @@ void ExpResetMcl2::expansionReset(void)
 		p.w_ = 1.0 / particles_.size();
 	}
 }
+
+bool ExpResetMcl2::getWallTrackingSgn(){return wall_tracking_;}
+void ExpResetMcl2::setWallTrackingSgn(bool sgn){wall_tracking_ = sgn;}
 
 }  // namespace emcl2

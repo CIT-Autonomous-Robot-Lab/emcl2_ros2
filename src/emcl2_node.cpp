@@ -57,8 +57,6 @@ void EMcl2Node::initCommunication(void)
 	map_sub_ = create_subscription<nav_msgs::msg::OccupancyGrid>(
 	  "map", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
 	  std::bind(&EMcl2Node::receiveMap, this, std::placeholders::_1));
-	odom_gnss_sub_ = create_subscription<nav_msgs::msg::Odometry>(
-		"odom/gnss", 2, std::bind(&EMcl2Node::cbOdomGnss, this, std::placeholders::_1));	
 
 	global_loc_srv_ = create_service<std_srvs::srv::Empty>(
 	  "global_localization",
@@ -75,6 +73,16 @@ void EMcl2Node::initCommunication(void)
 
 	this->declare_parameter("odom_freq", 20);
 	this->get_parameter("odom_freq", odom_freq_);
+
+    this->declare_parameter("gnss_reset", false);
+	this->get_parameter("gnss_reset", gnss_reset_);
+    this->declare_parameter("wall_tracking", false);
+    this->get_parameter("wall_tracking", wall_tracking_);
+    
+    odom_gnss_sub_ = create_subscription<nav_msgs::msg::Odometry>(
+    "odom/gnss", 2, std::bind(&EMcl2Node::cbOdomGnss, this, std::placeholders::_1));	
+    client_ptr_ = rclcpp_action::create_client<WallTrackingAction>(this, "wall_tracking");
+    send_wall_tracking_act_ = false;
 }
 
 void EMcl2Node::initTF(void)
@@ -135,13 +143,9 @@ void EMcl2Node::initPF(void)
 	this->get_parameter("range_threshold", range_threshold);
 	this->get_parameter("sensor_reset", sensor_reset);
 
-	bool gnss_reset = false;
-	this->declare_parameter("gnss_reset", true);
-	this->get_parameter("gnss_reset", gnss_reset);
-
 	pf_.reset(new ExpResetMcl2(
 	  init_pose, num_particles, scan, om, map, alpha_th, ex_rad_pos, ex_rad_ori,
-	  extraction_rate, range_threshold, sensor_reset, odom_gnss_, gnss_reset));
+	  extraction_rate, range_threshold, sensor_reset, odom_gnss_, gnss_reset_, wall_tracking_));
 
 	init_pf_ = true;
 }
@@ -252,6 +256,8 @@ void EMcl2Node::loop(void)
 		}
 
 		pf_->sensorUpdate(lx, ly, lt, inv);
+
+        if (pf_->getWallTrackingSgn() && !send_wall_tracking_act_) sendGoal();
 
 		double x_var, y_var, t_var, xy_cov, yt_cov, tx_cov;
 		pf_->meanPose(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
@@ -408,6 +414,79 @@ bool EMcl2Node::cbSimpleReset(
   const std_srvs::srv::Empty::Request::ConstSharedPtr, std_srvs::srv::Empty::Response::SharedPtr)
 {
 	return simple_reset_request_ = true;
+}
+
+void EMcl2Node::sendGoal()
+{
+    if(!client_ptr_->wait_for_action_server()){
+        RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting");
+        rclcpp::shutdown();
+    }
+
+    feedback_cnt_ = 0;
+
+    auto goal_msg = WallTrackingAction::Goal();
+    goal_msg.start = true;
+    RCLCPP_INFO(this->get_logger(), "Sending goal");
+    auto send_goal_options = rclcpp_action::Client<WallTrackingAction>::SendGoalOptions();
+    using namespace std::placeholders;
+    send_goal_options.goal_response_callback = std::bind(
+        &EMcl2Node::goalResponseCallback, this, _1
+    );
+    send_goal_options.result_callback = std::bind(
+        &EMcl2Node::resultCallback, this, _1
+    );
+    send_goal_options.feedback_callback = std::bind(
+        &EMcl2Node::feedbackCallback, this, _1, _2
+    );
+    this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
+    send_wall_tracking_act_ = true;
+    // client_ptr_->async_cancel_all_goals();
+}
+
+void EMcl2Node::goalResponseCallback(
+    const GoalHandleWallTracking::SharedPtr & goal_handle
+)
+{
+    if (!goal_handle) {
+        RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
+    } else {
+        RCLCPP_INFO(this->get_logger(), "Goal accepted by server, waiting for result");
+    }
+}
+
+void EMcl2Node::feedbackCallback(
+        typename GoalHandleWallTracking::SharedPtr, 
+        const std::shared_ptr<const typename WallTrackingAction::Feedback> feedback)
+{
+    RCLCPP_INFO(this->get_logger(), "wall tracking sign: %d", pf_->getWallTrackingSgn());
+    if(!pf_->getWallTrackingSgn()){
+        client_ptr_->async_cancel_all_goals();
+        send_wall_tracking_act_ = false;
+    }
+}
+
+void EMcl2Node::resultCallback(
+    const GoalHandleWallTracking::WrappedResult & result
+)
+{
+    switch (result.code) {
+      case rclcpp_action::ResultCode::SUCCEEDED:
+        break;
+      case rclcpp_action::ResultCode::ABORTED:
+        RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
+        return;
+      case rclcpp_action::ResultCode::CANCELED:
+        RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
+        return;
+      default:
+        RCLCPP_ERROR(this->get_logger(), "Unknown result code");
+        return;
+    }
+    pf_->setWallTrackingSgn(false);
+    send_wall_tracking_act_ = false;
+    RCLCPP_INFO(this->get_logger(), "Result Feedback Count: %d", feedback_cnt_);
+    RCLCPP_INFO(this->get_logger(), "Result Receibed");
 }
 
 }  // namespace emcl2

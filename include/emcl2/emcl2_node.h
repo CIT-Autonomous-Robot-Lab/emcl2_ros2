@@ -31,6 +31,13 @@
 #include <memory>
 #include <string>
 
+#include <rclcpp_action/rclcpp_action.hpp>
+#include <rclcpp_components/register_node_macro.hpp>
+#include <wall_tracking_action/action/wall_tracking.hpp>
+
+using WallTrackingAction = wall_tracking_action::action::WallTracking;
+using GoalHandleWallTracking = rclcpp_action::ClientGoalHandle<WallTrackingAction>;
+
 namespace emcl2
 {
 
@@ -108,6 +115,18 @@ class EMcl2Node : public rclcpp::Node
 	  std_srvs::srv::Empty::Response::SharedPtr);
 	void initialPoseReceived(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr
 				   msg);  // same name is found in amcl
+
+    rclcpp_action::Client<WallTrackingAction>::SharedPtr client_ptr_;
+    void initAction();
+    void sendGoal();
+    void goalResponseCallback(const GoalHandleWallTracking::SharedPtr & goal_handle);
+    void feedbackCallback(
+        typename GoalHandleWallTracking::SharedPtr, 
+        const std::shared_ptr<const typename WallTrackingAction::Feedback> feedback);
+    void resultCallback(const GoalHandleWallTracking::WrappedResult & result);
+    int feedback_cnt_;
+    bool send_wall_tracking_act_;
+    bool gnss_reset_, wall_tracking_;
 };
 
 }  // namespace emcl2

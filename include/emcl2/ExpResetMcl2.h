@@ -17,10 +17,13 @@ class ExpResetMcl2 : public Mcl
 	  const Pose & p, int num, const Scan & scan, const std::shared_ptr<OdomModel> & odom_model,
 	  const std::shared_ptr<LikelihoodFieldMap> & map, double alpha_th,
 	  double expansion_radius_position, double expansion_radius_orientation,
-	  double extraction_rate, double successive_penetration_threshold, bool sensor_reset, const GnssReset & odom_gnss, bool gnss_reset);
+	  double extraction_rate, double successive_penetration_threshold, bool sensor_reset, 
+      const GnssReset & odom_gnss, bool gnss_reset, bool wall_tracking);
 	~ExpResetMcl2();
 
 	void sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv);
+    bool getWallTrackingSgn();
+    void setWallTrackingSgn(bool sgn);
 
       private:
 	double alpha_threshold_;
@@ -31,6 +34,7 @@ class ExpResetMcl2 : public Mcl
 	double range_threshold_;
 	bool sensor_reset_;
 	bool gnss_reset_;
+    bool wall_tracking_;
 
 	void expansionReset(void);
 	// double boxMuller(double sigma);
