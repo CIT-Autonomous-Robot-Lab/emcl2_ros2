@@ -59,7 +59,7 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 
 	alpha_ = nonPenetrationRate(static_cast<int>(particles_.size() * extraction_rate_), map_.get(), scan);
 	if (alpha_ < alpha_threshold_) {
-        if(odom_gnss_.isNAN() && wall_tracking_){
+        if((odom_gnss_.isNAN() || odom_gnss_.pf_x_var_ > 5) && wall_tracking_){
             wall_tracking_ = true;
         } else {
             wall_tracking_ = false;
