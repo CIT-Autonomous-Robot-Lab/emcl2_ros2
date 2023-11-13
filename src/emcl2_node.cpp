@@ -73,6 +73,9 @@ void EMcl2Node::initCommunication(void)
 
 	this->declare_parameter("odom_freq", 20);
 	this->get_parameter("odom_freq", odom_freq_);
+
+	this->declare_parameter("transform_tolerance", 0.2);
+	this->get_parameter("transform_tolerance", transform_tolerance_);
 }
 
 void EMcl2Node::initTF(void)
@@ -310,11 +313,11 @@ void EMcl2Node::publishOdomFrame(double x, double y, double t)
 	}
 	tf2::convert(odom_to_map.pose, latest_tf_);
 	auto stamp = tf2_ros::fromMsg(scan_time_stamp_);
-	tf2::TimePoint transform_tolerance_ = stamp + tf2::durationFromSec(0.2);
+	tf2::TimePoint transform_expiration = stamp + tf2::durationFromSec(transform_tolerance_);
 
 	geometry_msgs::msg::TransformStamped tmp_tf_stamped;
 	tmp_tf_stamped.header.frame_id = global_frame_id_;
-	tmp_tf_stamped.header.stamp = tf2_ros::toMsg(transform_tolerance_);
+	tmp_tf_stamped.header.stamp = tf2_ros::toMsg(transform_expiration);
 	tmp_tf_stamped.child_frame_id = odom_frame_id_;
 	tf2::convert(latest_tf_.inverse(), tmp_tf_stamped.transform);
 
