@@ -53,7 +53,8 @@ void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Part
 
 bool GnssReset::isNAN()
 {
-    if(odom_gnss_pos_[0] == NAN && odom_gnss_pos_[1] == NAN) return true;
+    if(std::isnan(odom_gnss_pos_[0])) return true;
+   //  if(odom_gnss_pos_[0] == NAN && odom_gnss_pos_[1] == NAN) return true;
     return false;
 }
 }

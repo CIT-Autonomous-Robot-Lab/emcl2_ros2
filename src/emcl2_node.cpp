@@ -460,10 +460,10 @@ void EMcl2Node::feedbackCallback(
         const std::shared_ptr<const typename WallTrackingAction::Feedback> feedback)
 {
     RCLCPP_INFO(this->get_logger(), "wall tracking sign: %d", pf_->getWallTrackingSgn());
-    if(!pf_->getWallTrackingSgn()){
-        client_ptr_->async_cancel_all_goals();
-        send_wall_tracking_act_ = false;
-    }
+    //if(!pf_->getWallTrackingSgn()){
+    //    client_ptr_->async_cancel_all_goals();
+    //    send_wall_tracking_act_ = false;
+    //}
 }
 
 void EMcl2Node::resultCallback(

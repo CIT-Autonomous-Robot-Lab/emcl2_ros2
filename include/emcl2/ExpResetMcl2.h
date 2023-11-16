@@ -34,6 +34,7 @@ class ExpResetMcl2 : public Mcl
 	double range_threshold_;
 	bool sensor_reset_;
 	bool gnss_reset_;
+    bool wall_tracking_flg_;
     bool wall_tracking_;
 
 	void expansionReset(void);
