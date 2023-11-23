@@ -68,7 +68,7 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 			wall_tracking_ = false;
 			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "kld: %lf, var: %lf, gnss reset: %d", odom_gnss_.kld(), odom_gnss_.pf_x_var_, gnss_reset_);
 
-			if(odom_gnss_.kld() > 13.0 && odom_gnss_.pf_x_var_ > 0.5 && gnss_reset_){
+			if(odom_gnss_.kld() > 13.0 && odom_gnss_.pf_x_var_ > 0.35 && gnss_reset_){
 				RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "GNSS RESET");
 				odom_gnss_.gnssReset(alpha_, alpha_threshold_, particles_);
 			} else {
