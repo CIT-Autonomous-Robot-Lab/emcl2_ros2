@@ -60,25 +60,25 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 
 	alpha_ = nonPenetrationRate(static_cast<int>(particles_.size() * extraction_rate_), map_.get(), scan);
 	if (alpha_ < alpha_threshold_) {
-	    RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "isNAN: %d, wall_tracking: %d", odom_gnss_.isNAN(), wall_tracking_);
-	    if((odom_gnss_.isNAN()) && wall_tracking_flg_){
-		RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "WALL TRACKING");
-                wall_tracking_ = true;
-            } else {
-                wall_tracking_ = false;
-		RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "kld: %lf, var: %lf, gnss reset: %d", odom_gnss_.kld(), odom_gnss_.pf_x_var_, gnss_reset_);
+	    // RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "isNAN: %d, wall_tracking: %d", odom_gnss_.isNAN(), wall_tracking_);
+	    if((odom_gnss_.isNAN()) && wall_tracking_flg_ || wall_tracking_){
+			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "WALL TRACKING");
+            wall_tracking_ = true;
+		} else {
+			wall_tracking_ = false;
+			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "kld: %lf, var: %lf, gnss reset: %d", odom_gnss_.kld(), odom_gnss_.pf_x_var_, gnss_reset_);
 
-                if(odom_gnss_.kld() > 20 && odom_gnss_.pf_x_var_ > 0.04 && gnss_reset_){
-                    RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "GNSS RESET");
-                    odom_gnss_.gnssReset(alpha_, alpha_threshold_, particles_);
-                } else {
-                    RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "EXPANSION RESET");
-                    expansionReset();
-                    for (auto & p : particles_) {
-                        p.w_ *= p.likelihood(map_.get(), scan);
-                    }
-                }
-            }
+			if(odom_gnss_.kld() > 13.0 && odom_gnss_.pf_x_var_ > 0.5 && gnss_reset_){
+				RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "GNSS RESET");
+				odom_gnss_.gnssReset(alpha_, alpha_threshold_, particles_);
+			} else {
+				RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "EXPANSION RESET");
+				expansionReset();
+				for (auto & p : particles_) {
+					p.w_ *= p.likelihood(map_.get(), scan);
+				}
+			}
+		}
 	}
 
 	if (normalizeBelief() > 0.000001) {
@@ -103,7 +103,7 @@ double ExpResetMcl2::nonPenetrationRate(int skip, LikelihoodFieldMap * map, Scan
 	}
 	shift++;
 
-	std::cout << penetrating << " " << counter << std::endl;
+	// std::cout << penetrating << " " << counter << std::endl;
 	return static_cast<double>((counter - penetrating)) / counter;
 }
 

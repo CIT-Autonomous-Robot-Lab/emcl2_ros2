@@ -13,6 +13,7 @@ GnssReset::GnssReset()
 
 void GnssReset::setSigma(double odom_gnss_sigma, double pf_sigma)
 {
+    gnss_reset_sigma_ = 1.5;
     odom_gnss_sigma_ << odom_gnss_sigma, 0, 
                         0, odom_gnss_sigma;
     pf_sigma_ << pf_sigma, 0, 
@@ -39,14 +40,14 @@ void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Part
 {
     double beta = alpha < alpha_th ? 1 - alpha / alpha_th : 0.0;
     int particle_num = beta * particles.size();
-    // RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "beta: %lf, num of replace particle: %d", beta, particle_num);
+    RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "beta: %lf, num of replace particle: %d", beta, particle_num);
     // RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "(odom_gnss.x, odom_gnss.y) = (%lf, %lf)", odom_gnss_.odom_gnss_x_, odom_gnss_.odom_gnss_y_);
     for(int i=0; i<particle_num; ++i)
     {
-        int index = rand() % particles.size();
-        particles[index].p_.x_ = odom_gnss_pos_[0] + boxMuller(gnss_reset_sigma_);
-        particles[index].p_.y_ = odom_gnss_pos_[1] + boxMuller(gnss_reset_sigma_);
-        particles[index].p_.t_ = ((rand() % 628) - 314) / 100;
+        // int index = rand() % particles.size();
+        particles[i].p_.x_ = odom_gnss_pos_[0] + boxMuller(gnss_reset_sigma_);
+        particles[i].p_.y_ = odom_gnss_pos_[1] + boxMuller(gnss_reset_sigma_);
+        particles[i].p_.t_ = ((rand() % 628) - 314) / 100;
         // particles[index].p_.t_ = boxMuller(3.14);
     }
 }
