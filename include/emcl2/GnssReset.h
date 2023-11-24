@@ -27,6 +27,7 @@ class GnssReset
     double det_og_sigma, det_pf_sigma;
     double tr_ogsi_ps;
     double boxMuller(double sigma);
+    double deg_;
 };
 }
 

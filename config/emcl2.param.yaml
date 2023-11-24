@@ -24,5 +24,5 @@
     odom_rot_dev_per_rot: 0.2
     laser_likelihood_max_dist: 0.2
     gnss_reset: true
-    wall_tracking: true
-    gnss_reset_sigma: 2.0
+    wall_tracking: false
+    gnss_reset_sigma: 10.0

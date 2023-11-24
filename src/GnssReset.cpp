@@ -38,6 +38,8 @@ double GnssReset::kld()
 
 void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Particle> & particles, double gnss_reset_sigma)
 {
+    deg_ += M_PI / 180; 
+    if(deg_ > 2*M_PI) deg_ = 0.;
     double beta = alpha < alpha_th ? 1 - alpha / alpha_th : 0.0;
     int particle_num = beta * particles.size();
     RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "beta: %lf, num of replace particle: %d", beta, particle_num);
@@ -52,8 +54,8 @@ void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Part
         // particles[i].p_.y_ = odom_gnss_pos_[1] + boxMuller(gnss_reset_sigma_);
         particles[i].p_.x_ = odom_gnss_pos_[0] + length * cos(direction);
         particles[i].p_.y_ = odom_gnss_pos_[1] + length * sin(direction);
-        particles[i].p_.t_ = ((rand() % 628) - 314) / 100;
-        // particles[index].p_.t_ = boxMuller(3.14);
+        // particles[i].p_.t_ = ((rand() % 628) - 314) / 100;
+        particles[i].p_.t_ = deg_ + boxMuller(3.14);
     }
 }
 
