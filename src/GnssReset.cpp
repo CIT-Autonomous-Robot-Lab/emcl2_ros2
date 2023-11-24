@@ -44,9 +44,14 @@ void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Part
     // RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "(odom_gnss.x, odom_gnss.y) = (%lf, %lf)", odom_gnss_.odom_gnss_x_, odom_gnss_.odom_gnss_y_);
     for(int i=0; i<particle_num; ++i)
     {
+        double length =
+		  2 * (static_cast<double>(rand()) / RAND_MAX - 0.5) * gnss_reset_sigma_;
+		double direction = 2 * (static_cast<double>(rand()) / RAND_MAX - 0.5) * M_PI;
         // int index = rand() % particles.size();
-        particles[i].p_.x_ = odom_gnss_pos_[0] + boxMuller(gnss_reset_sigma_);
-        particles[i].p_.y_ = odom_gnss_pos_[1] + boxMuller(gnss_reset_sigma_);
+        // particles[i].p_.x_ = odom_gnss_pos_[0] + boxMuller(gnss_reset_sigma_);
+        // particles[i].p_.y_ = odom_gnss_pos_[1] + boxMuller(gnss_reset_sigma_);
+        particles[i].p_.x_ = odom_gnss_pos_[0] + length * cos(direction);
+        particles[i].p_.y_ = odom_gnss_pos_[1] + length * sin(direction);
         particles[i].p_.t_ = ((rand() % 628) - 314) / 100;
         // particles[index].p_.t_ = boxMuller(3.14);
     }
