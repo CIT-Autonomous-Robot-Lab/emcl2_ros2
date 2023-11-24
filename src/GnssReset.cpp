@@ -36,7 +36,7 @@ double GnssReset::kld()
 	return log10(det_og_sigma / det_pf_sigma) + tr_ogsi_ps + (pf_pos_ - odom_gnss_pos_).transpose() * odom_gnss_sigma_.transpose() * (pf_pos_ - odom_gnss_pos_);
 }
 
-void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Particle> & particles)
+void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Particle> & particles, double gnss_reset_sigma)
 {
     double beta = alpha < alpha_th ? 1 - alpha / alpha_th : 0.0;
     int particle_num = beta * particles.size();
@@ -45,7 +45,7 @@ void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Part
     for(int i=0; i<particle_num; ++i)
     {
         double length =
-		  2 * (static_cast<double>(rand()) / RAND_MAX - 0.5) * gnss_reset_sigma_;
+		  2 * (static_cast<double>(rand()) / RAND_MAX - 0.5) * gnss_reset_sigma;
 		double direction = 2 * (static_cast<double>(rand()) / RAND_MAX - 0.5) * M_PI;
         // int index = rand() % particles.size();
         // particles[i].p_.x_ = odom_gnss_pos_[0] + boxMuller(gnss_reset_sigma_);

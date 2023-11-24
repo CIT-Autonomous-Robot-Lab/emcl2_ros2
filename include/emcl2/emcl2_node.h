@@ -126,7 +126,6 @@ class EMcl2Node : public rclcpp::Node
     void resultCallback(const GoalHandleWallTracking::WrappedResult & result);
     int feedback_cnt_;
     bool send_wall_tracking_act_;
-    bool gnss_reset_, wall_tracking_;
 };
 
 }  // namespace emcl2

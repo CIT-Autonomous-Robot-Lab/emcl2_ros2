@@ -18,7 +18,7 @@ class GnssReset
     Eigen::Vector2d odom_gnss_pos_, pf_pos_;
     double pf_x_var_, pf_y_var_;
     double kld();
-	void gnssReset(double alpha, double alpha_th, std::vector<emcl2::Particle> & particles);
+	void gnssReset(double alpha, double alpha_th, std::vector<emcl2::Particle> & particles, double gnss_reset_sigma);
     bool isNAN();
 
       private:

@@ -25,3 +25,4 @@
     laser_likelihood_max_dist: 0.2
     gnss_reset: true
     wall_tracking: true
+    gnss_reset_sigma: 2.0

@@ -72,12 +72,7 @@ void EMcl2Node::initCommunication(void)
 	this->get_parameter("base_frame_id", base_frame_id_);
 
 	this->declare_parameter("odom_freq", 20);
-	this->get_parameter("odom_freq", odom_freq_);
-
-    this->declare_parameter("gnss_reset", false);
-	this->get_parameter("gnss_reset", gnss_reset_);
-    this->declare_parameter("wall_tracking", false);
-    this->get_parameter("wall_tracking", wall_tracking_);
+	this->get_parameter("odom_freq", odom_freq_);;
     
     odom_gnss_sub_ = create_subscription<nav_msgs::msg::Odometry>(
     "odom/gnss", 2, std::bind(&EMcl2Node::cbOdomGnss, this, std::placeholders::_1));	
@@ -143,9 +138,18 @@ void EMcl2Node::initPF(void)
 	this->get_parameter("range_threshold", range_threshold);
 	this->get_parameter("sensor_reset", sensor_reset);
 
+	bool gnss_reset, wall_tracking;
+	double gnss_reset_sigma; 
+    this->declare_parameter("gnss_reset", false);
+	this->get_parameter("gnss_reset", gnss_reset);
+    this->declare_parameter("wall_tracking", false);
+    this->get_parameter("wall_tracking", wall_tracking);
+	this->declare_parameter("gnss_reset_sigma", 2.0);
+    this->get_parameter("gnss_reset_sigma", gnss_reset_sigma);
+
 	pf_.reset(new ExpResetMcl2(
 	  init_pose, num_particles, scan, om, map, alpha_th, ex_rad_pos, ex_rad_ori,
-	  extraction_rate, range_threshold, sensor_reset, odom_gnss_, gnss_reset_, wall_tracking_));
+	  extraction_rate, range_threshold, sensor_reset, odom_gnss_, gnss_reset, wall_tracking, gnss_reset_sigma));
 
 	init_pf_ = true;
 }

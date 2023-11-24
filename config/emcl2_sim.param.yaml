@@ -1,6 +1,6 @@
 /**:
   ros__parameters:
-    odom_freq: 20
+    odom_freq: 5
     global_frame_id: "map"
     odom_frame_id: "odom"
     base_frame_id: "base_link"
@@ -25,3 +25,4 @@
     laser_likelihood_max_dist: 0.2
     gnss_reset: true
     wall_tracking: false
+    gnss_reset_sigma: 2.0
