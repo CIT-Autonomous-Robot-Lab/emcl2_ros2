@@ -1,6 +1,6 @@
 /**:
   ros__parameters:
-    odom_freq: 5
+    odom_freq: 20
     global_frame_id: "map"
     odom_frame_id: "odom"
     base_frame_id: "base_link"
@@ -13,16 +13,18 @@
     initial_pose_a: 0.0
     num_particles: 1000
     alpha_threshold: 0.5
-    expansion_radius_position: 0.7
+    expansion_radius_position: 1.0
     expansion_radius_orientation: 0.2
     extraction_rate: 0.1
     range_threshold: 0.3
     sensor_reset: false
-    odom_fw_dev_per_fw: 0.19
-    odom_fw_dev_per_rot: 0.0001
+    odom_fw_dev_per_fw: 0.5
+    odom_fw_dev_per_rot: 0.2
     odom_rot_dev_per_fw: 0.13
-    odom_rot_dev_per_rot: 0.2
+    odom_rot_dev_per_rot: 0.05
     laser_likelihood_max_dist: 0.2
     gnss_reset: true
     wall_tracking: false
-    gnss_reset_sigma: 2.0
+    gnss_reset_var: 5.0
+    kld_th: 10.0
+    pf_var_th: 0.25
