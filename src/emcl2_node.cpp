@@ -139,17 +139,23 @@ void EMcl2Node::initPF(void)
 	this->get_parameter("sensor_reset", sensor_reset);
 
 	bool gnss_reset, wall_tracking;
-	double gnss_reset_sigma; 
+	double gnss_reset_var;
+	double kld_th, pf_var_th;
     this->declare_parameter("gnss_reset", false);
 	this->get_parameter("gnss_reset", gnss_reset);
     this->declare_parameter("wall_tracking", false);
     this->get_parameter("wall_tracking", wall_tracking);
-	this->declare_parameter("gnss_reset_sigma", 2.0);
-    this->get_parameter("gnss_reset_sigma", gnss_reset_sigma);
+	this->declare_parameter("gnss_reset_var", 2.0);
+    this->get_parameter("gnss_reset_var", gnss_reset_var);
+	this->declare_parameter("kld_th", 10.0);
+	this->get_parameter("kld_th", kld_th);
+	this->declare_parameter("pf_var_th", 0.25);
+	this->get_parameter("pf_var_th", pf_var_th);
 
 	pf_.reset(new ExpResetMcl2(
 	  init_pose, num_particles, scan, om, map, alpha_th, ex_rad_pos, ex_rad_ori,
-	  extraction_rate, range_threshold, sensor_reset, odom_gnss_, gnss_reset, wall_tracking, gnss_reset_sigma));
+	  extraction_rate, range_threshold, sensor_reset, 
+	  odom_gnss_, gnss_reset, wall_tracking, gnss_reset_var, kld_th, pf_var_th));
 
 	init_pf_ = true;
 }

@@ -18,7 +18,8 @@ class ExpResetMcl2 : public Mcl
 	  const std::shared_ptr<LikelihoodFieldMap> & map, double alpha_th,
 	  double expansion_radius_position, double expansion_radius_orientation,
 	  double extraction_rate, double successive_penetration_threshold, bool sensor_reset, 
-      const GnssReset & odom_gnss, bool gnss_reset, bool wall_tracking, double gnss_reset_sigma);
+      const GnssReset & odom_gnss, bool gnss_reset, bool wall_tracking, double gnss_reset_var, 
+	  double kld_th, double pf_var_th);
 	~ExpResetMcl2();
 
 	void sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv);
@@ -36,15 +37,11 @@ class ExpResetMcl2 : public Mcl
 	bool gnss_reset_;
     bool wall_tracking_flg_;
     bool wall_tracking_;
-	double gnss_reset_sigma_;
+	double gnss_reset_var_;
+	double kld_th_, pf_var_th_;
 
 	void expansionReset(void);
-	// double boxMuller(double sigma);
-	// void gnssReset(void);
-
-	// bool Particle::isPenetrating(
 	double nonPenetrationRate(int skip, LikelihoodFieldMap * map, Scan & scan);
-	// double kld();
 };
 
 }  // namespace emcl2
