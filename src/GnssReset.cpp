@@ -8,61 +8,80 @@
 namespace emcl2{
 GnssReset::GnssReset()
 {
-	setSigma(5.0, 1.0);
+  gnss_var_ = 5.0;
+  pf_var_ = 1.0;
+  setVariance(gnss_var_, pf_var_);
 }
 
-void GnssReset::setSigma(double odom_gnss_sigma, double pf_sigma)
+void GnssReset::setVariance(double gnss_var, double pf_var)
 {
-    gnss_reset_sigma_ = 1.5;
-    odom_gnss_sigma_ << odom_gnss_sigma, 0, 
-                        0, odom_gnss_sigma;
-    pf_sigma_ << pf_sigma, 0, 
-                    0, pf_sigma;
-	det_og_sigma = odom_gnss_sigma_.determinant();
-	det_pf_sigma = pf_sigma_.determinant();
-	tr_ogsi_ps = (odom_gnss_sigma_.transpose() * pf_sigma_).trace();
+  gnss_var_ = gnss_var;
+  pf_var_ = pf_var;
 }
 
 double GnssReset::boxMuller(double sigma)
 {
 	double r1 = static_cast<double>(rand()) / RAND_MAX;
 	double r2 = static_cast<double>(rand()) / RAND_MAX;
-	return sigma * (-2.0 * log(r1) * cos(2*M_PI*r2));
+	return sigma * log(r1) * cos(2*M_PI*r2);
+}
+
+double GnssReset::pfRanGaussian(double sigma)
+{
+  double x1, x2, w, r;
+  do
+  {
+    do { r = drand48(); } while (r==0.0);
+    x1 = 2.0 * r - 1.0;
+    do { r = drand48(); } while (r==0.0);
+    x2 = 2.0 * r - 1.0;
+    w = x1*x1 + x2*x2;
+  } while(w > 1.0 || w==0.0);
+  return sigma * x2 * sqrt(-2.0*log(w)/w);
 }
 
 double GnssReset::kld()
 {
     if(isNAN()) return NAN;
-	return log10(det_og_sigma / det_pf_sigma) + tr_ogsi_ps + (pf_pos_ - odom_gnss_pos_).transpose() * odom_gnss_sigma_.transpose() * (pf_pos_ - odom_gnss_pos_);
+    Eigen::Matrix2d gnss_sigma_mx, pf_sigma_mx;
+    gnss_sigma_mx << gnss_var_, 0.0, 
+                      0.0, gnss_var_;
+    pf_sigma_mx << pf_var_, 0.0, 
+                    0.0, pf_var_;
+    double kld = log(gnss_sigma_mx.determinant() / pf_sigma_mx.determinant());
+    kld += (gnss_sigma_mx.inverse() * pf_sigma_mx).trace();
+    Eigen::Vector2d diff_pos = pf_position_ - gnss_position_;
+    kld += diff_pos.transpose() * gnss_sigma_mx.inverse() * diff_pos;
+    kld -= 2.0;
+    kld /= 2.0;
+    return kld;
 }
 
 void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Particle> & particles, double gnss_reset_sigma)
 {
-    deg_ += M_PI / 180; 
-    if(deg_ > 2*M_PI) deg_ = 0.;
     double beta = alpha < alpha_th ? 1 - alpha / alpha_th : 0.0;
     int particle_num = beta * particles.size();
     RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "beta: %lf, num of replace particle: %d", beta, particle_num);
     // RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "(odom_gnss.x, odom_gnss.y) = (%lf, %lf)", odom_gnss_.odom_gnss_x_, odom_gnss_.odom_gnss_y_);
     for(int i=0; i<particle_num; ++i)
     {
-        double length =
-		  2 * (static_cast<double>(rand()) / RAND_MAX - 0.5) * gnss_reset_sigma;
-		double direction = 2 * (static_cast<double>(rand()) / RAND_MAX - 0.5) * M_PI;
+    //     double length =
+		//   2 * (static_cast<double>(rand()) / RAND_MAX - 0.5) * gnss_reset_sigma;
+		// double direction = 2 * (static_cast<double>(rand()) / RAND_MAX - 0.5) * M_PI;
         // int index = rand() % particles.size();
-        // particles[i].p_.x_ = odom_gnss_pos_[0] + boxMuller(gnss_reset_sigma_);
-        // particles[i].p_.y_ = odom_gnss_pos_[1] + boxMuller(gnss_reset_sigma_);
-        particles[i].p_.x_ = odom_gnss_pos_[0] + length * cos(direction);
-        particles[i].p_.y_ = odom_gnss_pos_[1] + length * sin(direction);
-        // particles[i].p_.t_ = ((rand() % 628) - 314) / 100;
-        particles[i].p_.t_ = deg_ + boxMuller(3.14);
+        particles[i].p_.x_ = gnss_position_[0] + pfRanGaussian(gnss_reset_sigma);
+        particles[i].p_.y_ = gnss_position_[1] + pfRanGaussian(gnss_reset_sigma);
+        // particles[i].p_.x_ = gnss_position_[0] + length * cos(direction);
+        // particles[i].p_.y_ = gnss_position_[1] + length * sin(direction);
+        particles[i].p_.t_ = 2 * (static_cast<double>(rand()) / RAND_MAX - 0.5) * M_PI;
+        // particles[i].p_.t_ = pfRanGaussian(3.14);
     }
 }
 
 bool GnssReset::isNAN()
 {
-    if(std::isnan(odom_gnss_pos_[0])) return true;
-   //  if(odom_gnss_pos_[0] == NAN && odom_gnss_pos_[1] == NAN) return true;
+    if(std::isnan(gnss_position_[0])) return true;
+   //  if(gnss_position_[0] == NAN && gnss_position_[1] == NAN) return true;
     return false;
 }
 }

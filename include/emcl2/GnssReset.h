@@ -14,20 +14,18 @@ class GnssReset
 {
       public:
     GnssReset();
-    void setSigma(double odom_gnss_sigma, double pf_sigma);
-    Eigen::Vector2d odom_gnss_pos_, pf_pos_;
+    Eigen::Vector2d gnss_position_, pf_position_;
     double pf_x_var_, pf_y_var_;
     double kld();
-	void gnssReset(double alpha, double alpha_th, std::vector<emcl2::Particle> & particles, double gnss_reset_sigma);
+	  void gnssReset(double alpha, double alpha_th, std::vector<emcl2::Particle> & particles, double gnss_reset_var);
     bool isNAN();
+    double pfRanGaussian(double sigma);
+    double boxMuller(double sigma);
+    void setVariance(double gnss_var, double pf_var);
 
       private:
-    Eigen::Matrix2d odom_gnss_sigma_, pf_sigma_;
-    double gnss_reset_sigma_;
-    double det_og_sigma, det_pf_sigma;
-    double tr_ogsi_ps;
-    double boxMuller(double sigma);
-    double deg_;
+    double gnss_var_, pf_var_;
+    double gnss_reset_var_;
 };
 }
 
