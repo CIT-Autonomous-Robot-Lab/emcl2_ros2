@@ -494,6 +494,7 @@ void EMcl2Node::resultCallback(
         return;
     }
     pf_->setWallTrackingSgn(false);
+	pf_->setShouldGnssReset(true);
     send_wall_tracking_act_ = false;
     RCLCPP_INFO(this->get_logger(), "Result Feedback Count: %d", feedback_cnt_);
     RCLCPP_INFO(this->get_logger(), "Result Receibed");

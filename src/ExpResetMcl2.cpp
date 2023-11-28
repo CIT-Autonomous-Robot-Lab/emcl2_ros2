@@ -75,7 +75,8 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), 
 						"kld: %lf / kld_th: %lf, x_var: %lf, y_var: %lf", 
 						odom_gnss_.kld(), kld_th_, odom_gnss_.pf_x_var_, odom_gnss_.pf_y_var_);
-			if(odom_gnss_.kld() < kld_th_ || (odom_gnss_.pf_x_var_ < pf_var_th_ && odom_gnss_.pf_y_var_ < pf_var_th_) || !gnss_reset_){
+			bool should_exp_reset = odom_gnss_.kld() < kld_th_ || (odom_gnss_.pf_x_var_ < pf_var_th_ && odom_gnss_.pf_y_var_ < pf_var_th_) || !gnss_reset_;
+			if(should_exp_reset && !should_gnss_reset_){
 				RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "EXPANSION RESET");
 				expansionReset();
 				for (auto & p : particles_) {
@@ -85,6 +86,7 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 				RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "GNSS RESET");
 				odom_gnss_.setVariance(gnss_reset_var_, expansion_radius_position_*expansion_radius_position_);
 				odom_gnss_.gnssReset(alpha_, alpha_threshold_, particles_, sqrt(gnss_reset_var_));
+				should_gnss_reset_ = false;
 			}
 		}
 	}
@@ -132,5 +134,7 @@ void ExpResetMcl2::expansionReset(void)
 
 bool ExpResetMcl2::getWallTrackingSgn(){return wall_tracking_;}
 void ExpResetMcl2::setWallTrackingSgn(bool sgn){wall_tracking_ = sgn;}
+bool ExpResetMcl2::getShouldGnssReset(){return should_gnss_reset_;}
+void ExpResetMcl2::setShouldGnssReset(bool sgn){should_gnss_reset_ = sgn;};
 
 }  // namespace emcl2

@@ -25,6 +25,8 @@ class ExpResetMcl2 : public Mcl
 	void sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv);
     bool getWallTrackingSgn();
     void setWallTrackingSgn(bool sgn);
+	bool getShouldGnssReset();
+	void setShouldGnssReset(bool sgn);
 
       private:
 	double alpha_threshold_;
@@ -39,6 +41,7 @@ class ExpResetMcl2 : public Mcl
     bool wall_tracking_;
 	double gnss_reset_var_;
 	double kld_th_, pf_var_th_;
+	bool should_gnss_reset_;
 
 	void expansionReset(void);
 	double nonPenetrationRate(int skip, LikelihoodFieldMap * map, Scan & scan);
