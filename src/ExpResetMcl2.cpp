@@ -70,7 +70,7 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 	    if((odom_gnss_.isNAN()) && wall_tracking_flg_){
 			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "WALL TRACKING");
             wall_tracking_ = true;
-		} else {
+		} else if(!wall_tracking_){
 			// wall_tracking_ = false;
 			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), 
 						"kld: %lf / kld_th: %lf, x_var: %lf, y_var: %lf", 
