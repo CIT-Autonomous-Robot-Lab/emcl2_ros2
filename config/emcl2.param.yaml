@@ -25,6 +25,6 @@
     laser_likelihood_max_dist: 0.2
     gnss_reset: true
     wall_tracking: false
-    gnss_reset_var: 5.0
-    kld_th: 10.0
-    pf_var_th: 0.25
+    gnss_reset_var: 25.0
+    kld_th: 5.0
+    pf_var_th: 1.5
