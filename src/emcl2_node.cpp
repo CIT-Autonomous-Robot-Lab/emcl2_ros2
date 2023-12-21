@@ -275,7 +275,8 @@ void EMcl2Node::loop(void)
 
 		pf_->sensorUpdate(lx, ly, lt, inv);
 
-        if (pf_->getWallTrackingSgn() && !send_wall_tracking_act_) sendGoal();
+        if (pf_->getWallTrackingStartSgn() && !send_wall_tracking_act_) sendGoal();
+		if (pf_->getWallTrackingCancelSgn() && pf_->getWallTrackingStartSgn()) cancelWallTracking();
 
 		double x_var, y_var, t_var, xy_cov, yt_cov, tx_cov;
 		pf_->meanPose(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
@@ -434,6 +435,15 @@ bool EMcl2Node::cbSimpleReset(
 	return simple_reset_request_ = true;
 }
 
+void EMcl2Node::cancelWallTracking()
+{
+	RCLCPP_INFO(this->get_logger(), "send cancel goal");
+	client_ptr_->async_cancel_all_goals();
+	send_wall_tracking_act_ = false;
+	pf_->setWallTrackingStartSgn(false);
+	pf_->setWallTrackingCancelSgn(false);
+}
+
 void EMcl2Node::sendGoal()
 {
     if(!client_ptr_->wait_for_action_server()){
@@ -477,11 +487,13 @@ void EMcl2Node::feedbackCallback(
         typename GoalHandleWallTracking::SharedPtr, 
         const std::shared_ptr<const typename WallTrackingAction::Feedback> feedback)
 {
-    // RCLCPP_INFO(this->get_logger(), "wall tracking sign: %d", pf_->getWallTrackingSgn());
-    if(!pf_->getWallTrackingSgn()){
+    RCLCPP_INFO(this->get_logger(), "wall tracking sign: %d", pf_->getWallTrackingCancelSgn());
+    if(pf_->getWallTrackingCancelSgn() && pf_->getWallTrackingStartSgn()){
 		RCLCPP_INFO(this->get_logger(), "send cancel goal");
-       client_ptr_->async_cancel_all_goals();
-       send_wall_tracking_act_ = false;
+       	client_ptr_->async_cancel_all_goals();
+       	send_wall_tracking_act_ = false;
+	   	pf_->setWallTrackingStartSgn(false);
+	   	pf_->setWallTrackingCancelSgn(false);
     }
 }
 
@@ -502,8 +514,8 @@ void EMcl2Node::resultCallback(
         RCLCPP_ERROR(this->get_logger(), "Unknown result code");
         return;
     }
-    // pf_->setWallTrackingSgn(false);
-	// pf_->setShouldGnssReset(true);
+    pf_->setWallTrackingStartSgn(false);
+	pf_->setShouldGnssReset(true);
     send_wall_tracking_act_ = false;
     RCLCPP_INFO(this->get_logger(), "Result Feedback Count: %d", feedback_cnt_);
     RCLCPP_INFO(this->get_logger(), "Result Receibed");

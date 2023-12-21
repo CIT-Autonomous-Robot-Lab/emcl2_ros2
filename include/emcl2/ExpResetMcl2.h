@@ -23,11 +23,13 @@ class ExpResetMcl2 : public Mcl
 	~ExpResetMcl2();
 
 	void sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv);
-    bool getWallTrackingSgn();
-    void setWallTrackingSgn(bool sgn);
+    bool getWallTrackingStartSgn();
+    void setWallTrackingStartSgn(bool sgn);
 	bool getShouldGnssReset();
 	void setShouldGnssReset(bool sgn);
 	void setOpenPlaceArrived(bool sgn);
+	bool getWallTrackingCancelSgn();
+	void setWallTrackingCancelSgn(bool sgn);
 
       private:
 	double alpha_threshold_;
@@ -39,12 +41,12 @@ class ExpResetMcl2 : public Mcl
 	bool sensor_reset_;
 	bool gnss_reset_;
     bool wall_tracking_flg_;
-    bool wall_tracking_;
+    bool wall_tracking_start_;
+	bool wall_tracking_cancel_;
 	double gnss_reset_var_;
 	double kld_th_, pf_var_th_;
 	bool should_gnss_reset_;
 	bool open_place_arrived_, pre_open_place_arrived_;
-	bool is_kidnapped_, pre_is_kidnapped_;
 
 	void expansionReset(void);
 	double nonPenetrationRate(int skip, LikelihoodFieldMap * map, Scan & scan);

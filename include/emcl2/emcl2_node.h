@@ -91,7 +91,9 @@ class EMcl2Node : public rclcpp::Node
 	bool scan_receive_;
 	bool map_receive_;
 	double init_x_, init_y_, init_t_;
-
+	int feedback_cnt_;
+	bool send_wall_tracking_act_;
+	
 	void publishPose(
 	  double x, double y, double t, double x_dev, double y_dev, double t_dev, double xy_cov,
 	  double yt_cov, double tx_cov);
@@ -127,8 +129,7 @@ class EMcl2Node : public rclcpp::Node
         typename GoalHandleWallTracking::SharedPtr, 
         const std::shared_ptr<const typename WallTrackingAction::Feedback> feedback);
     void resultCallback(const GoalHandleWallTracking::WrappedResult & result);
-    int feedback_cnt_;
-    bool send_wall_tracking_act_;
+    void cancelWallTracking();
 };
 
 }  // namespace emcl2

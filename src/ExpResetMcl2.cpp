@@ -66,10 +66,8 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 	}
 
 	alpha_ = nonPenetrationRate(static_cast<int>(particles_.size() * extraction_rate_), map_.get(), scan);
-	// pre_is_kidnapped_ = is_kidnapped_;
-	// is_kidnapped_ = alpha_ < alpha_threshold_;
 	if (alpha_ < alpha_threshold_) {
-		if(wall_tracking_flg_) wall_tracking_ = true;
+		if(wall_tracking_flg_) wall_tracking_start_ = true;
 		if(!wall_tracking_flg_ || open_place_arrived_){
 			double kld = odom_gnss_.kld();
 			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), 
@@ -90,8 +88,12 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 				should_gnss_reset_ = false;
 			}
 		}
-	} else wall_tracking_ = false;
-	// RCLCPP_INFO(rclcpp::get_logger("ExpResetMcl2"), "wall tracking: %d", wall_tracking_);
+	}
+	if(alpha_ >= alpha_threshold_ && open_place_arrived_ && wall_tracking_start_){
+		RCLCPP_INFO(rclcpp::get_logger("ExpResetMcl2"), "set wall_tracking_cancel true");
+		wall_tracking_cancel_ = true;
+	}
+	
 
 	if (normalizeBelief() > 0.000001) {
 		resampling();
@@ -134,16 +136,18 @@ void ExpResetMcl2::expansionReset(void)
 	}
 }
 
-bool ExpResetMcl2::getWallTrackingSgn(){return wall_tracking_;}
-void ExpResetMcl2::setWallTrackingSgn(bool sgn){wall_tracking_ = sgn;}
+bool ExpResetMcl2::getWallTrackingStartSgn(){return wall_tracking_start_;}
+void ExpResetMcl2::setWallTrackingStartSgn(bool sgn){wall_tracking_start_ = sgn;}
 bool ExpResetMcl2::getShouldGnssReset(){
 	if(pre_open_place_arrived_ == open_place_arrived_) return false;
 	return true;
 }
-void ExpResetMcl2::setShouldGnssReset(bool sgn){should_gnss_reset_ = sgn;};
+void ExpResetMcl2::setShouldGnssReset(bool sgn){should_gnss_reset_ = sgn;}
 void ExpResetMcl2::setOpenPlaceArrived(bool sgn){
 	pre_open_place_arrived_ = open_place_arrived_;
 	open_place_arrived_ = sgn;
-};
+}
+bool ExpResetMcl2::getWallTrackingCancelSgn(){return wall_tracking_cancel_;}
+void ExpResetMcl2::setWallTrackingCancelSgn(bool sgn){wall_tracking_cancel_ = sgn;};
 
 }  // namespace emcl2
