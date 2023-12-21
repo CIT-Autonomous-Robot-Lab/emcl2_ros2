@@ -27,6 +27,7 @@ class ExpResetMcl2 : public Mcl
     void setWallTrackingSgn(bool sgn);
 	bool getShouldGnssReset();
 	void setShouldGnssReset(bool sgn);
+	void setOpenPlaceArrived(bool sgn);
 
       private:
 	double alpha_threshold_;
@@ -42,6 +43,8 @@ class ExpResetMcl2 : public Mcl
 	double gnss_reset_var_;
 	double kld_th_, pf_var_th_;
 	bool should_gnss_reset_;
+	bool open_place_arrived_, pre_open_place_arrived_;
+	bool is_kidnapped_, pre_is_kidnapped_;
 
 	void expansionReset(void);
 	double nonPenetrationRate(int skip, LikelihoodFieldMap * map, Scan & scan);

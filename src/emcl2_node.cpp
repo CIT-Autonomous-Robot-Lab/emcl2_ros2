@@ -75,9 +75,12 @@ void EMcl2Node::initCommunication(void)
 	this->get_parameter("odom_freq", odom_freq_);;
     
     odom_gnss_sub_ = create_subscription<nav_msgs::msg::Odometry>(
-    "odom/gnss", 2, std::bind(&EMcl2Node::cbOdomGnss, this, std::placeholders::_1));	
+    	"odom/gnss", 2, std::bind(&EMcl2Node::cbOdomGnss, this, std::placeholders::_1));	
     client_ptr_ = rclcpp_action::create_client<WallTrackingAction>(this, "wall_tracking");
     send_wall_tracking_act_ = false;
+	open_place_arrived_sub_ = create_subscription<std_msgs::msg::Bool>(
+		"open_place_arrived", 2, std::bind(&EMcl2Node::cbOpenPlaceArrived, this, std::placeholders::_1)
+	);
 }
 
 void EMcl2Node::initTF(void)
@@ -207,6 +210,11 @@ void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 void EMcl2Node::cbOdomGnss(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
 {
 	if(init_pf_) pf_->setOdomGnss(msg);
+}
+
+void EMcl2Node::cbOpenPlaceArrived(const std_msgs::msg::Bool::ConstSharedPtr msg)
+{
+	if(init_pf_) pf_->setOpenPlaceArrived(msg->data);
 }
 
 void EMcl2Node::initialPoseReceived(
@@ -469,11 +477,12 @@ void EMcl2Node::feedbackCallback(
         typename GoalHandleWallTracking::SharedPtr, 
         const std::shared_ptr<const typename WallTrackingAction::Feedback> feedback)
 {
-    RCLCPP_INFO(this->get_logger(), "wall tracking sign: %d", pf_->getWallTrackingSgn());
-    //if(!pf_->getWallTrackingSgn()){
-    //    client_ptr_->async_cancel_all_goals();
-    //    send_wall_tracking_act_ = false;
-    //}
+    // RCLCPP_INFO(this->get_logger(), "wall tracking sign: %d", pf_->getWallTrackingSgn());
+    if(!pf_->getWallTrackingSgn()){
+		RCLCPP_INFO(this->get_logger(), "send cancel goal");
+       client_ptr_->async_cancel_all_goals();
+       send_wall_tracking_act_ = false;
+    }
 }
 
 void EMcl2Node::resultCallback(
@@ -493,8 +502,8 @@ void EMcl2Node::resultCallback(
         RCLCPP_ERROR(this->get_logger(), "Unknown result code");
         return;
     }
-    pf_->setWallTrackingSgn(false);
-	pf_->setShouldGnssReset(true);
+    // pf_->setWallTrackingSgn(false);
+	// pf_->setShouldGnssReset(true);
     send_wall_tracking_act_ = false;
     RCLCPP_INFO(this->get_logger(), "Result Feedback Count: %d", feedback_cnt_);
     RCLCPP_INFO(this->get_logger(), "Result Receibed");

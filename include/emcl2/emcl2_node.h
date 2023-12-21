@@ -34,6 +34,7 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <wall_tracking_action/action/wall_tracking.hpp>
+#include <std_msgs/msg/bool.hpp>
 
 using WallTrackingAction = wall_tracking_action::action::WallTracking;
 using GoalHandleWallTracking = rclcpp_action::ClientGoalHandle<WallTrackingAction>;
@@ -62,6 +63,7 @@ class EMcl2Node : public rclcpp::Node
 	  initial_pose_sub_;
 	rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_;
 	rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_gnss_sub_;
+	rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr open_place_arrived_sub_;
 
 	// ros::ServiceServer global_loc_srv_;
 	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr global_loc_srv_;
@@ -109,6 +111,7 @@ class EMcl2Node : public rclcpp::Node
 
 	void cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
 	void cbOdomGnss(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
+	void cbOpenPlaceArrived(const std_msgs::msg::Bool::ConstSharedPtr msg);
 	// bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
 	bool cbSimpleReset(
 	  const std_srvs::srv::Empty::Request::ConstSharedPtr,
