@@ -487,14 +487,14 @@ void EMcl2Node::feedbackCallback(
         typename GoalHandleWallTracking::SharedPtr, 
         const std::shared_ptr<const typename WallTrackingAction::Feedback> feedback)
 {
-    RCLCPP_INFO(this->get_logger(), "wall tracking sign: %d", pf_->getWallTrackingCancelSgn());
-    if(pf_->getWallTrackingCancelSgn() && pf_->getWallTrackingStartSgn()){
-		RCLCPP_INFO(this->get_logger(), "send cancel goal");
-       	client_ptr_->async_cancel_all_goals();
-       	send_wall_tracking_act_ = false;
-	   	pf_->setWallTrackingStartSgn(false);
-	   	pf_->setWallTrackingCancelSgn(false);
-    }
+    // RCLCPP_INFO(this->get_logger(), "wall tracking sign: %d", pf_->getWallTrackingCancelSgn());
+    // if(pf_->getWallTrackingCancelSgn() && pf_->getWallTrackingStartSgn()){
+	// 	RCLCPP_INFO(this->get_logger(), "send cancel goal");
+    //    	client_ptr_->async_cancel_all_goals();
+    //    	send_wall_tracking_act_ = false;
+	//    	pf_->setWallTrackingStartSgn(false);
+	//    	pf_->setWallTrackingCancelSgn(false);
+    // }
 }
 
 void EMcl2Node::resultCallback(

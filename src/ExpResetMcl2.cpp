@@ -35,6 +35,7 @@ ExpResetMcl2::ExpResetMcl2(
 	RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), 
 	"gnss_reset: %d, wall_tracking: %d, sqrt(gnss_reset_var): %lf, kld_th: %lf, pf_var_th: %lf", 
 	gnss_reset_, wall_tracking_flg_, sqrt(gnss_reset_var_), kld_th_, pf_var_th_);
+	wall_tracking_cancel_ = false;
 }
 
 ExpResetMcl2::~ExpResetMcl2() {}
