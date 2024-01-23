@@ -18,7 +18,7 @@ class ExpResetMcl2 : public Mcl
 	  const std::shared_ptr<LikelihoodFieldMap> & map, double alpha_th,
 	  double expansion_radius_position, double expansion_radius_orientation,
 	  double extraction_rate, double successive_penetration_threshold, bool sensor_reset, 
-      const GnssReset & odom_gnss, bool gnss_reset, bool wall_tracking, double gnss_reset_var, 
+      const GnssReset & odom_gnss, bool gnss_reset, bool wall_tracking_flg, double gnss_reset_var, 
 	  double kld_th, double pf_var_th);
 	~ExpResetMcl2();
 

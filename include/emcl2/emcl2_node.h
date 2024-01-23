@@ -58,6 +58,8 @@ class EMcl2Node : public rclcpp::Node
 	rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr particlecloud_pub_;
 	rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_pub_;
 	rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr alpha_pub_;
+	rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr wall_tracking_flg_pub_;
+	
 	rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_sub_;
 	rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
 	  initial_pose_sub_;

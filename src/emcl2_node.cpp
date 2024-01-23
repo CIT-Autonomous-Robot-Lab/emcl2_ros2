@@ -48,6 +48,7 @@ void EMcl2Node::initCommunication(void)
 	particlecloud_pub_ = create_publisher<geometry_msgs::msg::PoseArray>("particlecloud", 2);
 	pose_pub_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("mcl_pose", 2);
 	alpha_pub_ = create_publisher<std_msgs::msg::Float32>("alpha", 2);
+	wall_tracking_flg_pub_ = create_publisher<std_msgs::msg::Bool>("wall_tracking_flg", 2);
 
 	laser_scan_sub_ = create_subscription<sensor_msgs::msg::LaserScan>(
 	  "scan", 2, std::bind(&EMcl2Node::cbScan, this, std::placeholders::_1));
@@ -141,13 +142,13 @@ void EMcl2Node::initPF(void)
 	this->get_parameter("range_threshold", range_threshold);
 	this->get_parameter("sensor_reset", sensor_reset);
 
-	bool gnss_reset, wall_tracking;
+	bool gnss_reset, wall_tracking_flg;
 	double gnss_reset_var;
 	double kld_th, pf_var_th;
     this->declare_parameter("gnss_reset", false);
 	this->get_parameter("gnss_reset", gnss_reset);
     this->declare_parameter("wall_tracking", false);
-    this->get_parameter("wall_tracking", wall_tracking);
+    this->get_parameter("wall_tracking", wall_tracking_flg);
 	this->declare_parameter("gnss_reset_var", 2.0);
     this->get_parameter("gnss_reset_var", gnss_reset_var);
 	this->declare_parameter("kld_th", 10.0);
@@ -158,7 +159,7 @@ void EMcl2Node::initPF(void)
 	pf_.reset(new ExpResetMcl2(
 	  init_pose, num_particles, scan, om, map, alpha_th, ex_rad_pos, ex_rad_ori,
 	  extraction_rate, range_threshold, sensor_reset, 
-	  odom_gnss_, gnss_reset, wall_tracking, gnss_reset_var, kld_th, pf_var_th));
+	  odom_gnss_, gnss_reset, wall_tracking_flg, gnss_reset_var, kld_th, pf_var_th));
 
 	init_pf_ = true;
 }

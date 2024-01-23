@@ -27,7 +27,7 @@ ExpResetMcl2::ExpResetMcl2(
   range_threshold_(range_threshold),
   sensor_reset_(sensor_reset), 
   gnss_reset_(gnss_reset), 
-  wall_tracking_flg_(wall_tracking),
+  wall_tracking_flg_(wall_tracking_flg_),
   gnss_reset_var_(gnss_reset_var), 
   kld_th_(kld_th), 
   pf_var_th_(pf_var_th)
@@ -35,6 +35,7 @@ ExpResetMcl2::ExpResetMcl2(
 	RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), 
 	"gnss_reset: %d, wall_tracking: %d, sqrt(gnss_reset_var): %lf, kld_th: %lf, pf_var_th: %lf", 
 	gnss_reset_, wall_tracking_flg_, sqrt(gnss_reset_var_), kld_th_, pf_var_th_);
+	wall_tracking_start_ = false;
 	wall_tracking_cancel_ = false;
 }
 
@@ -68,6 +69,7 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 
 	alpha_ = nonPenetrationRate(static_cast<int>(particles_.size() * extraction_rate_), map_.get(), scan);
 	if (alpha_ < alpha_threshold_) {
+		RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "alpha: %lf", alpha_);
 		if(wall_tracking_flg_) wall_tracking_start_ = true;
 		if(!wall_tracking_flg_ || open_place_arrived_){
 			double kld = odom_gnss_.kld();
