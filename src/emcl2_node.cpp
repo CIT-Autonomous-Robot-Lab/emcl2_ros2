@@ -48,7 +48,7 @@ void EMcl2Node::initCommunication(void)
 	particlecloud_pub_ = create_publisher<geometry_msgs::msg::PoseArray>("particlecloud", 2);
 	pose_pub_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("mcl_pose", 2);
 	alpha_pub_ = create_publisher<std_msgs::msg::Float32>("alpha", 2);
-	wall_tracking_flg_pub_ = create_publisher<std_msgs::msg::Bool>("wall_tracking_flg", 2);
+	// wall_tracking_flg_pub_ = create_publisher<std_msgs::msg::Bool>("wall_tracking_flg", 2);
 
 	laser_scan_sub_ = create_subscription<sensor_msgs::msg::LaserScan>(
 	  "scan", 2, std::bind(&EMcl2Node::cbScan, this, std::placeholders::_1));
