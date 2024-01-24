@@ -69,7 +69,7 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 
 	alpha_ = nonPenetrationRate(static_cast<int>(particles_.size() * extraction_rate_), map_.get(), scan);
 	if (alpha_ < alpha_threshold_) {
-		RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "alpha: %lf", alpha_);
+		// RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "alpha: %lf", alpha_);
 		if(wall_tracking_flg_) wall_tracking_start_ = true;
 		if(!wall_tracking_flg_ || open_place_arrived_){
 			double kld = odom_gnss_.kld();
