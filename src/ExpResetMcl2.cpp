@@ -17,7 +17,7 @@ ExpResetMcl2::ExpResetMcl2(
   const std::shared_ptr<LikelihoodFieldMap> & map, double alpha_th,
   double expansion_radius_position, double expansion_radius_orientation, double extraction_rate,
   double range_threshold, bool sensor_reset, 
-  const GnssReset & odom_gnss, bool gnss_reset, bool wall_tracking, double gnss_reset_var, 
+  const GnssReset & odom_gnss, bool gnss_reset, bool wall_tracking_flg, double gnss_reset_var, 
   double kld_th, double pf_var_th)
 : Mcl::Mcl(p, num, scan, odom_model, map, odom_gnss),
   alpha_threshold_(alpha_th),
@@ -27,13 +27,13 @@ ExpResetMcl2::ExpResetMcl2(
   range_threshold_(range_threshold),
   sensor_reset_(sensor_reset), 
   gnss_reset_(gnss_reset), 
-  wall_tracking_flg_(wall_tracking_flg_),
+  wall_tracking_flg_(wall_tracking_flg),
   gnss_reset_var_(gnss_reset_var), 
   kld_th_(kld_th), 
   pf_var_th_(pf_var_th)
 {
 	RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), 
-	"gnss_reset: %d, wall_tracking: %d, sqrt(gnss_reset_var): %lf, kld_th: %lf, pf_var_th: %lf", 
+	"gnss_reset: %d, wall_tracking_flg: %d, sqrt(gnss_reset_var): %lf, kld_th: %lf, pf_var_th: %lf", 
 	gnss_reset_, wall_tracking_flg_, sqrt(gnss_reset_var_), kld_th_, pf_var_th_);
 	wall_tracking_start_ = false;
 	wall_tracking_cancel_ = false;
@@ -68,17 +68,18 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 	}
 
 	alpha_ = nonPenetrationRate(static_cast<int>(particles_.size() * extraction_rate_), map_.get(), scan);
+	// RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "alpha: %lf", alpha_);
+
 	if (alpha_ < alpha_threshold_) {
-		// RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "alpha: %lf", alpha_);
-		if(wall_tracking_flg_) wall_tracking_start_ = true;
+		if(gnss_reset_ && wall_tracking_flg_) wall_tracking_start_ = true;
 		if(!wall_tracking_flg_ || open_place_arrived_){
 			double kld = odom_gnss_.kld();
 			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), 
 						"kld: %lf / kld_th: %lf, x_var: %lf, y_var: %lf", 
 						kld, kld_th_, odom_gnss_.pf_x_var_, odom_gnss_.pf_y_var_);
-			bool should_exp_reset = kld < kld_th_ || (odom_gnss_.pf_x_var_ < pf_var_th_ && odom_gnss_.pf_y_var_ < pf_var_th_) || !gnss_reset_;
-			bool should_gnss_reset_ = getShouldGnssReset();
-			if(should_exp_reset && !should_gnss_reset_ && !gnss_reset_){
+			bool should_exp_reset = (kld < kld_th_ || (odom_gnss_.pf_x_var_ < pf_var_th_ && odom_gnss_.pf_y_var_ < pf_var_th_) && !should_gnss_reset_) || !gnss_reset_;
+			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "should exp reset: %d", should_exp_reset);
+			if(should_exp_reset){
 				RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "EXPANSION RESET");
 				expansionReset();
 				for (auto & p : particles_) {
