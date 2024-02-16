@@ -160,7 +160,7 @@ void EMcl2Node::initPF(void)
 	pf_.reset(new ExpResetMcl2(
 	  init_pose, num_particles, scan, om, map, alpha_th, ex_rad_pos, ex_rad_ori,
 	  extraction_rate, range_threshold, sensor_reset, 
-	  odom_gnss_, gnss_reset, false, gnss_reset_var, kld_th, pf_var_th));
+	  odom_gnss_, gnss_reset, wall_tracking_flg, gnss_reset_var, kld_th, pf_var_th));
 
 	init_pf_ = true;
 }
@@ -486,8 +486,8 @@ void EMcl2Node::goalResponseCallback(
 }
 
 void EMcl2Node::feedbackCallback(
-        typename GoalHandleWallTracking::SharedPtr, 
-        const std::shared_ptr<const typename WallTrackingAction::Feedback> feedback)
+        [[maybe_unused]] typename GoalHandleWallTracking::SharedPtr, 
+        [[maybe_unused]] const std::shared_ptr<const typename WallTrackingAction::Feedback> feedback)
 {
     // RCLCPP_INFO(this->get_logger(), "wall tracking sign: %d", pf_->getWallTrackingCancelSgn());
     // if(pf_->getWallTrackingCancelSgn() && pf_->getWallTrackingStartSgn()){

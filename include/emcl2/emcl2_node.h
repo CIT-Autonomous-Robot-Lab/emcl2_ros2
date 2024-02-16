@@ -128,8 +128,8 @@ class EMcl2Node : public rclcpp::Node
     void sendGoal();
     void goalResponseCallback(const GoalHandleWallTracking::SharedPtr & goal_handle);
     void feedbackCallback(
-        typename GoalHandleWallTracking::SharedPtr, 
-        const std::shared_ptr<const typename WallTrackingAction::Feedback> feedback);
+        [[maybe_unused]] typename GoalHandleWallTracking::SharedPtr, 
+        [[maybe_unused]] const std::shared_ptr<const typename WallTrackingAction::Feedback> feedback);
     void resultCallback(const GoalHandleWallTracking::WrappedResult & result);
     void cancelWallTracking();
 };
