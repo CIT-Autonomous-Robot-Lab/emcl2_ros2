@@ -67,6 +67,7 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 		p.w_ *= p.likelihood(map_.get(), scan);
 	}
 
+	// RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "N0.0 particle weight is %lf. Sum weight is %lf.", particles_[0].w_, sum_w);
 	alpha_ = nonPenetrationRate(static_cast<int>(particles_.size() * extraction_rate_), map_.get(), scan);
 	// RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "alpha: %lf", alpha_);
 
@@ -82,14 +83,14 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 			if(should_exp_reset){
 				RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "EXPANSION RESET");
 				expansionReset();
-				for (auto & p : particles_) {
-					p.w_ *= p.likelihood(map_.get(), scan);
-				}
 			} else {
 				RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "GNSS RESET");
 				odom_gnss_.setVariance(gnss_reset_var_, expansion_radius_position_*expansion_radius_position_);
 				odom_gnss_.gnssReset(alpha_, alpha_threshold_, particles_, sqrt(gnss_reset_var_));
 				should_gnss_reset_ = false;
+			}
+			for (auto & p : particles_) {
+				p.w_ *= p.likelihood(map_.get(), scan);
 			}
 		}
 	}
