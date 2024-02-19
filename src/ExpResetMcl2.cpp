@@ -78,16 +78,18 @@ void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, 
 			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), 
 						"kld: %lf / kld_th: %lf, x_var: %lf, y_var: %lf", 
 						kld, kld_th_, odom_gnss_.pf_x_var_, odom_gnss_.pf_y_var_);
-			bool should_exp_reset = (kld < kld_th_ || (odom_gnss_.pf_x_var_ < pf_var_th_ && odom_gnss_.pf_y_var_ < pf_var_th_) && !should_gnss_reset_) || !gnss_reset_;
+			bool should_exp_reset = (kld < kld_th_ || (odom_gnss_.pf_x_var_ < pf_var_th_ && odom_gnss_.pf_y_var_ < pf_var_th_) && !should_gnss_reset_);
 			RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "should exp reset: %d", should_exp_reset);
-			if(should_exp_reset){
+			if(should_exp_reset || !gnss_reset_){
 				RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "EXPANSION RESET");
 				expansionReset();
 			} else {
-				RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "GNSS RESET");
-				odom_gnss_.setVariance(gnss_reset_var_, expansion_radius_position_*expansion_radius_position_);
-				odom_gnss_.gnssReset(alpha_, alpha_threshold_, particles_, sqrt(gnss_reset_var_));
-				should_gnss_reset_ = false;
+				if(!odom_gnss_.isNAN()){
+					RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "GNSS RESET");
+					odom_gnss_.setVariance(gnss_reset_var_, expansion_radius_position_*expansion_radius_position_);
+					odom_gnss_.gnssReset(alpha_, alpha_threshold_, particles_, sqrt(gnss_reset_var_));
+					should_gnss_reset_ = false;
+				}
 			}
 			for (auto & p : particles_) {
 				p.w_ *= p.likelihood(map_.get(), scan);

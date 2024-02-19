@@ -80,8 +80,7 @@ void GnssReset::gnssReset(double alpha, double alpha_th, std::vector<emcl2::Part
 
 bool GnssReset::isNAN()
 {
-    if(std::isnan(gnss_position_[0])) return true;
-   //  if(gnss_position_[0] == NAN && gnss_position_[1] == NAN) return true;
+    if(std::isnan(gnss_position_[0]) || std::isnan(gnss_position_[1])) return true;
     return false;
 }
 }
