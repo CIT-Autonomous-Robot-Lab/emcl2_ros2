@@ -24,7 +24,7 @@
     odom_rot_dev_per_rot: 0.05
     laser_likelihood_max_dist: 0.2
     gnss_reset: true
-    wall_tracking_flg: false
+    wall_tracking_flg: true
     gnss_reset_var: 9.0
-    kld_th: 10.0
+    kld_th: 5.0
     pf_var_th: 1.5
