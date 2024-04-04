@@ -35,6 +35,8 @@ endif()
 install(PROGRAMS
   test/test.bash
   test/test_gui.bash
+  scripts/emcl2_tsudanuma_campus.bash
+  scripts/emcl2_turtlebot_house.bash
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -43,4 +45,5 @@ ament_auto_package(
   config
   launch
   test
+  scripts
 )

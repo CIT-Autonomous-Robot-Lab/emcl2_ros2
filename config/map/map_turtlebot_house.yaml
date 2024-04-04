@@ -1,4 +1,4 @@
-image: map.pgm
+image: map_turtlebot_house.pgm
 mode: trinary
 resolution: 0.05
 origin: [0.0, 0.0, 0]
