@@ -9,7 +9,7 @@
     laser_max_range: 100000000.0
     scan_increment: 1
     initial_pose_x: 88.99264526367188
-    initial_pose_y: 135.97076416015625 
+    initial_pose_y: 135.97076416015625
     initial_pose_a: 3.14
     num_particles: 1000
     alpha_threshold: 0.5
