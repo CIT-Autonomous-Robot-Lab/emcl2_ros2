@@ -28,7 +28,6 @@
 
 namespace emcl2
 {
-
 class EMcl2Node : public rclcpp::Node
 {
       public:
@@ -85,6 +84,8 @@ class EMcl2Node : public rclcpp::Node
 	bool getOdomPose(double & x, double & y, double & yaw);	 // same name is found in amcl
 	bool getLidarPose(double & x, double & y, double & yaw, bool & inv);
 	void receiveMap(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg);
+
+	void declareParameter();
 
 	void initCommunication(void);
 	void initTF();
