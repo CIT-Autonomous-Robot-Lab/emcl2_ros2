@@ -29,7 +29,6 @@
 
 namespace emcl2
 {
-
 EMcl2Node::EMcl2Node()
 : Node("emcl2_node"),
   ros_clock_(RCL_SYSTEM_TIME),
@@ -38,10 +37,46 @@ EMcl2Node::EMcl2Node()
   scan_receive_(false),
   map_receive_(false)
 {
+	// declare ros parameters
+	declareParameter();
 	initCommunication();
 }
 
 EMcl2Node::~EMcl2Node() {}
+
+void EMcl2Node::declareParameter()
+{
+	this->declare_parameter("global_frame_id", std::string("map"));
+	this->declare_parameter("footprint_frame_id", std::string("base_footprint"));
+	this->declare_parameter("odom_frame_id", std::string("odom"));
+	this->declare_parameter("base_frame_id", std::string("base_link"));
+
+	this->declare_parameter("odom_freq", 20);
+	this->declare_parameter("transform_tolerance", 0.2);
+
+	this->declare_parameter("laser_min_range", 0.0);
+	this->declare_parameter("laser_max_range", 100000000.0);
+	this->declare_parameter("scan_increment", 1);
+
+	this->declare_parameter("initial_pose_x", 0.0);
+	this->declare_parameter("initial_pose_y", 0.0);
+	this->declare_parameter("initial_pose_a", 0.0);
+
+	this->declare_parameter("num_particles", 500);
+	this->declare_parameter("alpha_threshold", 0.5);
+	this->declare_parameter("expansion_radius_position", 0.1);
+	this->declare_parameter("expansion_radius_orientation", 0.2);
+	this->declare_parameter("extraction_rate", 0.1);
+	this->declare_parameter("range_threshold", 0.1);
+	this->declare_parameter("sensor_reset", false);
+
+	this->declare_parameter("odom_fw_dev_per_fw", 0.19);
+	this->declare_parameter("odom_fw_dev_per_rot", 0.0001);
+	this->declare_parameter("odom_rot_dev_per_fw", 0.13);
+	this->declare_parameter("odom_rot_dev_per_rot", 0.2);
+
+	this->declare_parameter("laser_likelihood_max_dist", 0.2);
+}
 
 void EMcl2Node::initCommunication(void)
 {
@@ -62,19 +97,13 @@ void EMcl2Node::initCommunication(void)
 	  "global_localization",
 	  std::bind(&EMcl2Node::cbSimpleReset, this, std::placeholders::_1, std::placeholders::_2));
 
-	this->declare_parameter("global_frame_id", std::string("map"));
-	this->declare_parameter("footprint_frame_id", std::string("base_footprint"));
-	this->declare_parameter("odom_frame_id", std::string("odom"));
-	this->declare_parameter("base_frame_id", std::string("base_link"));
 	this->get_parameter("global_frame_id", global_frame_id_);
 	this->get_parameter("footprint_frame_id", footprint_frame_id_);
 	this->get_parameter("odom_frame_id", odom_frame_id_);
 	this->get_parameter("base_frame_id", base_frame_id_);
 
-	this->declare_parameter("odom_freq", 20);
 	this->get_parameter("odom_freq", odom_freq_);
 
-	this->declare_parameter("transform_tolerance", 0.2);
 	this->get_parameter("transform_tolerance", transform_tolerance_);
 }
 
@@ -100,17 +129,11 @@ void EMcl2Node::initPF(void)
 	std::shared_ptr<OdomModel> om = std::move(initOdometry());
 
 	Scan scan;
-	this->declare_parameter("laser_min_range", 0.0);
-	this->declare_parameter("laser_max_range", 100000000.0);
-	this->declare_parameter("scan_increment", 1);
 	this->get_parameter("laser_min_range", scan.range_min_);
 	this->get_parameter("laser_max_range", scan.range_max_);
 	this->get_parameter("scan_increment", scan.scan_increment_);
 
 	Pose init_pose;
-	this->declare_parameter("initial_pose_x", 0.0);
-	this->declare_parameter("initial_pose_y", 0.0);
-	this->declare_parameter("initial_pose_a", 0.0);
 	this->get_parameter("initial_pose_x", init_pose.x_);
 	this->get_parameter("initial_pose_y", init_pose.y_);
 	this->get_parameter("initial_pose_a", init_pose.t_);
@@ -118,10 +141,6 @@ void EMcl2Node::initPF(void)
 	int num_particles;
 	double alpha_th;
 	double ex_rad_pos, ex_rad_ori;
-	this->declare_parameter("num_particles", 500);
-	this->declare_parameter("alpha_threshold", 0.5);
-	this->declare_parameter("expansion_radius_position", 0.1);
-	this->declare_parameter("expansion_radius_orientation", 0.2);
 	this->get_parameter("num_particles", num_particles);
 	this->get_parameter("alpha_threshold", alpha_th);
 	this->get_parameter("expansion_radius_position", ex_rad_pos);
@@ -129,9 +148,6 @@ void EMcl2Node::initPF(void)
 
 	double extraction_rate, range_threshold;
 	bool sensor_reset = false;
-	this->declare_parameter("extraction_rate", 0.1);
-	this->declare_parameter("range_threshold", 0.1);
-	this->declare_parameter("sensor_reset", sensor_reset);
 	this->get_parameter("extraction_rate", extraction_rate);
 	this->get_parameter("range_threshold", range_threshold);
 	this->get_parameter("sensor_reset", sensor_reset);
@@ -146,10 +162,6 @@ void EMcl2Node::initPF(void)
 std::shared_ptr<OdomModel> EMcl2Node::initOdometry(void)
 {
 	double ff, fr, rf, rr;
-	this->declare_parameter("odom_fw_dev_per_fw", 0.19);
-	this->declare_parameter("odom_fw_dev_per_rot", 0.0001);
-	this->declare_parameter("odom_rot_dev_per_fw", 0.13);
-	this->declare_parameter("odom_rot_dev_per_rot", 0.2);
 	this->get_parameter("odom_fw_dev_per_fw", ff);
 	this->get_parameter("odom_fw_dev_per_rot", fr);
 	this->get_parameter("odom_rot_dev_per_fw", rf);
@@ -160,7 +172,6 @@ std::shared_ptr<OdomModel> EMcl2Node::initOdometry(void)
 std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 {
 	double likelihood_range;
-	this->declare_parameter("laser_likelihood_max_dist", 0.2);
 	this->get_parameter("laser_likelihood_max_dist", likelihood_range);
 
 	return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(map_, likelihood_range));
