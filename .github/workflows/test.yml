@@ -49,7 +49,7 @@ jobs:
         run: echo "job_complete=true" >> $GITHUB_ENV
   retry:
     runs-on: ubuntu-latest
-    needs: build
+    needs: test
     if: ${{ always() && needs.build.result == 'failure' }}
     steps:
       - name: Check if timeout
