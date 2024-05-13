@@ -59,22 +59,30 @@ jobs:
               const workflow_id = context.workflow.id;
               const ref = context.ref;
               const run_id = context.runId;
-        
+
+              console.log(`Fetching workflow run with ID: ${run_id}`);
               const workflow_run = await github.rest.actions.getWorkflowRun({
                 owner,
                 repo,
                 run_id
               });
-        
+
+              console.log(`Workflow run conclusion: ${workflow_run.data.conclusion}`);
+              console.log(`Workflow run status: ${workflow_run.data.status}`);
+              console.log(`Workflow run attempt: ${workflow_run.data.run_attempt}`);
+
               if (workflow_run.data.conclusion === 'failure' && 
                   workflow_run.data.status === 'completed' && 
                   workflow_run.data.run_attempt < 10) {
+                console.log('Triggering workflow dispatch...');
                 await github.rest.actions.createWorkflowDispatch({
                   owner,
                   repo,
                   workflow_id,
                   ref
                 });
+              } else {
+                console.log('Conditions not met for re-dispatch.');
               }
             }
             run();
