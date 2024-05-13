@@ -54,19 +54,26 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { owner, repo } = context.repo;
-            const workflow_id = ${{ github.workflow_id }};
-            const ref = ${{ github.ref }};
-            const workflow_run = await github.actions.getWorkflowRun({
-              owner,
-              repo,
-              run_id: ${{ needs.test.id }}
-            });
-            if (workflow_run.data.conclusion === 'failure' && workflow_run.data.status === 'completed' && workflow_run.data.run_attempt < 3) {
-              await github.actions.createWorkflowDispatch({
+            async function run() {
+              const { owner, repo } = context.repo;
+              const workflow_id = ${{ github.workflow_id }};
+              const ref = ${{ github.ref }};
+              const workflow_run = await github.actions.getWorkflowRun({
                 owner,
                 repo,
-                workflow_id,
-                ref
+                run_id: ${{ needs.test.id }}
               });
+
+              if (workflow_run.data.conclusion === 'failure' && 
+                  workflow_run.data.status === 'completed' && 
+                  workflow_run.data.run_attempt < 10) {
+                await github.actions.createWorkflowDispatch({
+                  owner,
+                  repo,
+                  workflow_id,
+                  ref
+                });
+              }
             }
+
+            run();
