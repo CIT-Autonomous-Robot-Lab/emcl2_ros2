@@ -56,13 +56,9 @@ jobs:
           script: |
             async function run() {
               const { owner, repo } = context.repo;
-              let workflow_id = context.workflow.id;
-              const ref = context.ref;
+              const workflow_id = 'test.yml';
+              const ref = ${{ github.head_ref }};
               const run_id = context.runId;
-
-              if (!workflow_id) {
-                workflow_id = 'test.yml';
-              }
 
               try {
                 const workflow_run = await github.rest.actions.getWorkflowRun({
