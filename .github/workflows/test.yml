@@ -16,6 +16,7 @@ jobs:
   test: 
     runs-on: ubuntu-22.04 
     container: osrf/ros:humble-desktop-full
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v2
       - name: apt update install
@@ -43,3 +44,30 @@ jobs:
           source /root/ros2_ws/install/setup.bash
           ros2 run emcl2 test.bash
         shell: bash
+      - name: set completion flag
+        id: complete
+        run: echo "job_complete=true" >> $GITHUB_ENV
+  retry:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ always() && needs.build.result == 'failure' }}
+    steps:
+      - name: Check if timeout
+        id: check
+        run: |
+          if [[ "${{ needs.build.outputs.job_complete }}" != 'true' ]]; then
+            echo "::set-output name=timeout::true"
+          fi
+      - name: Retry Workflow
+        if: steps.check.outputs.timeout == 'true'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            await github.actions.createWorkflowDispatch({
+              owner,
+              repo,
+              workflow_id: '${{ github.workflow_id }}',
+              ref: '${{ github.ref }}',
+            });
