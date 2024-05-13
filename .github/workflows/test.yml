@@ -56,26 +56,34 @@ jobs:
           script: |
             async function run() {
               const { owner, repo } = context.repo;
-              const workflow_id = context.workflow.id;
+              let workflow_id = context.workflow.id;
               const ref = context.ref;
               const run_id = context.runId;
 
-              const workflow_run = await github.rest.actions.getWorkflowRun({
-                owner,
-                repo,
-                run_id
-              });
+              if (!workflow_id) {
+                workflow_id = 'test.yml';
+              }
 
-              if (workflow_run.data.run_attempt < 10) {
-                console.log('Triggering workflow dispatch...');
-                await github.rest.actions.createWorkflowDispatch({
+              try {
+                const workflow_run = await github.rest.actions.getWorkflowRun({
                   owner,
                   repo,
-                  workflow_id,
-                  ref
+                  run_id
                 });
-              } else {
-                console.log('Conditions not met for re-dispatch.');
+
+                if (workflow_run.data.run_attempt < 10) {
+                  console.log('Triggering workflow dispatch...');
+                  await github.rest.actions.createWorkflowDispatch({
+                    owner,
+                    repo,
+                    workflow_id,
+                    ref
+                  });
+                } else {
+                  console.log('Conditions not met for re-dispatch.');
+                }
+              } catch (error) {
+                console.error('Failed to fetch workflow run or dispatch:', error);
               }
             }
             run();
