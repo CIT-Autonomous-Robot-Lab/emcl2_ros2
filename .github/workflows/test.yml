@@ -56,9 +56,9 @@ jobs:
           script: |
             async function run() {
               const { owner, repo } = context.repo;
-              const workflow_id = ${{ github.workflow_id }};
-              const ref = 'refs/pull/52/merge';
-              const run_id = ${{ github.run_id }};
+              const workflow_id = context.workflow.id;
+              const ref = context.ref;
+              const run_id = context.runId;
 
               const workflow_run = await github.actions.getWorkflowRun({
                 owner,
@@ -78,3 +78,4 @@ jobs:
               }
             }
             run();
+
