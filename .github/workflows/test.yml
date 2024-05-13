@@ -59,17 +59,17 @@ jobs:
               const workflow_id = context.workflow.id;
               const ref = context.ref;
               const run_id = context.runId;
-
-              const workflow_run = await github.actions.getWorkflowRun({
+        
+              const workflow_run = await github.rest.actions.getWorkflowRun({
                 owner,
                 repo,
                 run_id
               });
-
+        
               if (workflow_run.data.conclusion === 'failure' && 
                   workflow_run.data.status === 'completed' && 
                   workflow_run.data.run_attempt < 10) {
-                await github.actions.createWorkflowDispatch({
+                await github.rest.actions.createWorkflowDispatch({
                   owner,
                   repo,
                   workflow_id,
@@ -78,4 +78,3 @@ jobs:
               }
             }
             run();
-
