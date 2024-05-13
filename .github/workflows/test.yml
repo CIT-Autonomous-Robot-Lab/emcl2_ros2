@@ -57,7 +57,7 @@ jobs:
             async function run() {
               const { owner, repo } = context.repo;
               const workflow_id = 'test.yml';
-              const ref = ${{ github.head_ref }};
+              const ref = 'chore/execute-workflow-again';
               const run_id = context.runId;
 
               try {
