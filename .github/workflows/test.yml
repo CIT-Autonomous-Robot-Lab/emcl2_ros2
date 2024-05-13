@@ -15,8 +15,8 @@ on:
 jobs: 
   test: 
     runs-on: ubuntu-22.04 
-    container: osrf/ros:humble-desktop-full
     timeout-minutes: 5
+    container: osrf/ros:humble-desktop-full
     steps:
       - uses: actions/checkout@v2
       - name: apt update install
@@ -44,30 +44,29 @@ jobs:
           source /root/ros2_ws/install/setup.bash
           ros2 run emcl2 test.bash
         shell: bash
-      - name: set completion flag
-        id: complete
-        run: echo "job_complete=true" >> $GITHUB_ENV
+
   retry:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: test
-    if: ${{ always() && needs.build.result == 'failure' }}
+    if: ${{ always() && needs.test.result == 'failure' }}
     steps:
-      - name: Check if timeout
-        id: check
-        run: |
-          if [[ "${{ needs.build.outputs.job_complete }}" != 'true' ]]; then
-            echo "::set-output name=timeout::true"
-          fi
-      - name: Retry Workflow
-        if: steps.check.outputs.timeout == 'true'
-        uses: actions/github-script@v6
+      - uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { owner, repo } = context.repo;
-            await github.actions.createWorkflowDispatch({
+            const workflow_id = ${{ github.workflow_id }};
+            const ref = ${{ github.ref }};
+            const workflow_run = await github.actions.getWorkflowRun({
               owner,
               repo,
-              workflow_id: '${{ github.workflow_id }}',
-              ref: '${{ github.ref }}',
+              run_id: ${{ needs.test.id }}
             });
+            if (workflow_run.data.conclusion === 'failure' && workflow_run.data.status === 'completed' && workflow_run.data.run_attempt < 3) {
+              await github.actions.createWorkflowDispatch({
+                owner,
+                repo,
+                workflow_id,
+                ref
+              });
+            }
