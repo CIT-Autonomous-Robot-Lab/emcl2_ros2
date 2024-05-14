@@ -8,8 +8,17 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
-      - name: Rerun workflow
+      - name: Check and rerun or cancel workflow
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh run rerun $(gh run list -w test.yml | grep -oE '[0-9]{10}' | head -n 1)
+          STATUS=$(gh run list -w test.yml | awk 'NR==4 {print $1}')
+          RUN_ID=$(gh run list -w test.yml | grep -oE '[0-9]{10}' | head -n 1)
+          
+          if [ "$STATUS" == "completed" ]; then
+            echo "Job is completed, rerunning..."
+            gh run rerun $RUN_ID
+          else
+            echo "Job is not completed, canceling and rerunning..."
+            gh run cancel $RUN_ID && gh run rerun $RUN_ID
+          fi
