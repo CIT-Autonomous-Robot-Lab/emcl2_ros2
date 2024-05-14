@@ -9,7 +9,7 @@ jobs:
   check-conclusion:
     runs-on: ubuntu-latest
     steps:
-      - run: echo 'Workflow conclusion: ${{ github.event.workflow_run.conclusion }}'
+      - run: echo 'konnichiwa'
 
   on-success:
     runs-on: ubuntu-latest
