@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 5
     container: osrf/ros:humble-desktop-full
     steps:
-      # - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
       # - name: apt update install
       #   run: |
       #     sudo apt update -y
