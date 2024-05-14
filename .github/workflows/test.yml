@@ -51,7 +51,7 @@ jobs:
     if: ${{ always() && needs.test.result == 'failure' }}
     steps:
       - name: trigger workflow
-      - uses: actions/github-script@v6
+        uses: actions/github-script@v6
         with:
           script: |
             async function run() {
