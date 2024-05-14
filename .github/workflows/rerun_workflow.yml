@@ -1,0 +1,19 @@
+name: rerun-test
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["test"]
+    types:
+      - completed
+
+jobs:
+  retry:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Rerun workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run rerun $(gh run list -w test.yml | grep -oE '[0-9]{10}' | head -n 1)

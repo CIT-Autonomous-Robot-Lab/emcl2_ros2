@@ -19,6 +19,7 @@ jobs:
     timeout-minutes: 5
     container: osrf/ros:humble-desktop-full
     steps:
+      # - uses: actions/checkout@v2
       # - name: apt update install
       #   run: |
       #     sudo apt update -y
@@ -45,15 +46,3 @@ jobs:
           # ros2 run emcl2 test.bash
           exit 1
         shell: bash
-
-  retry:
-    runs-on: ubuntu-22.04
-    needs: test
-    if: ${{ always() && needs.test.result == 'failure' }}
-    steps:
-      - uses: actions/checkout@v2
-      - name: Rerun workflow
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh run rerun "${{ github.run_id }}"
