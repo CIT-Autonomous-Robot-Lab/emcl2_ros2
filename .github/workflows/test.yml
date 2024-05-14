@@ -55,4 +55,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh run rerun --failed
+          gh run rerun github.run_id
