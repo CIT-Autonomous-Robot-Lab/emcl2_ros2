@@ -22,7 +22,7 @@ jobs:
     container: osrf/ros:humble-desktop-full
     steps:
       - uses: actions/checkout@v2
-      - name: apt update install
+      - name: Apt update install
         run: |
           sudo apt update -y
           sudo apt install -y \
@@ -32,7 +32,7 @@ jobs:
             ros-$ROS_DISTRO-navigation2 \
             ros-$ROS_DISTRO-nav2-bringup \
             ros-$ROS_DISTRO-turtlebot3-gazebo 
-      - name: build
+      - name: Build
         run: | 
           mkdir -p /root/ros2_ws/src/emcl2_ros2/
           rsync -av ./ /root/ros2_ws/src/emcl2_ros2/
@@ -42,7 +42,7 @@ jobs:
           rosdep install -i -y --from-path src --rosdistro $ROS_DISTRO
           colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
         shell: bash
-      - name: exec
+      - name: Exec
         run: |
           source /root/ros2_ws/install/setup.bash
           ros2 run emcl2 test.bash
