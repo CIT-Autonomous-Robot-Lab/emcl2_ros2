@@ -57,7 +57,7 @@ jobs:
           script: |
             async function run() {
               const { owner, repo } = context.repo;
-              const workflow_id = 'test.yml';
+              const workflow_id = context.workflow.id;
               const ref = 'chore/execute-workflow-again';
               const run_id = context.runId;
 
@@ -84,3 +84,4 @@ jobs:
               }
             }
             run();
+          debug: true
