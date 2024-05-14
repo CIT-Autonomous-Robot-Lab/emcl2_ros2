@@ -55,15 +55,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          OWNER="${{ github.repository_owner }}"
-          REPO="${{ github.event.repository.name }}"
-          COMMIT_SHA="${{ github.sha }}"
-          WORKFLOW_ID="${{ github.run_id }}"
-          WORKFLOW_NAME=$(gh api repos/$OWNER/$REPO/actions/runs/$WORKFLOW_ID --jq '.name')
-
-          RUNID=$(gh api repos/$OWNER/$REPO/commits/$COMMIT_SHA/check-runs | jq -r ".check_runs[] | select(.name == \"$WORKFLOW_NAME\") | .html_url | capture(\"/runs/(?<number>[0-9]+)/job\") | .number" | sed 's/"//g' | head -n 1)
-          if [ ! -z "$RUNID" ]; then
-            gh run rerun $RUNID
-          else
-            echo "No valid run ID found for $WORKFLOW_NAME at $COMMIT_SHA"
-          fi
+          gh run rerun --failed
