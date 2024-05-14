@@ -9,4 +9,16 @@ jobs:
   check-conclusion:
     runs-on: ubuntu-latest
     steps:
-      - run: echo 'konnichiwa'
+      - run: echo 'Workflow conclusion: ${{ github.event.workflow_run.conclusion }}'
+
+  on-success:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - run: echo 'The triggering workflow passed'
+
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - run: echo 'The triggering workflow failed'
