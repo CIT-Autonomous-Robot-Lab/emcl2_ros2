@@ -1,15 +1,15 @@
-name: On Test Failure
+name: rerun-test
 
 on:
-  repository_dispatch:
-    types: [test_failure]
+  workflow_dispatch:
 
 jobs:
-  notify:
-    runs-on: ubuntu-latest
+  retry:
+    runs-on: ubuntu-22.04
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Notify about failure
-      run: echo "Test workflow has failed!"
+      - uses: actions/checkout@v2
+      - name: Rerun workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run rerun $(gh run list -w test.yml | grep -oE '[0-9]{10}' | head -n 1)

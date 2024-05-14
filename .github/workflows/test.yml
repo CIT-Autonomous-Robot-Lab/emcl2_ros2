@@ -11,7 +11,6 @@ on:
       - main
     paths-ignore:
     - '**.md'
-  workflow_dispatch:
 
 jobs: 
   test: 
@@ -46,10 +45,42 @@ jobs:
           # ros2 run emcl2 test.bash
           exit 1
         shell: bash
-      - name: Trigger failure workflow on failure
-        if: failure()
-        run: |
-          curl -X POST -H "Accept: application/vnd.github.everest-preview+json" \
-          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          https://api.github.com/repos/${{ github.repository }}/dispatches \
-          -d '{"event_type":"test_failure"}'
+
+  retry:
+    runs-on: ubuntu-22.04
+    needs: test
+    if: ${{ always() && needs.test.result == 'failure' }}
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            async function run() {
+              const { owner, repo } = context.repo;
+              const workflow_id = 'rerun.yml';
+              const ref = 'chore/execute-workflow-again';
+              const run_id = context.runId;
+
+              try {
+                const workflow_run = await github.rest.actions.getWorkflowRun({
+                  owner,
+                  repo,
+                  run_id
+                });
+
+                if (workflow_run.data.run_attempt < 10) {
+                  console.log('Triggering workflow dispatch...');
+                  await github.rest.actions.createWorkflowDispatch({
+                    owner,
+                    repo,
+                    workflow_id,
+                    ref
+                  });
+                } else {
+                  console.log('Conditions not met for re-dispatch.');
+                }
+              } catch (error) {
+                console.error('Failed to fetch workflow run or dispatch:', error);
+              }
+            }
+            run();
