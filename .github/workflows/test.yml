@@ -56,4 +56,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh run rerun github.run_id
+          gh run rerun "${{ github.run_id }}"
