@@ -1,24 +1,15 @@
-name: rerun-test
+name: Reaction to Test Failure
 
 on:
   workflow_run:
-    workflows: [test]
-    types: [completed]
+    workflows: ["test"]
+    types: 
+      - completed
 
 jobs:
-  check-conclusion:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo ${{ github.event.workflow_run.conclusion }}
-
-  on-success:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - run: echo 'The triggering workflow passed'
-
-  on-failure:
+  check_failure:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     steps:
-      - run: echo 'The triggering workflow failed'
+      - name: Notify Failure
+        run: echo "The test workflow has failed!"
