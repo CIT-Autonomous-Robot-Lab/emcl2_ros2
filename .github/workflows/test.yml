@@ -50,9 +50,9 @@ jobs:
     needs: test
     if: ${{ always() && needs.test.result == 'failure' }}
     steps:
+      - name: trigger workflow
       - uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             async function run() {
               const { owner, repo } = context.repo;
