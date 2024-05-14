@@ -60,7 +60,7 @@ jobs:
             async function run() {
               const { owner, repo } = context.repo;
               const workflow_id = 'rerun.yml';
-              const ref = ${{ env.GITHUB_REF_NAME }};
+              const ref = '${{ env.GITHUB_REF_NAME }}';
               const run_id = context.runId;
 
               try {
