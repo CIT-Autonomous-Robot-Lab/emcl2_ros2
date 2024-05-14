@@ -14,11 +14,12 @@ on:
 
 env:
   RETRY-TEST-NUM: 10
+  TEST-TIMEOUT-MIN: 5
 
 jobs: 
   test: 
     runs-on: ubuntu-22.04 
-    timeout-minutes: 5
+    timeout-minutes: ${{ env.TEST-TIMEOUT-MIN }}
     container: osrf/ros:humble-desktop-full
     steps:
       - uses: actions/checkout@v2
