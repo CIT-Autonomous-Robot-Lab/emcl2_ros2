@@ -32,6 +32,7 @@ namespace emcl2
 EMcl2Node::EMcl2Node()
 : Node("emcl2_node"),
   ros_clock_(RCL_SYSTEM_TIME),
+  init_pf_(false),
   init_request_(false),
   simple_reset_request_(false),
   scan_receive_(false),
