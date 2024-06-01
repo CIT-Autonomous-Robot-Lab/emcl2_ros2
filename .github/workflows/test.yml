@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths-ignore:
-    - '**.md'
+      - '**.md'
   pull_request:
     branches:
       - main
     paths-ignore:
-    - '**.md'
+      - '**.md'
 
 env:
   TIME-OUT-TEST-NUM: 2
@@ -18,7 +18,8 @@ env:
 
 jobs: 
   test: 
-    runs-on: ubuntu-22.04 
+    runs-on: ubuntu-22.04
+    timeout-minutes: 4
     container: osrf/ros:humble-desktop-full
     steps:
       - uses: actions/checkout@v2
@@ -43,11 +44,18 @@ jobs:
           colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
         shell: bash
       - name: Exec
-        uses: nick-invision/retry@v3
+        run: |
+          source /root/ros2_ws/install/setup.bash
+          ros2 run emcl2 test.bash
+        shell: bash
+
+  retry:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Retry failed jobs
+        uses: hourki-actions/retry@v1
         with:
-          timeout_minutes: ${{ env.TIME-OUT-TEST-NUM }}
-          max_attempts: ${{ env.RETRY-TEST-NUM }}
-          command: |
-            source /root/ros2_ws/install/setup.bash
-            ros2 run emcl2 test.bash
-          shell: bash
+          token: ${{ secrets.GITHUB_TOKEN }}
+          workflow_run_id: ${{ github.run_id }}
+          max_retries: ${{ env.RETRY-TEST-NUM }}
