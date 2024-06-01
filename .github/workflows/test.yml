@@ -50,4 +50,4 @@ jobs:
           command: |
             source /root/ros2_ws/install/setup.bash
             ros2 run emcl2 test.bash
-        shell: bash
+          shell: bash
