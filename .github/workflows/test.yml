@@ -54,7 +54,7 @@ jobs:
     needs: test
     steps:
       - name: Retry failed jobs
-        uses: hourki-actions/retry@v1
+        uses: hourki-actions/retry-workflow-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           workflow_run_id: ${{ github.run_id }}
