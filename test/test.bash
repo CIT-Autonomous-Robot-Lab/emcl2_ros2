@@ -1,5 +1,7 @@
 #!/bin/bash -evx
 
+(sleep 240 && exit 1) &
+
 ros2 daemon stop
 ros2 daemon start
 

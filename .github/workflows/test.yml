@@ -19,7 +19,6 @@ env:
 jobs: 
   test: 
     runs-on: ubuntu-22.04
-    timeout-minutes: 4
     container: osrf/ros:humble-desktop-full
     steps:
       - uses: actions/checkout@v2
