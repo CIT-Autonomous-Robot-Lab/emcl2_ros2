@@ -49,8 +49,9 @@ jobs:
         shell: bash
 
   retry:
-    runs-on: ubuntu-latest
     needs: test
+    if: ${{ needs.build.outputs.build-status == 'failure' }}
+    runs-on: ubuntu-latest
     steps:
       - name: Retry failed jobs
         uses: hourki-actions/retry-workflow-action@v1
