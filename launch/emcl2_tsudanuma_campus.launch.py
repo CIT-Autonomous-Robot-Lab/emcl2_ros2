@@ -23,9 +23,9 @@ def generate_launch_description():
                 TextSubstitution(text=os.path.join(
                         get_package_share_directory('emcl2'), 
                         'config', 'map', 'map_tsudanuma_campus.yaml'))],
-            'map_topic_name': [
-                TextSubstitution(text='/map/localization')
-            ]
+            # 'map_topic_name': [
+            #     TextSubstitution(text='/map/localization')
+            # ]
         }.items()
     )
     ld = LaunchDescription()

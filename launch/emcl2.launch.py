@@ -36,7 +36,7 @@ def generate_launch_description():
     
     declare_map_topic_name = DeclareLaunchArgument(
         'map_topic_name', 
-        default_value=TextSubstitution(text='/map'), 
+        default_value=TextSubstitution(text='map'), 
         description='map topic name'
     )
     
