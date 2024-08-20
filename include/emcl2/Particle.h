@@ -4,6 +4,8 @@
 #ifndef EMCL2__PARTICLE_H_
 #define EMCL2__PARTICLE_H_
 
+#include <cstdint>
+
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/Pose.h"
 

@@ -4,6 +4,7 @@
 #ifndef EMCL2__POSE_H_
 #define EMCL2__POSE_H_
 
+#include <cstdint>
 #include <sstream>
 #include <string>
 

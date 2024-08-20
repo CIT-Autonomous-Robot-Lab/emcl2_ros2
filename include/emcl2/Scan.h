@@ -4,6 +4,7 @@
 #ifndef EMCL2__SCAN_H_
 #define EMCL2__SCAN_H_
 
+#include <cstdint>
 #include <iostream>
 #include <vector>
 

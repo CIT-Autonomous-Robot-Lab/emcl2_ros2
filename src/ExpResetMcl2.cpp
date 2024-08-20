@@ -8,6 +8,7 @@
 #include <stdlib.h>
 
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 
 namespace emcl2
