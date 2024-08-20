@@ -9,6 +9,7 @@
 
 #include <nav_msgs/msg/occupancy_grid.hpp>
 
+#include <cstdint>
 #include <utility>
 #include <vector>
 
