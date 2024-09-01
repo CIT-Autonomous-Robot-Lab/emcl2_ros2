@@ -234,7 +234,7 @@ void Mcl::setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 	scan_.range_max_ = msg->range_max;
 }
 
-void Mcl::setOdomGnss(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
+void Mcl::setOdomGnss(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg)
 {
 	odom_gnss_.gnss_position_ << msg->pose.pose.position.x, 
 							 msg->pose.pose.position.y;

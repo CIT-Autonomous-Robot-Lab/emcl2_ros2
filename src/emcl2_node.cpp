@@ -75,8 +75,8 @@ void EMcl2Node::initCommunication(void)
 	this->declare_parameter("odom_freq", 20);
 	this->get_parameter("odom_freq", odom_freq_);;
     
-    odom_gnss_sub_ = create_subscription<nav_msgs::msg::Odometry>(
-    	"odom/gnss", 2, std::bind(&EMcl2Node::cbOdomGnss, this, std::placeholders::_1));	
+    gnss_pose_with_covariance_sub_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
+    	"gnss_pose_with_covariance", 2, std::bind(&EMcl2Node::cbGnssPoseWithCovariance, this, std::placeholders::_1));	
     client_ptr_ = rclcpp_action::create_client<WallTrackingAction>(this, "wall_tracking");
     send_wall_tracking_act_ = false;
 	open_place_arrived_sub_ = create_subscription<std_msgs::msg::Bool>(
@@ -209,7 +209,7 @@ void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 	}
 }
 
-void EMcl2Node::cbOdomGnss(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
+void EMcl2Node::cbGnssPoseWithCovariance(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg)
 {
 	if(init_pf_) pf_->setOdomGnss(msg);
 }

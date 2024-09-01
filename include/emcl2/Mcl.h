@@ -12,6 +12,7 @@
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 
 #include <memory>
 #include <random>
@@ -38,7 +39,7 @@ class Mcl
 	void initialize(double x, double y, double t);
 
 	void setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
-	void setOdomGnss(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
+	void setOdomGnss(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg);
 	void setPfPose(double x, double y, double x_var, double y_var);
 	void meanPose(
 	  double & x_mean, double & y_mean, double & t_mean, double & x_var, double & y_var,
