@@ -22,7 +22,7 @@
   <depend>tf2_msgs</depend>
   <depend>tf2_geometry_msgs</depend>
   <depend>std_srvs</depend>
-  <depend>wall_tracking_action</depend>
+  <depend>wall_tracking_msgs</depend>
   <depend>rclcpp_components</depend>
 
   <test_depend>ament_lint_auto</test_depend>
