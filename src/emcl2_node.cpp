@@ -48,7 +48,6 @@ void EMcl2Node::initCommunication(void)
 	particlecloud_pub_ = create_publisher<geometry_msgs::msg::PoseArray>("particlecloud", 2);
 	pose_pub_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("mcl_pose", 2);
 	alpha_pub_ = create_publisher<std_msgs::msg::Float32>("alpha", 2);
-	// wall_tracking_flg_pub_ = create_publisher<std_msgs::msg::Bool>("wall_tracking_flg", 2);
 
 	laser_scan_sub_ = create_subscription<sensor_msgs::msg::LaserScan>(
 	  "scan", 2, std::bind(&EMcl2Node::cbScan, this, std::placeholders::_1));
@@ -77,11 +76,6 @@ void EMcl2Node::initCommunication(void)
     
     gnss_pose_with_covariance_sub_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
     	"gnss_pose_with_covariance", 2, std::bind(&EMcl2Node::cbGnssPoseWithCovariance, this, std::placeholders::_1));	
-    client_ptr_ = rclcpp_action::create_client<WallTrackingAction>(this, "wall_tracking");
-    send_wall_tracking_act_ = false;
-	open_place_arrived_sub_ = create_subscription<std_msgs::msg::Bool>(
-		"open_place_arrived", 2, std::bind(&EMcl2Node::cbOpenPlaceArrived, this, std::placeholders::_1)
-	);
 }
 
 void EMcl2Node::initTF(void)
@@ -142,25 +136,36 @@ void EMcl2Node::initPF(void)
 	this->get_parameter("range_threshold", range_threshold);
 	this->get_parameter("sensor_reset", sensor_reset);
 
-	bool gnss_reset, wall_tracking_flg;
+	bool use_gnss_reset, use_wall_tracking;
 	double gnss_reset_var;
 	double kld_th, pf_var_th;
-    this->declare_parameter("gnss_reset", false);
-	this->get_parameter("gnss_reset", gnss_reset);
-    this->declare_parameter("wall_tracking_flg", false);
-    this->get_parameter("wall_tracking_flg", wall_tracking_flg);
-	RCLCPP_INFO(this->get_logger(), "wall_tracking: %d", wall_tracking_flg);
+    this->declare_parameter("use_gnss_reset", false);
+	this->get_parameter("use_gnss_reset", use_gnss_reset);
+    this->declare_parameter("use_wall_tracking", false);
+    this->get_parameter("use_wall_tracking", use_wall_tracking);
 	this->declare_parameter("gnss_reset_var", 2.0);
     this->get_parameter("gnss_reset_var", gnss_reset_var);
 	this->declare_parameter("kld_th", 10.0);
 	this->get_parameter("kld_th", kld_th);
 	this->declare_parameter("pf_var_th", 0.25);
 	this->get_parameter("pf_var_th", pf_var_th);
+    rclcpp_action::Client<WallTrackingAction>::SharedPtr client_ptr;
+    client_ptr = rclcpp_action::create_client<WallTrackingAction>(this, "wall_tracking");
 
+	rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr last_reset_gnss_pos_pub;
+	last_reset_gnss_pos_pub = create_publisher<geometry_msgs::msg::PointStamped>("last_reset_gnss_pos", 2);
+
+	rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr reset_pose_aft_wt_pub_;
+	reset_pose_aft_wt_pub_ = create_publisher<geometry_msgs::msg::PoseArray>("reset_pose_aft_wt", 2);
+	
 	pf_.reset(new ExpResetMcl2(
-	  init_pose, num_particles, scan, om, map, alpha_th, ex_rad_pos, ex_rad_ori,
+	  init_pose, num_particles, scan, om, map, alpha_th, ex_rad_pos, ex_rad_ori, 
 	  extraction_rate, range_threshold, sensor_reset, 
-	  odom_gnss_, gnss_reset, wall_tracking_flg, gnss_reset_var, kld_th, pf_var_th));
+	  gnss_utility, use_gnss_reset, use_wall_tracking, gnss_reset_var, kld_th, pf_var_th, 
+	  client_ptr, 
+	  last_reset_gnss_pos_pub, 
+	  reset_pose_aft_wt_pub_
+	  ));
 
 	init_pf_ = true;
 }
@@ -211,12 +216,7 @@ void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 
 void EMcl2Node::cbGnssPoseWithCovariance(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg)
 {
-	if(init_pf_) pf_->setOdomGnss(msg);
-}
-
-void EMcl2Node::cbOpenPlaceArrived(const std_msgs::msg::Bool::ConstSharedPtr msg)
-{
-	if(init_pf_) pf_->setOpenPlaceArrived(msg->data);
+	if(init_pf_) pf_->setGnssPose(msg);
 }
 
 void EMcl2Node::initialPoseReceived(
@@ -276,9 +276,6 @@ void EMcl2Node::loop(void)
 		}
 
 		pf_->sensorUpdate(lx, ly, lt, inv);
-
-        if (pf_->getWallTrackingStartSgn() && !send_wall_tracking_act_) sendGoal();
-		if (pf_->getWallTrackingCancelSgn() && pf_->getWallTrackingStartSgn()) cancelWallTracking();
 
 		double x_var, y_var, t_var, xy_cov, yt_cov, tx_cov;
 		pf_->meanPose(x, y, t, x_var, y_var, t_var, xy_cov, yt_cov, tx_cov);
@@ -435,92 +432,6 @@ bool EMcl2Node::cbSimpleReset(
   const std_srvs::srv::Empty::Request::ConstSharedPtr, std_srvs::srv::Empty::Response::SharedPtr)
 {
 	return simple_reset_request_ = true;
-}
-
-void EMcl2Node::cancelWallTracking()
-{
-	RCLCPP_INFO(this->get_logger(), "send cancel goal");
-	client_ptr_->async_cancel_all_goals();
-	send_wall_tracking_act_ = false;
-	pf_->setWallTrackingStartSgn(false);
-	pf_->setWallTrackingCancelSgn(false);
-}
-
-void EMcl2Node::sendGoal()
-{
-    if(!client_ptr_->wait_for_action_server()){
-        RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting");
-        rclcpp::shutdown();
-    }
-
-    feedback_cnt_ = 0;
-
-    auto goal_msg = WallTrackingAction::Goal();
-    goal_msg.start = true;
-    RCLCPP_INFO(this->get_logger(), "Sending goal");
-    auto send_goal_options = rclcpp_action::Client<WallTrackingAction>::SendGoalOptions();
-    using namespace std::placeholders;
-    send_goal_options.goal_response_callback = std::bind(
-        &EMcl2Node::goalResponseCallback, this, _1
-    );
-    send_goal_options.result_callback = std::bind(
-        &EMcl2Node::resultCallback, this, _1
-    );
-    send_goal_options.feedback_callback = std::bind(
-        &EMcl2Node::feedbackCallback, this, _1, _2
-    );
-    this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
-    send_wall_tracking_act_ = true;
-    // client_ptr_->async_cancel_all_goals();
-}
-
-void EMcl2Node::goalResponseCallback(
-    const GoalHandleWallTracking::SharedPtr & goal_handle
-)
-{
-    if (!goal_handle) {
-        RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
-    } else {
-        RCLCPP_INFO(this->get_logger(), "Goal accepted by server, waiting for result");
-    }
-}
-
-void EMcl2Node::feedbackCallback(
-        [[maybe_unused]] typename GoalHandleWallTracking::SharedPtr, 
-        [[maybe_unused]] const std::shared_ptr<const typename WallTrackingAction::Feedback> feedback)
-{
-    // RCLCPP_INFO(this->get_logger(), "wall tracking sign: %d", pf_->getWallTrackingCancelSgn());
-    // if(pf_->getWallTrackingCancelSgn() && pf_->getWallTrackingStartSgn()){
-	// 	RCLCPP_INFO(this->get_logger(), "send cancel goal");
-    //    	client_ptr_->async_cancel_all_goals();
-    //    	send_wall_tracking_act_ = false;
-	//    	pf_->setWallTrackingStartSgn(false);
-	//    	pf_->setWallTrackingCancelSgn(false);
-    // }
-}
-
-void EMcl2Node::resultCallback(
-    const GoalHandleWallTracking::WrappedResult & result
-)
-{
-    switch (result.code) {
-      case rclcpp_action::ResultCode::SUCCEEDED:
-        break;
-      case rclcpp_action::ResultCode::ABORTED:
-        RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
-        return;
-      case rclcpp_action::ResultCode::CANCELED:
-        RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
-        return;
-      default:
-        RCLCPP_ERROR(this->get_logger(), "Unknown result code");
-        return;
-    }
-    pf_->setWallTrackingStartSgn(false);
-	pf_->setShouldGnssReset(true);
-    send_wall_tracking_act_ = false;
-    RCLCPP_INFO(this->get_logger(), "Result Feedback Count: %d", feedback_cnt_);
-    RCLCPP_INFO(this->get_logger(), "Result Receibed");
 }
 
 }  // namespace emcl2

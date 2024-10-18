@@ -13,13 +13,12 @@ namespace emcl2
 {
 Mcl::Mcl(
   const Pose & p, int num, const Scan & scan, const std::shared_ptr<OdomModel> & odom_model,
-  const std::shared_ptr<LikelihoodFieldMap> & map, const GnssReset & odom_gnss)
+  const std::shared_ptr<LikelihoodFieldMap> & map)
 : last_odom_(NULL), prev_odom_(NULL)
 {
 	odom_model_ = move(odom_model);
 	map_ = move(map);
 	scan_ = scan;
-	odom_gnss_ = odom_gnss;
 
 	if (num <= 0) {
 		RCLCPP_ERROR(rclcpp::get_logger("emcl2_node"), "NO PARTICLE");
@@ -232,20 +231,6 @@ void Mcl::setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 	scan_.angle_increment_ = msg->angle_increment;
 	scan_.range_min_ = msg->range_min;
 	scan_.range_max_ = msg->range_max;
-}
-
-void Mcl::setOdomGnss(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg)
-{
-	odom_gnss_.gnss_position_ << msg->pose.pose.position.x, 
-							 msg->pose.pose.position.y;
-}
-
-void Mcl::setPfPose(double x, double y, double x_var, double y_var)
-{
-	odom_gnss_.pf_position_ << x, 
-					      y;
-	odom_gnss_.pf_x_var_ = x_var;
-	odom_gnss_.pf_y_var_ = y_var;
 }
 
 double Mcl::normalizeBelief(void)

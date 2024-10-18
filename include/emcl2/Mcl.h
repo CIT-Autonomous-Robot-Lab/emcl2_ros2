@@ -7,7 +7,6 @@
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
 #include "emcl2/Particle.h"
-#include "emcl2/GnssReset.h"
 
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <nav_msgs/msg/odometry.hpp>
@@ -27,7 +26,7 @@ class Mcl
 	Mcl() {}
 	Mcl(
 	  const Pose & p, int num, const Scan & scan, const std::shared_ptr<OdomModel> & odom_model,
-	  const std::shared_ptr<LikelihoodFieldMap> & map, const GnssReset & odom_gnss);
+	  const std::shared_ptr<LikelihoodFieldMap> & map);
 	~Mcl();
 
 	std::vector<Particle> particles_;
@@ -39,8 +38,6 @@ class Mcl
 	void initialize(double x, double y, double t);
 
 	void setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
-	void setOdomGnss(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg);
-	void setPfPose(double x, double y, double x_var, double y_var);
 	void meanPose(
 	  double & x_mean, double & y_mean, double & t_mean, double & x_var, double & y_var,
 	  double & t_var, double & xy_cov, double & yt_cov, double & tx_cov);
@@ -55,7 +52,6 @@ class Mcl
 	Pose * prev_odom_;
 
 	Scan scan_;
-	GnssReset odom_gnss_;
 	
 	int processed_seq_;
 

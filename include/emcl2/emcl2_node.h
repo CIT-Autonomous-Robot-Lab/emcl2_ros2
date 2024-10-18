@@ -8,12 +8,11 @@
 #include "emcl2/ExpResetMcl2.h"
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
-#include "emcl2/GnssReset.h"
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/time.hpp>
 
-#include <geometry_msgs/msg/pose_array.hpp>
+ // #include <geometry_msgs/msg/pose_array.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 
 #include <sensor_msgs/msg/laser_scan.hpp>
@@ -31,13 +30,7 @@
 #include <memory>
 #include <string>
 
-#include <rclcpp_action/rclcpp_action.hpp>
-#include <rclcpp_components/register_node_macro.hpp>
-#include <wall_tracking_msgs/action/wall_tracking.hpp>
 #include <std_msgs/msg/bool.hpp>
-
-using WallTrackingAction = wall_tracking_msgs::action::WallTracking;
-using GoalHandleWallTracking = rclcpp_action::ClientGoalHandle<WallTrackingAction>;
 
 namespace emcl2
 {
@@ -53,19 +46,17 @@ class EMcl2Node : public rclcpp::Node
 
       private:
 	std::shared_ptr<ExpResetMcl2> pf_;
-	GnssReset odom_gnss_;
+	GnssUtil gnss_utility;
 
 	rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr particlecloud_pub_;
 	rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_pub_;
 	rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr alpha_pub_;
-	// rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr wall_tracking_flg_pub_;
 	
 	rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_sub_;
 	rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
 	  initial_pose_sub_;
 	rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_;
 	rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr gnss_pose_with_covariance_sub_;
-	rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr open_place_arrived_sub_;
 
 	// ros::ServiceServer global_loc_srv_;
 	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr global_loc_srv_;
@@ -93,8 +84,6 @@ class EMcl2Node : public rclcpp::Node
 	bool scan_receive_;
 	bool map_receive_;
 	double init_x_, init_y_, init_t_;
-	int feedback_cnt_;
-	bool send_wall_tracking_act_;
 	
 	void publishPose(
 	  double x, double y, double t, double x_dev, double y_dev, double t_dev, double xy_cov,
@@ -115,7 +104,6 @@ class EMcl2Node : public rclcpp::Node
 
 	void cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
 	void cbGnssPoseWithCovariance(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg);
-	void cbOpenPlaceArrived(const std_msgs::msg::Bool::ConstSharedPtr msg);
 	// bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
 	bool cbSimpleReset(
 	  const std_srvs::srv::Empty::Request::ConstSharedPtr,
@@ -123,15 +111,6 @@ class EMcl2Node : public rclcpp::Node
 	void initialPoseReceived(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr
 				   msg);  // same name is found in amcl
 
-    rclcpp_action::Client<WallTrackingAction>::SharedPtr client_ptr_;
-    void initAction();
-    void sendGoal();
-    void goalResponseCallback(const GoalHandleWallTracking::SharedPtr & goal_handle);
-    void feedbackCallback(
-        [[maybe_unused]] typename GoalHandleWallTracking::SharedPtr, 
-        [[maybe_unused]] const std::shared_ptr<const typename WallTrackingAction::Feedback> feedback);
-    void resultCallback(const GoalHandleWallTracking::WrappedResult & result);
-    void cancelWallTracking();
 };
 
 }  // namespace emcl2
