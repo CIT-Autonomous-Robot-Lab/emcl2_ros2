@@ -42,7 +42,7 @@ double GnssUtil::pfRanGaussian(double sigma)
 
 double GnssUtil::kld()
 {
-    if(isNAN()) return NAN;
+    if(isNAN()) return 0.;
     // RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "pf_SIGMA(x, y) = diag(%lf, %lf), gnss_SIGMA(x, y) = diag(%lf, %lf)", pf_sigma_mx_(0, 0), pf_sigma_mx_(1, 1), gnss_sigma_mx_(0, 0), gnss_sigma_mx_(1, 1));
     double kld = log(gnss_sigma_mx_.determinant() / pf_sigma_mx_.determinant());
     kld += (gnss_sigma_mx_.inverse() * pf_sigma_mx_).trace();
