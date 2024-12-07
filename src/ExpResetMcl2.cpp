@@ -106,4 +106,9 @@ void ExpResetMcl2::expansionReset(void)
 	}
 }
 
+void ExpResetMcl2::updateMap(const std::shared_ptr<LikelihoodFieldMap> & new_map)
+{
+    map_ = new_map;
+}
+
 }  // namespace emcl2

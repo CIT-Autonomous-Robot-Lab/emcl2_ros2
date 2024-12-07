@@ -45,6 +45,8 @@ class Mcl
 	static double cos_[(1 << 16)];
 	static double sin_[(1 << 16)];
 
+	void updateMap(const std::shared_ptr<LikelihoodFieldMap> & new_map);
+
       protected:
 	Pose * last_odom_;
 	Pose * prev_odom_;

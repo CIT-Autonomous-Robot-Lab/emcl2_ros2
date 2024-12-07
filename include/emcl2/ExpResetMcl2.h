@@ -22,6 +22,8 @@ class ExpResetMcl2 : public Mcl
 
 	void sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv);
 
+	void updateMap(const std::shared_ptr<LikelihoodFieldMap> & new_map);
+
       private:
 	double alpha_threshold_;
 	double expansion_radius_position_;

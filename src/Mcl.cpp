@@ -279,6 +279,11 @@ void Mcl::simpleReset(void)
 	}
 }
 
+void Mcl::updateMap(const std::shared_ptr<LikelihoodFieldMap> & new_map)
+{
+	map_ = new_map;
+}
+
 double Mcl::cos_[(1 << 16)];
 double Mcl::sin_[(1 << 16)];
 

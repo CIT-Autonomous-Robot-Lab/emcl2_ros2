@@ -77,6 +77,8 @@ void EMcl2Node::declareParameter()
 	this->declare_parameter("odom_rot_dev_per_rot", 0.2);
 
 	this->declare_parameter("laser_likelihood_max_dist", 0.2);
+
+	this->get_parameter("laser_likelihood_max_dist", likelihood_range_);
 }
 
 void EMcl2Node::initCommunication(void)
@@ -91,7 +93,7 @@ void EMcl2Node::initCommunication(void)
 	  "initialpose", 2,
 	  std::bind(&EMcl2Node::initialPoseReceived, this, std::placeholders::_1));
 	map_sub_ = create_subscription<nav_msgs::msg::OccupancyGrid>(
-	  "map", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
+	  "map/localization", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
 	  std::bind(&EMcl2Node::receiveMap, this, std::placeholders::_1));
 
 	global_loc_srv_ = create_service<std_srvs::srv::Empty>(
@@ -172,10 +174,7 @@ std::shared_ptr<OdomModel> EMcl2Node::initOdometry(void)
 
 std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 {
-	double likelihood_range;
-	this->get_parameter("laser_likelihood_max_dist", likelihood_range);
-
-	return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(map_, likelihood_range));
+	return std::make_shared<LikelihoodFieldMap>(map_, likelihood_range_);
 }
 
 void EMcl2Node::receiveMap(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
@@ -183,8 +182,14 @@ void EMcl2Node::receiveMap(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr ms
 	map_ = *msg;
 	map_receive_ = true;
 	RCLCPP_INFO(get_logger(), "Received map.");
-	initPF();
-	initTF();
+
+	// パーティクルフィルタが初期化済みであればマップのみ更新
+	if (init_pf_ && pf_) {
+		pf_->updateMap(std::make_shared<LikelihoodFieldMap>(map_, likelihood_range_));
+	} else {
+		initPF();
+		initTF();
+	}
 }
 
 void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
