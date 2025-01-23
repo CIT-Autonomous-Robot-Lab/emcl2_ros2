@@ -88,7 +88,7 @@ void EMcl2Node::initCommunication(void)
 	alpha_pub_ = create_publisher<std_msgs::msg::Float32>("alpha", 2);
 
 	laser_scan_sub_ = create_subscription<sensor_msgs::msg::LaserScan>(
-	  "scan", 2, std::bind(&EMcl2Node::cbScan, this, std::placeholders::_1));
+	  "scan/localization", 2, std::bind(&EMcl2Node::cbScan, this, std::placeholders::_1));
 	initial_pose_sub_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
 	  "initialpose", 2,
 	  std::bind(&EMcl2Node::initialPoseReceived, this, std::placeholders::_1));
