@@ -38,7 +38,8 @@ EMcl2Node::EMcl2Node()
   init_request_(false),
   simple_reset_request_(false),
   scan_receive_(false),
-  map_receive_(false)
+  map_receive_(false),
+  compressed_map_receive_(false)
 {
 	// declare ros parameters
 	declareParameter();
@@ -181,16 +182,29 @@ std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 	double likelihood_range;
 	this->get_parameter("laser_likelihood_max_dist", likelihood_range);
 
-	return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(map_, likelihood_range));
+	if (map_receive_) {
+		RCLCPP_INFO(get_logger(), "Initializing LikelihoodFieldMap with OccupancyGrid map.");
+		return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(map_, likelihood_range));
+	} else if (compressed_map_receive_) {
+		RCLCPP_INFO(get_logger(), "Initializing LikelihoodFieldMap with decompressed map.");
+		return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(compressed_map_, likelihood_range));
+	} else {
+		RCLCPP_ERROR(get_logger(), "Cannot initialize LikelihoodFieldMap: No map received yet.");
+		return nullptr;
+	}
 }
 
 void EMcl2Node::receiveMap(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
 {
-	map_ = *msg;
-	map_receive_ = true;
-	RCLCPP_INFO(get_logger(), "Received map.");
-	initPF();
-	initTF();
+	if (!init_pf_) {
+		map_ = *msg;
+		map_receive_ = true;
+		RCLCPP_INFO(get_logger(), "Received OccupancyGrid map. Initializing PF and TF.");
+		initPF();
+		initTF();
+	} else {
+		RCLCPP_WARN(get_logger(), "Received OccupancyGrid map, but MCL is already initialized. Ignoring.");
+	}
 }
 
 void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
@@ -422,12 +436,36 @@ void EMcl2Node::cbCompressedImage(const binary_image_compressor::msg::Compressed
 	RCLCPP_INFO(this->get_logger(), "Received Compressed Binary Image: Original Size=%dx%d, Ratio=%.2f%%",
 		msg->original_width, msg->original_height, msg->compression_ratio);
 
-	// TODO: Add processing logic for the compressed image here
-	// Access other fields like:
-	// auto format = msg->format;
-	// auto data = msg->data;
-	// auto original_height = msg->original_height;
-	// auto original_width = msg->original_width;
+	nav_msgs::msg::OccupancyGrid decompressed_map;
+	if (decompressCompressedImage(msg, decompressed_map)) {
+		RCLCPP_INFO(get_logger(), "Successfully decompressed the image.");
+
+		if (!init_pf_) {
+			compressed_map_ = decompressed_map;
+			compressed_map_receive_ = true;
+			RCLCPP_INFO(get_logger(), "Received and decompressed map. Initializing PF and TF.");
+			initPF();
+			initTF();
+		} else {
+			RCLCPP_WARN(get_logger(), "Received decompressed map, but MCL is already initialized. Ignoring.");
+		}
+	} else {
+		RCLCPP_ERROR(get_logger(), "Failed to decompress the compressed binary image.");
+	}
+}
+
+bool EMcl2Node::decompressCompressedImage(
+  const binary_image_compressor::msg::CompressedBinaryImage::ConstSharedPtr& compressed_msg,
+  nav_msgs::msg::OccupancyGrid& occupancy_grid_msg)
+{
+	RCLCPP_WARN(this->get_logger(), "decompressCompressedImage is not implemented yet!");
+
+	occupancy_grid_msg.header = compressed_msg->header;
+	occupancy_grid_msg.info.width = compressed_msg->original_width;
+	occupancy_grid_msg.info.height = compressed_msg->original_height;
+	occupancy_grid_msg.data.assign(occupancy_grid_msg.info.width * occupancy_grid_msg.info.height, -1);
+
+	return true;
 }
 
 }  // namespace emcl2
