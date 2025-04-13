@@ -17,6 +17,10 @@
 #include <sensor_msgs/msg/laser_scan.hpp>
 #include <std_msgs/msg/float32.hpp>
 #include <std_srvs/srv/empty.hpp>
+#include <nav_msgs/msg/occupancy_grid.hpp>
+
+// Include the message header
+#include "binary_image_compressor/msg/compressed_binary_image.hpp"
 
 #include <tf2/LinearMath/Transform.h>
 #include <tf2_ros/buffer.h>
@@ -47,6 +51,9 @@ class EMcl2Node : public rclcpp::Node
 	rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
 	  initial_pose_sub_;
 	rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_;
+
+	// Add subscriber declaration
+	rclcpp::Subscription<binary_image_compressor::msg::CompressedBinaryImage>::SharedPtr compressed_image_sub_;
 
 	// ros::ServiceServer global_loc_srv_;
 	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr global_loc_srv_;
@@ -102,6 +109,9 @@ class EMcl2Node : public rclcpp::Node
 	  std_srvs::srv::Empty::Response::SharedPtr);
 	void initialPoseReceived(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr
 				   msg);  // same name is found in amcl
+
+	// Add callback function declaration
+	void cbCompressedImage(const binary_image_compressor::msg::CompressedBinaryImage::SharedPtr msg);
 };
 
 }  // namespace emcl2
