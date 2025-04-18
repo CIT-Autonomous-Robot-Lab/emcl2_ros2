@@ -18,6 +18,7 @@
 #include <std_msgs/msg/float32.hpp>
 #include <std_srvs/srv/empty.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
+#include <nav_msgs/msg/map_meta_data.hpp>
 
 // Include the message header
 #include "binary_image_compressor/msg/compressed_binary_image.hpp"
@@ -80,7 +81,7 @@ class EMcl2Node : public rclcpp::Node
 	bool simple_reset_request_;
 	bool scan_receive_;
 	bool map_receive_;
-	bool compressed_map_receive_; // Flag for compressed map
+	bool compressed_data_ready_;
 	double init_x_, init_y_, init_t_;
 	double transform_tolerance_;
 
@@ -102,7 +103,10 @@ class EMcl2Node : public rclcpp::Node
 	std::shared_ptr<OdomModel> initOdometry(void);
 
 	nav_msgs::msg::OccupancyGrid map_;
-	nav_msgs::msg::OccupancyGrid compressed_map_; // Map from compressed image
+	nav_msgs::msg::MapMetaData compressed_map_info_;
+	uint8_t block_size_;
+	std::vector<std::vector<int8_t>> patterns_;
+	std::vector<uint16_t> block_indices_;
 
 	void cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
 	// bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
@@ -114,11 +118,6 @@ class EMcl2Node : public rclcpp::Node
 
 	// Add callback function declaration
 	void cbCompressedImage(const binary_image_compressor::msg::CompressedBinaryImage::SharedPtr msg);
-
-	// Decompression function declaration
-	bool decompressCompressedImage(
-	  const binary_image_compressor::msg::CompressedBinaryImage::ConstSharedPtr& compressed_msg,
-	  nav_msgs::msg::OccupancyGrid& occupancy_grid_msg);
 };
 
 }  // namespace emcl2

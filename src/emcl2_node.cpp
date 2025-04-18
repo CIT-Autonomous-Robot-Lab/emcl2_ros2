@@ -4,14 +4,15 @@
 
 #include "emcl2/emcl2_node.h"
 
+#include "binary_image_compressor/msg/compressed_binary_image.hpp"
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
 #include "emcl2/Pose.h"
 #include "emcl2/Scan.h"
 
-#include "binary_image_compressor/msg/compressed_binary_image.hpp"
-
+#include <rclcpp/exceptions.hpp>
 #include <rclcpp/node_interfaces/node_topics_interface.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
@@ -39,7 +40,7 @@ EMcl2Node::EMcl2Node()
   simple_reset_request_(false),
   scan_receive_(false),
   map_receive_(false),
-  compressed_map_receive_(false)
+  compressed_data_ready_(false)
 {
 	// declare ros parameters
 	declareParameter();
@@ -80,6 +81,12 @@ void EMcl2Node::declareParameter()
 	this->declare_parameter("odom_rot_dev_per_rot", 0.2);
 
 	this->declare_parameter("laser_likelihood_max_dist", 0.2);
+
+	// Declare parameters for map resolution and origin (used in decompression)
+	this->declare_parameter("map_resolution", 0.05);  // Default resolution 0.05 m/pixel
+	this->declare_parameter("map_origin_x", 0.0);
+	this->declare_parameter("map_origin_y", 0.0);
+	this->declare_parameter("map_origin_z", 0.0);
 }
 
 void EMcl2Node::initCommunication(void)
@@ -97,9 +104,11 @@ void EMcl2Node::initCommunication(void)
 	  "map", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
 	  std::bind(&EMcl2Node::receiveMap, this, std::placeholders::_1));
 
-	compressed_image_sub_ = create_subscription<binary_image_compressor::msg::CompressedBinaryImage>(
-	  "/compressed_binary_image", 10,
-	  std::bind(&EMcl2Node::cbCompressedImage, this, std::placeholders::_1));
+	compressed_image_sub_ =
+	  create_subscription<binary_image_compressor::msg::CompressedBinaryImage>(
+	    "/compressed_binary_image",
+	    rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
+	    std::bind(&EMcl2Node::cbCompressedImage, this, std::placeholders::_1));
 
 	global_loc_srv_ = create_service<std_srvs::srv::Empty>(
 	  "global_localization",
@@ -182,28 +191,33 @@ std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 	double likelihood_range;
 	this->get_parameter("laser_likelihood_max_dist", likelihood_range);
 
-	if (map_receive_) {
-		RCLCPP_INFO(get_logger(), "Initializing LikelihoodFieldMap with OccupancyGrid map.");
-		return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(map_, likelihood_range));
-	} else if (compressed_map_receive_) {
-		RCLCPP_INFO(get_logger(), "Initializing LikelihoodFieldMap with decompressed map.");
-		return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(compressed_map_, likelihood_range));
+	if (compressed_data_ready_) {
+		RCLCPP_INFO(
+		  get_logger(), "Initializing LikelihoodFieldMap with compressed map data.");
+		return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(
+		  compressed_map_info_, block_size_, patterns_, block_indices_));
+	} else if (map_receive_) {
+		RCLCPP_INFO(
+		  get_logger(), "Initializing LikelihoodFieldMap with OccupancyGrid map.");
+		return std::shared_ptr<LikelihoodFieldMap>(
+		  new LikelihoodFieldMap(map_, likelihood_range));
 	} else {
-		RCLCPP_ERROR(get_logger(), "Cannot initialize LikelihoodFieldMap: No map received yet.");
+		RCLCPP_ERROR(
+		  get_logger(), "Cannot initialize LikelihoodFieldMap: No map data received yet.");
 		return nullptr;
 	}
 }
 
 void EMcl2Node::receiveMap(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
 {
-	if (!init_pf_) {
+	if (!map_receive_ && !compressed_data_ready_) {
 		map_ = *msg;
 		map_receive_ = true;
-		RCLCPP_INFO(get_logger(), "Received OccupancyGrid map. Initializing PF and TF.");
-		initPF();
-		initTF();
+		RCLCPP_INFO(get_logger(), "Received OccupancyGrid map. Marking map as received.");
 	} else {
-		RCLCPP_WARN(get_logger(), "Received OccupancyGrid map, but MCL is already initialized. Ignoring.");
+		RCLCPP_WARN(
+		  get_logger(),
+		  "Received OccupancyGrid map, but map data already exists. Ignoring.");
 	}
 }
 
@@ -258,6 +272,14 @@ void EMcl2Node::loop(void)
 		simple_reset_request_ = false;
 	}
 
+	// Initialize PF and TF if we have map data but haven't initialized yet
+	if (!init_pf_ && (map_receive_ || compressed_data_ready_) && scan_receive_) {
+		RCLCPP_INFO(
+		  get_logger(), "Map data and scan available now. Initializing PF and TF.");
+		initPF();
+		initTF();
+	}
+
 	if (init_pf_) {
 		double x, y, t;
 		if (!getOdomPose(x, y, t)) {
@@ -291,10 +313,10 @@ void EMcl2Node::loop(void)
 			  get_logger(),
 			  "Not yet received scan. Therefore, MCL cannot be initiated.");
 		}
-		if (!map_receive_) {
+		if (!map_receive_ && !compressed_data_ready_) {
 			RCLCPP_WARN(
 			  get_logger(),
-			  "Not yet received map. Therefore, MCL cannot be initiated.");
+			  "Not yet received any map data. Therefore, MCL cannot be initiated.");
 		}
 	}
 }
@@ -431,41 +453,68 @@ bool EMcl2Node::cbSimpleReset(
 	return simple_reset_request_ = true;
 }
 
-void EMcl2Node::cbCompressedImage(const binary_image_compressor::msg::CompressedBinaryImage::SharedPtr msg)
+void EMcl2Node::cbCompressedImage(
+  const binary_image_compressor::msg::CompressedBinaryImage::SharedPtr msg)
 {
-	RCLCPP_INFO(this->get_logger(), "Received Compressed Binary Image: Original Size=%dx%d, Ratio=%.2f%%",
-		msg->original_width, msg->original_height, msg->compression_ratio);
+	RCLCPP_INFO(
+	  this->get_logger(), "Received Compressed Binary Image: Original Size=%dx%d, Ratio=%.2f%%",
+	  msg->original_width, msg->original_height, msg->compression_ratio);
 
-	nav_msgs::msg::OccupancyGrid decompressed_map;
-	if (decompressCompressedImage(msg, decompressed_map)) {
-		RCLCPP_INFO(get_logger(), "Successfully decompressed the image.");
+	if (!map_receive_ && !compressed_data_ready_) {
+		compressed_map_info_.map_load_time = this->now();
+		compressed_map_info_.width = msg->original_width;
+		compressed_map_info_.height = msg->original_height;
+		block_size_ = msg->block_size;
+		block_indices_ = msg->block_indices;
 
-		if (!init_pf_) {
-			compressed_map_ = decompressed_map;
-			compressed_map_receive_ = true;
-			RCLCPP_INFO(get_logger(), "Received and decompressed map. Initializing PF and TF.");
-			initPF();
-			initTF();
-		} else {
-			RCLCPP_WARN(get_logger(), "Received decompressed map, but MCL is already initialized. Ignoring.");
+		this->get_parameter("map_resolution", compressed_map_info_.resolution);
+		this->get_parameter("map_origin_x", compressed_map_info_.origin.position.x);
+		this->get_parameter("map_origin_y", compressed_map_info_.origin.position.y);
+		this->get_parameter("map_origin_z", compressed_map_info_.origin.position.z);
+		compressed_map_info_.origin.orientation.w = 1.0;
+
+		const size_t block_pixel_count = static_cast<size_t>(block_size_) * block_size_;
+		const size_t expected_pattern_bytes = (block_pixel_count + 7) / 8;
+
+		if (msg->pattern_bytes != expected_pattern_bytes) {
+			RCLCPP_WARN(
+			  this->get_logger(),
+			  "Pattern bytes mismatch: expected %zu, got %u. Proceeding cautiously.",
+			  expected_pattern_bytes, msg->pattern_bytes);
 		}
+		if (
+		  msg->pattern_data.size() !=
+		  static_cast<size_t>(msg->pattern_count) * msg->pattern_bytes) {
+			RCLCPP_ERROR(
+			  this->get_logger(),
+			  "Pattern data size mismatch: expected %zu, got %zu. Cannot use "
+			  "compressed map.",
+			  static_cast<size_t>(msg->pattern_count) * msg->pattern_bytes,
+			  msg->pattern_data.size());
+			return;
+		}
+
+		patterns_.clear();
+		patterns_.resize(msg->pattern_count);
+		for (uint16_t i = 0; i < msg->pattern_count; ++i) {
+			patterns_[i].resize(block_pixel_count);
+			const uint8_t * pattern_start = &msg->pattern_data[i * msg->pattern_bytes];
+			for (size_t p_idx = 0; p_idx < block_pixel_count; ++p_idx) {
+				const size_t byte_idx = p_idx / 8;
+				const size_t bit_idx = p_idx % 8;
+				bool is_set = (pattern_start[byte_idx] >> (7 - bit_idx)) & 1;
+				patterns_[i][p_idx] = is_set ? 100 : 0;
+			}
+		}
+
+		compressed_data_ready_ = true;
+		RCLCPP_INFO(
+		  get_logger(),
+		  "Received and processed compressed map data. Marking data as ready.");
 	} else {
-		RCLCPP_ERROR(get_logger(), "Failed to decompress the compressed binary image.");
+		RCLCPP_WARN(
+		  get_logger(), "Received compressed map, but map data already exists. Ignoring.");
 	}
-}
-
-bool EMcl2Node::decompressCompressedImage(
-  const binary_image_compressor::msg::CompressedBinaryImage::ConstSharedPtr& compressed_msg,
-  nav_msgs::msg::OccupancyGrid& occupancy_grid_msg)
-{
-	RCLCPP_WARN(this->get_logger(), "decompressCompressedImage is not implemented yet!");
-
-	occupancy_grid_msg.header = compressed_msg->header;
-	occupancy_grid_msg.info.width = compressed_msg->original_width;
-	occupancy_grid_msg.info.height = compressed_msg->original_height;
-	occupancy_grid_msg.data.assign(occupancy_grid_msg.info.width * occupancy_grid_msg.info.height, -1);
-
-	return true;
 }
 
 }  // namespace emcl2
