@@ -5,6 +5,7 @@
 #ifndef EMCL2__EMCL2_NODE_H_
 #define EMCL2__EMCL2_NODE_H_
 
+#include "emcl2/CompressedMap.h"
 #include "emcl2/ExpResetMcl2.h"
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
@@ -14,11 +15,11 @@
 
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/map_meta_data.hpp>
+#include <nav_msgs/msg/occupancy_grid.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
 #include <std_msgs/msg/float32.hpp>
 #include <std_srvs/srv/empty.hpp>
-#include <nav_msgs/msg/occupancy_grid.hpp>
-#include <nav_msgs/msg/map_meta_data.hpp>
 
 // Include the message header
 #include "binary_image_compressor/msg/compressed_binary_image.hpp"
@@ -54,7 +55,8 @@ class EMcl2Node : public rclcpp::Node
 	rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_;
 
 	// Add subscriber declaration
-	rclcpp::Subscription<binary_image_compressor::msg::CompressedBinaryImage>::SharedPtr compressed_image_sub_;
+	rclcpp::Subscription<binary_image_compressor::msg::CompressedBinaryImage>::SharedPtr
+	  compressed_image_sub_;
 
 	// ros::ServiceServer global_loc_srv_;
 	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr global_loc_srv_;
@@ -117,7 +119,8 @@ class EMcl2Node : public rclcpp::Node
 				   msg);  // same name is found in amcl
 
 	// Add callback function declaration
-	void cbCompressedImage(const binary_image_compressor::msg::CompressedBinaryImage::SharedPtr msg);
+	void cbCompressedImage(
+	  const binary_image_compressor::msg::CompressedBinaryImage::SharedPtr msg);
 };
 
 }  // namespace emcl2

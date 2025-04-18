@@ -5,6 +5,7 @@
 #include "emcl2/emcl2_node.h"
 
 #include "binary_image_compressor/msg/compressed_binary_image.hpp"
+#include "emcl2/CompressedMap.h"
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
 #include "emcl2/Pose.h"
@@ -192,18 +193,24 @@ std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
 	this->get_parameter("laser_likelihood_max_dist", likelihood_range);
 
 	if (compressed_data_ready_) {
-		RCLCPP_INFO(
-		  get_logger(), "Initializing LikelihoodFieldMap with compressed map data.");
-		return std::shared_ptr<LikelihoodFieldMap>(new LikelihoodFieldMap(
-		  compressed_map_info_, block_size_, patterns_, block_indices_));
+		RCLCPP_INFO(get_logger(), "Initializing map with compressed map data.");
+		// Create a CompressedMap instance
+		auto compressed_map = std::make_shared<CompressedMap>(
+		  compressed_map_info_, block_size_, patterns_, block_indices_);
+
+		// For now, we'll still use LikelihoodFieldMap with the OccupancyGrid
+		// In the future, we should modify the code to use CompressedMap directly
+		RCLCPP_WARN(
+		  get_logger(),
+		  "CompressedMap is created but not used yet. Using OccupancyGrid instead.");
+		return std::make_shared<LikelihoodFieldMap>(map_, likelihood_range);
 	} else if (map_receive_) {
 		RCLCPP_INFO(
 		  get_logger(), "Initializing LikelihoodFieldMap with OccupancyGrid map.");
 		return std::shared_ptr<LikelihoodFieldMap>(
 		  new LikelihoodFieldMap(map_, likelihood_range));
 	} else {
-		RCLCPP_ERROR(
-		  get_logger(), "Cannot initialize LikelihoodFieldMap: No map data received yet.");
+		RCLCPP_ERROR(get_logger(), "Cannot initialize map: No map data received yet.");
 		return nullptr;
 	}
 }

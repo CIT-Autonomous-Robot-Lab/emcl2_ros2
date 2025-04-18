@@ -20,14 +20,8 @@ namespace emcl2
 class LikelihoodFieldMap
 {
       public:
-	// Original constructor for OccupancyGrid
+	// Constructor for OccupancyGrid
 	LikelihoodFieldMap(const nav_msgs::msg::OccupancyGrid & map, double likelihood_range);
-
-	// New constructor for compressed map data
-	LikelihoodFieldMap(
-	  const nav_msgs::msg::MapMetaData & map_info, uint8_t block_size,
-	  const std::vector<std::vector<int8_t>> & patterns,
-	  const std::vector<uint16_t> & block_indices);
 
 	~LikelihoodFieldMap();
 
@@ -45,16 +39,6 @@ class LikelihoodFieldMap
       private:
 	std::vector<std::pair<int, int>> free_cells_;
 	std::vector<uint8_t *> likelihoods_;
-
-	// Members for compressed map data
-	uint8_t block_size_;
-	std::vector<std::vector<int8_t>> patterns_;
-	std::vector<uint16_t> block_indices_;
-	uint32_t blocks_per_row_;  // Number of blocks per row
-
-	// Helper methods for compressed map
-	inline uint16_t getBlockIndex(int grid_x, int grid_y) const;
-	inline int8_t getValueFromPattern(uint16_t pattern_index, int block_x, int block_y) const;
 
 	// Helper method for likelihood field
 	void setLikelihood(int x, int y, double likelihood_range);
