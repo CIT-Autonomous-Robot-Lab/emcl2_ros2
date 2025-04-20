@@ -7,11 +7,8 @@
 #include "emcl2/Pose.h"
 #include "emcl2/Scan.h"
 
-#include <nav_msgs/msg/map_meta_data.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
 
-#include <cmath>
-#include <cstdint>
 #include <utility>
 #include <vector>
 
@@ -20,13 +17,13 @@ namespace emcl2
 class LikelihoodFieldMap
 {
       public:
-	// Constructor for OccupancyGrid
 	LikelihoodFieldMap(const nav_msgs::msg::OccupancyGrid & map, double likelihood_range);
-
 	~LikelihoodFieldMap();
 
+	void setLikelihood(int x, int y, double range);
 	uint8_t likelihood(double x, double y);
 
+	std::vector<uint8_t *> likelihoods_;
 	int width_;
 	int height_;
 
@@ -38,10 +35,8 @@ class LikelihoodFieldMap
 
       private:
 	std::vector<std::pair<int, int>> free_cells_;
-	std::vector<uint8_t *> likelihoods_;
 
-	// Helper method for likelihood field
-	void setLikelihood(int x, int y, double likelihood_range);
+	void normalize(void);
 };
 
 }  // namespace emcl2

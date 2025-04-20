@@ -4,9 +4,8 @@
 #ifndef EMCL2__PARTICLE_H_
 #define EMCL2__PARTICLE_H_
 
-#include "emcl2/CompressedMap.h"
+#include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/Pose.h"
-#include "emcl2/Scan.h"
 
 namespace emcl2
 {
@@ -25,18 +24,18 @@ class Particle
 		return *this;
 	}
 
-	double likelihood(CompressedMap * map, Scan & scan);
-	bool wallConflict(CompressedMap * map, Scan & scan, double threshold, bool replace);
+	double likelihood(LikelihoodFieldMap * map, Scan & scan);
+	bool wallConflict(LikelihoodFieldMap * map, Scan & scan, double threshold, bool replace);
 	Pose p_;
 	double w_;
 
       private:
 	bool isPenetrating(
-	  double ox, double oy, double range, uint16_t direction, CompressedMap * map,
+	  double ox, double oy, double range, uint16_t direction, LikelihoodFieldMap * map,
 	  double & hit_lx, double & hit_ly);
 
 	bool checkWallConflict(
-	  CompressedMap * map, double ox, double oy, double range, uint16_t direction,
+	  LikelihoodFieldMap * map, double ox, double oy, double range, uint16_t direction,
 	  double threshold, bool replace);
 
 	void sensorReset(

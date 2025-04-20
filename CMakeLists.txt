@@ -21,7 +21,6 @@ ament_auto_add_executable(emcl2_node
   src/Pose.cpp
   src/Scan.cpp
   src/LikelihoodFieldMap.cpp
-  src/CompressedMap.cpp
   src/emcl2_node.cpp
 )
 

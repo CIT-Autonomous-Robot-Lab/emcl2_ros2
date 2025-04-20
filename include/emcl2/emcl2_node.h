@@ -5,7 +5,6 @@
 #ifndef EMCL2__EMCL2_NODE_H_
 #define EMCL2__EMCL2_NODE_H_
 
-#include "emcl2/CompressedMap.h"
 #include "emcl2/ExpResetMcl2.h"
 #include "emcl2/LikelihoodFieldMap.h"
 #include "emcl2/OdomModel.h"
@@ -15,11 +14,10 @@
 
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <nav_msgs/msg/map_meta_data.hpp>
-#include <nav_msgs/msg/occupancy_grid.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
 #include <std_msgs/msg/float32.hpp>
 #include <std_srvs/srv/empty.hpp>
+#include <nav_msgs/msg/occupancy_grid.hpp>
 
 // Include the message header
 #include "binary_image_compressor/msg/compressed_binary_image.hpp"
@@ -55,8 +53,7 @@ class EMcl2Node : public rclcpp::Node
 	rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_;
 
 	// Add subscriber declaration
-	rclcpp::Subscription<binary_image_compressor::msg::CompressedBinaryImage>::SharedPtr
-	  compressed_image_sub_;
+	rclcpp::Subscription<binary_image_compressor::msg::CompressedBinaryImage>::SharedPtr compressed_image_sub_;
 
 	// ros::ServiceServer global_loc_srv_;
 	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr global_loc_srv_;
@@ -83,7 +80,6 @@ class EMcl2Node : public rclcpp::Node
 	bool simple_reset_request_;
 	bool scan_receive_;
 	bool map_receive_;
-	bool compressed_data_ready_;
 	double init_x_, init_y_, init_t_;
 	double transform_tolerance_;
 
@@ -101,14 +97,10 @@ class EMcl2Node : public rclcpp::Node
 	void initCommunication(void);
 	void initTF();
 	void initPF(void);
-	std::shared_ptr<CompressedMap> initMap(void);
+	std::shared_ptr<LikelihoodFieldMap> initMap(void);
 	std::shared_ptr<OdomModel> initOdometry(void);
 
 	nav_msgs::msg::OccupancyGrid map_;
-	nav_msgs::msg::MapMetaData compressed_map_info_;
-	uint8_t block_size_;
-	std::vector<std::vector<int8_t>> patterns_;
-	std::vector<uint16_t> block_indices_;
 
 	void cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
 	// bool cbSimpleReset(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
@@ -119,8 +111,7 @@ class EMcl2Node : public rclcpp::Node
 				   msg);  // same name is found in amcl
 
 	// Add callback function declaration
-	void cbCompressedImage(
-	  const binary_image_compressor::msg::CompressedBinaryImage::SharedPtr msg);
+	void cbCompressedImage(const binary_image_compressor::msg::CompressedBinaryImage::SharedPtr msg);
 };
 
 }  // namespace emcl2

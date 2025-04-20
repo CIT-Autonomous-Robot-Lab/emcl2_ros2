@@ -67,8 +67,7 @@ void LikelihoodFieldMap::setLikelihood(int x, int y, double range)
 	int cell_num = static_cast<int>(ceil(range / resolution_));
 	std::vector<uint8_t> weights;
 	for (int i = 0; i <= cell_num; i++) {
-		weights.push_back(
-		  static_cast<int>(255 * (1.0 - static_cast<double>(i) / cell_num)));
+		weights.push_back(static_cast<int>(255*(1.0 - static_cast<double>(i) / cell_num)));
 	}
 
 	for (int i = -cell_num; i <= cell_num; i++) {
