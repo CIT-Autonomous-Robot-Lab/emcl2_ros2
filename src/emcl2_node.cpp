@@ -101,9 +101,6 @@ void EMcl2Node::initCommunication(void)
 	initial_pose_sub_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
 	  "initialpose", 2,
 	  std::bind(&EMcl2Node::initialPoseReceived, this, std::placeholders::_1));
-	map_sub_ = create_subscription<nav_msgs::msg::OccupancyGrid>(
-	  "map", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
-	  std::bind(&EMcl2Node::receiveMap, this, std::placeholders::_1));
 
 	compressed_image_sub_ =
 	  create_subscription<binary_image_compressor::msg::CompressedBinaryImage>(
@@ -143,7 +140,7 @@ void EMcl2Node::initTF(void)
 
 void EMcl2Node::initPF(void)
 {
-	std::shared_ptr<LikelihoodFieldMap> map = std::move(initMap());
+	std::shared_ptr<CompressedMap> map = std::move(initMap());
 	std::shared_ptr<OdomModel> om = std::move(initOdometry());
 
 	Scan scan;
@@ -187,49 +184,26 @@ std::shared_ptr<OdomModel> EMcl2Node::initOdometry(void)
 	return std::shared_ptr<OdomModel>(new OdomModel(ff, fr, rf, rr));
 }
 
-std::shared_ptr<LikelihoodFieldMap> EMcl2Node::initMap(void)
+std::shared_ptr<CompressedMap> EMcl2Node::initMap(void)
 {
-	double likelihood_range;
-	this->get_parameter("laser_likelihood_max_dist", likelihood_range);
-
 	if (compressed_data_ready_) {
 		RCLCPP_INFO(get_logger(), "Initializing map with compressed map data.");
-		// Create a CompressedMap instance
+		// 圧縮地図を作成して直接返す
 		auto compressed_map = std::make_shared<CompressedMap>(
 		  compressed_map_info_, block_size_, patterns_, block_indices_);
-
-		// For now, we'll still use LikelihoodFieldMap with the OccupancyGrid
-		// In the future, we should modify the code to use CompressedMap directly
-		RCLCPP_WARN(
-		  get_logger(),
-		  "CompressedMap is created but not used yet. Using OccupancyGrid instead.");
-		return std::make_shared<LikelihoodFieldMap>(map_, likelihood_range);
-	} else if (map_receive_) {
 		RCLCPP_INFO(
-		  get_logger(), "Initializing LikelihoodFieldMap with OccupancyGrid map.");
-		return std::shared_ptr<LikelihoodFieldMap>(
-		  new LikelihoodFieldMap(map_, likelihood_range));
+		  get_logger(),
+		  "Using compressed map directly without likelihood field generation.");
+		return compressed_map;
 	} else {
-		RCLCPP_ERROR(get_logger(), "Cannot initialize map: No map data received yet.");
+		RCLCPP_ERROR(
+		  get_logger(), "Cannot initialize map: No compressed map data received yet.");
 		return nullptr;
 	}
 }
 
-void EMcl2Node::receiveMap(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
+void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 {
-	if (!map_receive_ && !compressed_data_ready_) {
-		map_ = *msg;
-		map_receive_ = true;
-		RCLCPP_INFO(get_logger(), "Received OccupancyGrid map. Marking map as received.");
-	} else {
-		RCLCPP_WARN(
-		  get_logger(),
-		  "Received OccupancyGrid map, but map data already exists. Ignoring.");
-	}
-}
-
-void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg){
-  RCLCPP_INFO(get_logger(), "Run cbScan");
 	if (init_pf_) {
 		scan_receive_ = true;
 		scan_time_stamp_ = msg->header.stamp;
@@ -243,7 +217,7 @@ void EMcl2Node::initialPoseReceived(
 {
 	RCLCPP_INFO(get_logger(), "Run receiveInitialPose");
 	if (!initialpose_receive_) {
-		if (scan_receive_ && map_receive_) {
+		if (scan_receive_ && compressed_data_ready_) {
 			init_x_ = msg->pose.pose.position.x;
 			init_y_ = msg->pose.pose.position.y;
 			init_t_ = tf2::getYaw(msg->pose.pose.orientation);
@@ -255,10 +229,11 @@ void EMcl2Node::initialPoseReceived(
 				  get_logger(),
 				  "Not yet received scan. Therefore, MCL cannot be initiated.");
 			}
-			if (!map_receive_) {
+			if (!compressed_data_ready_) {
 				RCLCPP_WARN(
 				  get_logger(),
-				  "Not yet received map. Therefore, MCL cannot be initiated.");
+				  "Not yet received compressed map data. Therefore, MCL cannot be "
+				  "initiated.");
 			}
 		}
 	} else {
@@ -280,9 +255,9 @@ void EMcl2Node::loop(void)
 	}
 
 	// Initialize PF and TF if we have map data but haven't initialized yet
-	if (!init_pf_ && (map_receive_ || compressed_data_ready_)) {
+	if (!init_pf_ && compressed_data_ready_) {
 		RCLCPP_INFO(
-		  get_logger(), "Map data and scan available now. Initializing PF and TF.");
+		  get_logger(), "Compressed map data available now. Initializing PF and TF.");
 		initPF();
 		initTF();
 	}
@@ -320,10 +295,11 @@ void EMcl2Node::loop(void)
 			  get_logger(),
 			  "Not yet received scan. Therefore, MCL cannot be initiated.");
 		}
-		if (!map_receive_ && !compressed_data_ready_) {
+		if (!compressed_data_ready_) {
 			RCLCPP_WARN(
 			  get_logger(),
-			  "Not yet received any map data. Therefore, MCL cannot be initiated.");
+			  "Not yet received compressed map data. Therefore, MCL cannot be "
+			  "initiated.");
 		}
 	}
 }
@@ -510,7 +486,7 @@ void EMcl2Node::cbCompressedImage(
 				const size_t byte_idx = p_idx / 8;
 				const size_t bit_idx = p_idx % 8;
 				bool is_set = (pattern_start[byte_idx] >> (7 - bit_idx)) & 1;
-				patterns_[i][p_idx] = is_set ? 100 : 0;
+				patterns_[i][p_idx] = is_set ? 0 : 100;
 			}
 		}
 

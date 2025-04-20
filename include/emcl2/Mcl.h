@@ -4,7 +4,7 @@
 #ifndef EMCL2__MCL_H_
 #define EMCL2__MCL_H_
 
-#include "emcl2/LikelihoodFieldMap.h"
+#include "emcl2/CompressedMap.h"
 #include "emcl2/OdomModel.h"
 #include "emcl2/Particle.h"
 
@@ -24,7 +24,7 @@ class Mcl
 	Mcl() {}
 	Mcl(
 	  const Pose & p, int num, const Scan & scan, const std::shared_ptr<OdomModel> & odom_model,
-	  const std::shared_ptr<LikelihoodFieldMap> & map);
+	  const std::shared_ptr<CompressedMap> & map);
 	~Mcl();
 
 	std::vector<Particle> particles_;
@@ -58,7 +58,7 @@ class Mcl
 	void resetWeight(void);
 
 	std::shared_ptr<OdomModel> odom_model_;
-	std::shared_ptr<LikelihoodFieldMap> map_;
+	std::shared_ptr<CompressedMap> map_;
 };
 
 }  // namespace emcl2

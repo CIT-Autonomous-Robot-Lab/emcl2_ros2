@@ -14,7 +14,7 @@ namespace emcl2
 {
 class CompressedMap
 {
-public:
+      public:
 	CompressedMap(
 	  const nav_msgs::msg::MapMetaData & map_info, uint8_t block_size,
 	  const std::vector<std::vector<int8_t>> & patterns,
@@ -24,7 +24,17 @@ public:
 	uint8_t getValue(double x, double y) const;
 	void drawFreePoses(int num, std::vector<Pose> & result) const;
 
-private:
+	// 尤度計算用メソッドを追加
+	uint8_t likelihood(double x, double y) const;
+
+	// アクセスメソッドを追加
+	double getResolution() const { return resolution_; }
+	int getWidth() const { return width_; }
+	int getHeight() const { return height_; }
+	double getOriginX() const { return origin_x_; }
+	double getOriginY() const { return origin_y_; }
+
+      private:
 	uint16_t getBlockIndex(int grid_x, int grid_y) const;
 	int8_t getValueFromPattern(uint16_t pattern_index, int block_x, int block_y) const;
 

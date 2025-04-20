@@ -13,7 +13,7 @@ namespace emcl2
 {
 Mcl::Mcl(
   const Pose & p, int num, const Scan & scan, const std::shared_ptr<OdomModel> & odom_model,
-  const std::shared_ptr<LikelihoodFieldMap> & map)
+  const std::shared_ptr<CompressedMap> & map)
 : last_odom_(NULL), prev_odom_(NULL)
 {
 	odom_model_ = move(odom_model);

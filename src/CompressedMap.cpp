@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <random>
-
+#include <rclcpp/rclcpp.hpp>
 namespace emcl2
 {
 CompressedMap::CompressedMap(
@@ -48,6 +48,7 @@ uint8_t CompressedMap::getValue(double x, double y) const
 
 	int8_t value =
 	  getValueFromPattern(getBlockIndex(ix, iy), ix % block_size_, iy % block_size_);
+	// RCLCPP_INFO(rclcpp::get_logger("compressed_map"), "value: %d", value);
 	return (value > 0) ? 255 : 0;
 }
 
@@ -78,6 +79,12 @@ uint16_t CompressedMap::getBlockIndex(int grid_x, int grid_y) const
 int8_t CompressedMap::getValueFromPattern(uint16_t pattern_index, int block_x, int block_y) const
 {
 	return patterns_[pattern_index][block_y * block_size_ + block_x];
+}
+
+uint8_t CompressedMap::likelihood(double x, double y) const
+{
+	// 尤度を直接計算する（尤度場を生成せずに）
+	return getValue(x, y);
 }
 
 }  // namespace emcl2

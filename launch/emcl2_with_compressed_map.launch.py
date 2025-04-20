@@ -10,6 +10,7 @@ from launch_ros.actions import Node, SetParameter
 
 def generate_launch_description():
     params_file = LaunchConfiguration('params_file')
+    map_yaml_file = LaunchConfiguration('map')
     use_sim_time = LaunchConfiguration('use_sim_time')
 
     declare_map_yaml = DeclareLaunchArgument(
@@ -43,9 +44,20 @@ def generate_launch_description():
     if not os.path.exists(emcl2_param_file):
         print(f"警告: EMCL2のパラメータファイルが見つかりません: {emcl2_param_file}")
 
+    # ライフサイクル管理対象のノード
+    lifecycle_nodes = ['map_server']
+
     launch_node = GroupAction(
         actions=[
             SetParameter('use_sim_time', use_sim_time),
+
+            # Map Server
+            Node(
+                package='nav2_map_server',
+                executable='map_server',
+                name='map_server',
+                parameters=[{'yaml_filename': map_yaml_file}],
+                output='screen'),
 
             # EMCL2ノード
             Node(
@@ -55,7 +67,7 @@ def generate_launch_description():
                 parameters=[emcl2_param_file],
                 output='screen'),
 
-                        # 圧縮マップパブリッシャー
+            # 圧縮マップパブリッシャー
             Node(
                 package='binary_image_compressor',
                 executable='compressed_image_publisher',
@@ -63,6 +75,15 @@ def generate_launch_description():
                 parameters=[compressor_param_file],
                 output='screen',
             ),
+
+            # Lifecycle Manager
+            Node(
+                package='nav2_lifecycle_manager',
+                executable='lifecycle_manager',
+                name='lifecycle_manager_localization',
+                output='screen',
+                parameters=[{'autostart': True},
+                            {'node_names': lifecycle_nodes}])
         ]
     )
 

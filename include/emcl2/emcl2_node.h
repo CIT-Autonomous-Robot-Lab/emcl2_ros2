@@ -101,7 +101,7 @@ class EMcl2Node : public rclcpp::Node
 	void initCommunication(void);
 	void initTF();
 	void initPF(void);
-	std::shared_ptr<LikelihoodFieldMap> initMap(void);
+	std::shared_ptr<CompressedMap> initMap(void);
 	std::shared_ptr<OdomModel> initOdometry(void);
 
 	nav_msgs::msg::OccupancyGrid map_;

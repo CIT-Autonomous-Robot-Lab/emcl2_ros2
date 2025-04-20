@@ -15,7 +15,7 @@ class ExpResetMcl2 : public Mcl
       public:
 	ExpResetMcl2(
 	  const Pose & p, int num, const Scan & scan, const std::shared_ptr<OdomModel> & odom_model,
-	  const std::shared_ptr<LikelihoodFieldMap> & map, double alpha_th,
+	  const std::shared_ptr<CompressedMap> & map, double alpha_th,
 	  double expansion_radius_position, double expansion_radius_orientation,
 	  double extraction_rate, double successive_penetration_threshold, bool sensor_reset);
 	~ExpResetMcl2();
@@ -34,7 +34,7 @@ class ExpResetMcl2 : public Mcl
 	void expansionReset(void);
 
 	// bool Particle::isPenetrating(
-	double nonPenetrationRate(int skip, LikelihoodFieldMap * map, Scan & scan);
+	double nonPenetrationRate(int skip, CompressedMap * map, Scan & scan);
 };
 
 }  // namespace emcl2
