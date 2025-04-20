@@ -9,8 +9,6 @@
 #include "emcl2/Pose.h"
 #include "emcl2/Scan.h"
 
-#include "binary_image_compressor/msg/compressed_binary_image.hpp"
-
 #include <rclcpp/node_interfaces/node_topics_interface.hpp>
 
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
@@ -34,6 +32,7 @@ namespace emcl2
 EMcl2Node::EMcl2Node()
 : Node("emcl2_node"),
   ros_clock_(RCL_SYSTEM_TIME),
+  init_pf_(false),
   init_request_(false),
   simple_reset_request_(false),
   scan_receive_(false),
@@ -94,10 +93,6 @@ void EMcl2Node::initCommunication(void)
 	map_sub_ = create_subscription<nav_msgs::msg::OccupancyGrid>(
 	  "map", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
 	  std::bind(&EMcl2Node::receiveMap, this, std::placeholders::_1));
-
-	compressed_image_sub_ = create_subscription<binary_image_compressor::msg::CompressedBinaryImage>(
-	  "/compressed_binary_image", 10,
-	  std::bind(&EMcl2Node::cbCompressedImage, this, std::placeholders::_1));
 
 	global_loc_srv_ = create_service<std_srvs::srv::Empty>(
 	  "global_localization",
@@ -414,19 +409,6 @@ bool EMcl2Node::cbSimpleReset(
   const std_srvs::srv::Empty::Request::ConstSharedPtr, std_srvs::srv::Empty::Response::SharedPtr)
 {
 	return simple_reset_request_ = true;
-}
-
-void EMcl2Node::cbCompressedImage(const binary_image_compressor::msg::CompressedBinaryImage::SharedPtr msg)
-{
-	RCLCPP_INFO(this->get_logger(), "Received Compressed Binary Image: Original Size=%dx%d, Ratio=%.2f%%",
-		msg->original_width, msg->original_height, msg->compression_ratio);
-
-	// TODO: Add processing logic for the compressed image here
-	// Access other fields like:
-	// auto format = msg->format;
-	// auto data = msg->data;
-	// auto original_height = msg->original_height;
-	// auto original_width = msg->original_width;
 }
 
 }  // namespace emcl2

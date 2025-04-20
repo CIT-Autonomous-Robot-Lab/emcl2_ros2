@@ -22,7 +22,6 @@
   <depend>tf2_msgs</depend>
   <depend>tf2_geometry_msgs</depend>
   <depend>std_srvs</depend>
-  <depend>binary_image_compressor</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
