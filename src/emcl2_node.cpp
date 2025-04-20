@@ -108,7 +108,7 @@ void EMcl2Node::initCommunication(void)
 	compressed_image_sub_ =
 	  create_subscription<binary_image_compressor::msg::CompressedBinaryImage>(
 	    "/compressed_binary_image",
-	    rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
+	    rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable().durability_volatile(),
 	    std::bind(&EMcl2Node::cbCompressedImage, this, std::placeholders::_1));
 
 	global_loc_srv_ = create_service<std_srvs::srv::Empty>(
@@ -228,8 +228,8 @@ void EMcl2Node::receiveMap(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr ms
 	}
 }
 
-void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
-{
+void EMcl2Node::cbScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg){
+  RCLCPP_INFO(get_logger(), "Run cbScan");
 	if (init_pf_) {
 		scan_receive_ = true;
 		scan_time_stamp_ = msg->header.stamp;
@@ -280,7 +280,7 @@ void EMcl2Node::loop(void)
 	}
 
 	// Initialize PF and TF if we have map data but haven't initialized yet
-	if (!init_pf_ && (map_receive_ || compressed_data_ready_) && scan_receive_) {
+	if (!init_pf_ && (map_receive_ || compressed_data_ready_)) {
 		RCLCPP_INFO(
 		  get_logger(), "Map data and scan available now. Initializing PF and TF.");
 		initPF();
