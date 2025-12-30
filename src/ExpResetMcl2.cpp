@@ -87,7 +87,7 @@ double ExpResetMcl2::nonPenetrationRate(int skip, LikelihoodFieldMap * map, Scan
 	}
 	shift++;
 
-	std::cout << penetrating << " " << counter << std::endl;
+	RCLCPP_INFO(rclcpp::get_logger("emcl2_node"), "%d %d", penetrating, counter);
 	return static_cast<double>((counter - penetrating)) / counter;
 }
 
