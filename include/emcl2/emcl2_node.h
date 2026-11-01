@@ -23,6 +23,7 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
 
+#include <array>
 #include <memory>
 #include <string>
 
@@ -74,6 +75,7 @@ class EMcl2Node : public rclcpp::Node
 	bool scan_receive_;
 	bool map_receive_;
 	double init_x_, init_y_, init_t_;
+	std::array<double, 36> init_covariance_{};
 	double transform_tolerance_;
 
 	void publishPose(

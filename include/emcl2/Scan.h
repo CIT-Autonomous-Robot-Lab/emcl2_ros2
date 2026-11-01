@@ -4,6 +4,7 @@
 #ifndef EMCL2__SCAN_H_
 #define EMCL2__SCAN_H_
 
+#include <cstdint>
 #include <iostream>
 #include <vector>
 
@@ -13,7 +14,7 @@ namespace emcl2
 class Scan
 {
       public:
-	int seq_;
+	std::int64_t seq_{-1};
 	int scan_increment_;
 	double angle_max_;
 	double angle_min_;

@@ -31,6 +31,10 @@ ExpResetMcl2::~ExpResetMcl2() {}
 
 void ExpResetMcl2::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv)
 {
+	if (processed_seq_ == scan_.seq_) {
+		return;
+	}
+
 	Scan scan;
 	scan = scan_;
 

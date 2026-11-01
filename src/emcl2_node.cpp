@@ -201,13 +201,13 @@ void EMcl2Node::initialPoseReceived(
   const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg)
 {
 	RCLCPP_INFO(get_logger(), "Run receiveInitialPose");
+	init_covariance_ = msg->pose.covariance;
 	if (!initialpose_receive_) {
 		if (scan_receive_ && map_receive_) {
 			init_x_ = msg->pose.pose.position.x;
 			init_y_ = msg->pose.pose.position.y;
 			init_t_ = tf2::getYaw(msg->pose.pose.orientation);
-			pf_->initialize(init_x_, init_y_, init_t_);
-			initialpose_receive_ = true;
+			initialpose_receive_ = pf_->initialize(init_x_, init_y_, init_t_, init_covariance_);
 		} else {
 			if (!scan_receive_) {
 				RCLCPP_WARN(
@@ -231,7 +231,9 @@ void EMcl2Node::initialPoseReceived(
 void EMcl2Node::loop(void)
 {
 	if (init_request_) {
-		pf_->initialize(init_x_, init_y_, init_t_);
+		if (!pf_->initialize(init_x_, init_y_, init_t_, init_covariance_)) {
+			RCLCPP_WARN(get_logger(), "Rejected invalid initial pose covariance");
+		}
 		init_request_ = false;
 	} else if (simple_reset_request_) {
 		pf_->simpleReset();

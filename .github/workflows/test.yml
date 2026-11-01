@@ -42,6 +42,13 @@ jobs:
           rosdep install -i -y --from-path src --rosdistro $ROS_DISTRO
           colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
         shell: bash
+      - name: Scan update regressions
+        run: |
+          source /root/ros2_ws/install/setup.bash
+          ctest --test-dir /root/ros2_ws/build/emcl2 \
+            -R '^(duplicate_scan|subsecond_scans|resampling_|initial_covariance)' \
+            --output-on-failure --no-tests=error
+        shell: bash
       - name: Exec
         run: |
           source /root/ros2_ws/install/setup.bash

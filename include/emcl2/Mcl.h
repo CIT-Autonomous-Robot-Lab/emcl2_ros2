@@ -11,6 +11,8 @@
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
 
+#include <array>
+#include <cstdint>
 #include <memory>
 #include <random>
 #include <sstream>
@@ -33,7 +35,7 @@ class Mcl
 	void sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv);
 	void motionUpdate(double x, double y, double t);
 
-	void initialize(double x, double y, double t);
+	bool initialize(double x, double y, double t, const std::array<double, 36> & covariance);
 
 	void setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
 	void meanPose(
@@ -50,7 +52,7 @@ class Mcl
 	Pose * prev_odom_;
 
 	Scan scan_;
-	int processed_seq_;
+	std::int64_t processed_seq_;
 
 	double normalizeAngle(double t);
 	void resampling(void);
