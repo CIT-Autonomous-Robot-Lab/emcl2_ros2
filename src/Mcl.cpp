@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 
@@ -74,6 +75,7 @@ void Mcl::resampling(void)
 	for (size_t i = 0; i < particles_.size(); i++) {
 		particles_[i] = old[chosen[i]];
 	}
+	resetWeight();
 }
 
 void Mcl::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv)
@@ -83,7 +85,7 @@ void Mcl::sensorUpdate(double lidar_x, double lidar_y, double lidar_t, bool inv)
 	}
 
 	Scan scan;
-	int seq = -1;
+	std::int64_t seq = -1;
 	while (seq != scan_.seq_) {  // trying to copy the latest scan before next
 		seq = scan_.seq_;
 		scan = scan_;
@@ -221,7 +223,8 @@ void Mcl::setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg)
 		scan_.ranges_.resize(msg->ranges.size());
 	}
 
-	scan_.seq_ = msg->header.stamp.sec;
+	scan_.seq_ = static_cast<std::int64_t>(msg->header.stamp.sec) * 1000000000 +
+	  msg->header.stamp.nanosec;
 	for (size_t i = 0; i < msg->ranges.size(); i++) {
 		scan_.ranges_[i] = msg->ranges[i];
 	}
@@ -258,14 +261,49 @@ void Mcl::resetWeight(void)
 	}
 }
 
-void Mcl::initialize(double x, double y, double t)
+bool Mcl::initialize(
+  double x, double y, double t, const std::array<double, 36> & covariance)
 {
-	Pose new_pose(x, y, t);
+	const std::array<size_t, 3> axes{0, 1, 5};
+	std::array<std::array<double, 3>, 3> lower{};
+	for (size_t row = 0; row < axes.size(); row++) {
+		for (size_t col = 0; col <= row; col++) {
+			double value = covariance[axes[row] * 6 + axes[col]];
+			const double mirror = covariance[axes[col] * 6 + axes[row]];
+			if (!std::isfinite(value) || !std::isfinite(mirror) ||
+			  fabs(value - mirror) > 1e-12) {
+				return false;
+			}
+			for (size_t k = 0; k < col; k++) {
+				value -= lower[row][k] * lower[col][k];
+			}
+			if (row == col) {
+				if (value < -1e-12) {
+					return false;
+				}
+				lower[row][col] = sqrt(std::max(0.0, value));
+			} else if (lower[col][col] > 0) {
+				lower[row][col] = value / lower[col][col];
+			} else if (fabs(value) > 1e-12) {
+				return false;
+			}
+		}
+	}
+
+	// A repeatable proposal makes covariance initialization reproducible.
+	std::mt19937 engine(0);
+	std::normal_distribution<double> normal(0.0, 1.0);
 	for (auto & p : particles_) {
-		p.p_ = new_pose;
+		const std::array<double, 3> noise{normal(engine), normal(engine), normal(engine)};
+		p.p_.set(
+		  x + lower[0][0] * noise[0],
+		  y + lower[1][0] * noise[0] + lower[1][1] * noise[1],
+		  normalizeAngle(t + lower[2][0] * noise[0] + lower[2][1] * noise[1] +
+		  lower[2][2] * noise[2]));
 	}
 
 	resetWeight();
+	return true;
 }
 
 void Mcl::simpleReset(void)

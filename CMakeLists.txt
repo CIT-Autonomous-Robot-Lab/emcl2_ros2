@@ -25,6 +25,26 @@ ament_auto_add_executable(emcl2_node
 )
 
 if(BUILD_TESTING)
+  enable_testing()
+  add_executable(test_scan_updates
+    test/test_scan_updates.cpp
+    src/Mcl.cpp
+    src/ExpResetMcl2.cpp
+    src/Particle.cpp
+    src/OdomModel.cpp
+    src/Pose.cpp
+    src/Scan.cpp
+    src/LikelihoodFieldMap.cpp
+  )
+  target_include_directories(test_scan_updates PRIVATE include)
+  ament_target_dependencies(test_scan_updates rclcpp nav_msgs sensor_msgs)
+  add_test(NAME duplicate_scan_preserves_belief COMMAND test_scan_updates duplicate)
+  add_test(NAME subsecond_scans_are_distinct COMMAND test_scan_updates subsecond)
+  add_test(NAME resampling_resets_weights COMMAND test_scan_updates resampling)
+  add_test(NAME initial_covariance_spreads_particles COMMAND test_scan_updates covariance)
+  add_test(NAME initial_covariance_preserves_correlation COMMAND test_scan_updates correlated_covariance)
+  add_test(NAME initial_covariance_rejects_invalid_input COMMAND test_scan_updates invalid_covariance)
+
   find_package(ament_lint_auto REQUIRED)
   set(ament_cmake_copyright_FOUND TRUE)
   set(ament_cmake_cpplint_FOUND TRUE)
