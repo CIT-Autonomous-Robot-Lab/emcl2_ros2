@@ -126,8 +126,8 @@ void EMcl2Node::initTF(void)
 
 void EMcl2Node::initPF(void)
 {
-	std::shared_ptr<LikelihoodFieldMap> map = std::move(initMap());
-	std::shared_ptr<OdomModel> om = std::move(initOdometry());
+	std::shared_ptr<LikelihoodFieldMap> map = initMap();
+	std::shared_ptr<OdomModel> om = initOdometry();
 
 	Scan scan;
 	this->get_parameter("laser_min_range", scan.range_min_);
